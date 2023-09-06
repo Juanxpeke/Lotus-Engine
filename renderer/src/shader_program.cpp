@@ -1,9 +1,9 @@
+#include "shader_program.h"
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <glad/glad.h>
-
-#include "shader_program.h"
 
 ShaderProgram::ShaderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath) noexcept
 {
@@ -11,17 +11,23 @@ ShaderProgram::ShaderProgram(const std::filesystem::path& vertexShaderPath, cons
 
   // Read shader files to string
   std::string vertexShaderCode = readShaderFile(vertexShaderPath);
-  std::string pixelShaderCode = readShaderFile(fragmentShaderPath);
+  std::string fragmentShaderCode = readShaderFile(fragmentShaderPath);
 
-  if (vertexShaderCode.length() == 0 || pixelShaderCode.length() == 0) return; // TODO: Exception throwing
-
+  if (vertexShaderCode.length() == 0 || fragmentShaderCode.length() == 0) {
+    std::cout << "HEELP";
+    return; // TODO: Exception throwing
+  }
   // Compile both shaders
   unsigned int vertexShader = compileShader(vertexShaderCode, GL_VERTEX_SHADER);
-  unsigned int fragmentShader = compileShader(pixelShaderCode, GL_FRAGMENT_SHADER);
+  unsigned int fragmentShader = compileShader(fragmentShaderCode, GL_FRAGMENT_SHADER);
   
   if (vertexShader && fragmentShader)
   {
     m_programID = linkProgram(vertexShader, fragmentShader);
+  }
+  else
+  {
+    std::cout << "AYUDAA!";
   }
 }
 
@@ -32,6 +38,7 @@ std::string ShaderProgram::readShaderFile(const std::filesystem::path& shaderPat
 
   if (!shaderFileStream.good())
   {
+    std::cout << "MAAL!";
     return std::string();
   }
 

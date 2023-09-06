@@ -5,7 +5,8 @@
 #include <string>
 #include <glm/glm.hpp>
 
-class ShaderProgram {
+class ShaderProgram
+{
 public:
   
   ShaderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath) noexcept;

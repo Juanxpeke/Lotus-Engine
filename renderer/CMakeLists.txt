@@ -1,7 +1,12 @@
 add_executable(renderer 
   src/renderer.cpp
   src/shader_program.cpp
-  src/shader_program.h)
+  src/shader_program.h
+  src/mesh.h
+  src/mesh.cpp
+  src/camera.h
+  src/camera.cpp
+  src/path_manager.h)
 
 set_property(TARGET renderer PROPERTY CXX_STANDARD 20)
 
