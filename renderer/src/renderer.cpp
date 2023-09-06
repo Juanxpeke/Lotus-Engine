@@ -1,8 +1,13 @@
 #include <iostream>
-#include<glad/glad.h>
-#include<GLFW/glfw3.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
-#include "file_manager.h"
+#include "shader_program.h"
+#include "vertex_buffer.h"
+#include "index_buffer.h"
+
+
 
 int width = 720;
 int height = 720;
@@ -39,42 +44,18 @@ int main()
 
 	glViewport(0, 0, width, height);
 
-  	// Vertex shader
-  std::string vertexShaderCode = getFileContent("../../shaders/basic.vert");
-	const char* vertexShaderSource = vertexShaderCode.c_str();
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
 
-	// Fragment shader
-  std::string fragmentShaderCode = getFileContent("../../shaders/basic.frag");
-	const char* fragmentShaderSource = fragmentShaderCode.c_str();
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-
-	// Shader program 1
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	ShaderProgram mvpShaderProgram("shaders/basic.vert", "shaders/basic.frag");
 
 	// Create reference containers for the Vertex Array Object and the Vertex Buffer Object
-	GLuint VAO, VBO;
+	GLuint VAO;
 
 	// Generate the VAO and VBO with only 1 object each
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
 	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(glGetAttribLocation(shaderProgram, "position"), 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
-	glEnableVertexAttribArray(glGetAttribLocation(shaderProgram, "position"));
+	glVertexAttribPointer(glGetAttribLocation(mvpShaderProgram.getProgramID(), "position"), 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+	glEnableVertexAttribArray(glGetAttribLocation(mvpShaderProgram.getProgramID(), "position"));
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -94,7 +75,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Tell OpenGL which Shader Program we want to use
-		glUseProgram(shaderProgram);
+		mvpShaderProgram.bind();
 
 		// Draw the triangle using the GL_TRIANGLES primitive
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -105,13 +86,11 @@ int main()
 
 	// Delete all the objects we've created
 	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteProgram(shaderProgram);
 
-	// Delete window before ending the program
 	glfwDestroyWindow(window);
-	// Terminate GLFW before ending the program
 	glfwTerminate();
+
+	// TODO: See bug called when GL entities deleted after glfwTerminate (beacuse end of scope is after it)
 
   return 0;
 }
