@@ -1,5 +1,11 @@
 #pragma once
 
+/*
+===================================
+Placeholder script, don't modify it
+===================================
+*/
+
 #include <iostream>
 #include <string>
 #include <filesystem>

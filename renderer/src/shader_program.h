@@ -10,13 +10,9 @@ class ShaderProgram
 public:
   
   ShaderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath) noexcept;
-
   void bind();
-
   void unbind();
-
   uint32_t getProgramID() const noexcept { return m_programID; }
-
   ~ShaderProgram();
 
 private:
