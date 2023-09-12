@@ -6,7 +6,10 @@ add_executable(renderer
   src/mesh.cpp
   src/camera.h
   src/camera.cpp
-  src/path_manager.h)
+  src/path_manager.h
+  src/material.h
+  src/material.cpp
+  src/diffuse_flat_material.h)
 
 set_property(TARGET renderer PROPERTY CXX_STANDARD 20)
 

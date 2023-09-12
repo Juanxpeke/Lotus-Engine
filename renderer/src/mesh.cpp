@@ -38,6 +38,16 @@ Mesh::Mesh(PrimitiveType type) :
   }
 }
 
+Mesh::~Mesh() {
+  if (m_vertexArrayID)
+  { // TODO: Handle errors
+    glDeleteBuffers(1, &m_vertexBufferID);
+    glDeleteBuffers(1, &m_indexBufferID);
+    glDeleteVertexArrays(1, &m_vertexArrayID);
+    m_vertexArrayID = 0;
+  }
+}
+
 void Mesh::createPlane() noexcept
 {
   // v = { p_x, p_y, p_z, n_x, n_y, n_z, uv_u, uv_v, t_x, t_y, t_z, b_x, b_y, b_z };
@@ -234,14 +244,4 @@ void Mesh::createSphere() noexcept {
   }
 
   createPrimitive(sphereVertices, sphereIndices);
-}
-
-Mesh::~Mesh() {
-  if (m_vertexArrayID)
-  { // TODO: Handle errors
-    glDeleteBuffers(1, &m_vertexBufferID);
-    glDeleteBuffers(1, &m_indexBufferID);
-    glDeleteVertexArrays(1, &m_vertexArrayID);
-    m_vertexArrayID = 0;
-  }
 }

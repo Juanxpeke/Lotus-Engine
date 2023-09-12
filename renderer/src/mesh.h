@@ -14,9 +14,10 @@ public:
   };
 
   Mesh(PrimitiveType type);
+  ~Mesh();
+
   uint32_t getVertexArrayID() const noexcept { return m_vertexArrayID; }
   uint32_t getIndexBufferCount() const noexcept { return m_indexBufferCount; }
-  ~Mesh();
 
 private:
   void createPlane() noexcept;

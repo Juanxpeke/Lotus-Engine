@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <array>
 #include <glad/glad.h>
 
 ShaderProgram::ShaderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath) noexcept
@@ -13,8 +14,11 @@ ShaderProgram::ShaderProgram(const std::filesystem::path& vertexShaderPath, cons
   std::string vertexShaderCode = readShaderFile(vertexShaderPath);
   std::string fragmentShaderCode = readShaderFile(fragmentShaderPath);
 
+  // Replace constants
+  preProcessShader(vertexShaderCode);
+  preProcessShader(fragmentShaderCode);
+
   if (vertexShaderCode.length() == 0 || fragmentShaderCode.length() == 0) {
-    std::cout << "HEELP";
     return; // TODO: Exception throwing
   }
   // Compile both shaders
@@ -25,20 +29,19 @@ ShaderProgram::ShaderProgram(const std::filesystem::path& vertexShaderPath, cons
   {
     m_programID = linkProgram(vertexShader, fragmentShader);
   }
-  else
-  {
-    std::cout << "AYUDAA!";
-  }
 }
 
-// TODO: Add dynamic path (See RootDirectory.hpp -> SourcePath) 
+ShaderProgram::~ShaderProgram()
+{
+  if (m_programID) glDeleteProgram(m_programID);
+}
+
 std::string ShaderProgram::readShaderFile(const std::filesystem::path& shaderPath) const noexcept
 {
   std::ifstream shaderFileStream(shaderPath);
 
   if (!shaderFileStream.good())
   {
-    std::cout << "MAAL!";
     return std::string();
   }
 
@@ -47,6 +50,35 @@ std::string ShaderProgram::readShaderFile(const std::filesystem::path& shaderPat
   shaderFileStream.close();
 
   return shaderStringStream.str();
+}
+
+void ShaderProgram::preProcessShader(std::string& shaderCode) const noexcept
+{
+  struct ShaderConstant {
+    std::string key;
+    std::string value;
+  };
+
+  std::array<ShaderConstant,4> shaderConstants = 
+  { // TODO: Define constants in renderer class
+    {
+    {"${MAX_DIRECTIONAL_LIGHTS}", std::to_string(2)},
+    {"${MAX_SPOT_LIGHTS}", std::to_string(2)} ,
+    {"${MAX_POINT_LIGHTS}", std::to_string(2)},
+    {"${MAX_BONES}", std::to_string(2)}
+    }
+  };
+  
+  for (ShaderConstant& shaderConstant : shaderConstants)
+  {
+    size_t pos = 0;
+    while ((pos = shaderCode.find(shaderConstant.key, pos)) != std::string::npos) 
+    {
+      shaderCode.replace(pos, shaderConstant.key.length(), shaderConstant.value);
+      pos += shaderConstant.value.length();
+    }
+  }
+
 }
 
 unsigned int ShaderProgram::compileShader(const std::string& shaderCode, unsigned int type) const noexcept
@@ -126,9 +158,3 @@ void ShaderProgram::unbind()
 {
   glUseProgram(0);
 }
-
-ShaderProgram::~ShaderProgram()
-{
-  if (m_programID) glDeleteProgram(m_programID);
-}
-
