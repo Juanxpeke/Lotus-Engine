@@ -7,7 +7,8 @@
 class Mesh
 {
 public:
-  enum class PrimitiveType {
+  enum class PrimitiveType
+  {
     Plane,
     Cube,
     Sphere

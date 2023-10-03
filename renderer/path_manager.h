@@ -18,5 +18,5 @@ static std::filesystem::path assetPath(const std::string& assetFilename) {
 
 static std::filesystem::path shaderPath(const std::string& shaderFilename)
 {
-  return directoryPath + "renderer/src/shaders/" + shaderFilename;
+  return directoryPath + "renderer/shaders/" + shaderFilename;
 }

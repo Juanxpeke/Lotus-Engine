@@ -8,8 +8,6 @@
 #include "mesh.h"
 #include "diffuse_flat_material.h"
 #include "camera.h"
-#include "vertex_buffer.h"
-#include "index_buffer.h"
 #include "path_manager.h"
 
 int width = 720;
@@ -73,7 +71,7 @@ void renderLights()
 	uint32_t directionalLightsCount = 2;
 	lights.directionalLightsCount = static_cast<int>(directionalLightsCount);
 	for (uint32_t i = 0; i < directionalLightsCount; i++) {
-		lights.directionalLights[i].color = { 0.4, 0.4, 0.4};
+		lights.directionalLights[i].color = { 0.4, 0.0, 0.4 };
 		lights.directionalLights[i].direction = { 0.0, 0.0, 1.0 };
 	}
 
