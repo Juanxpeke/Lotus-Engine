@@ -1,2 +1,6 @@
+# Build stuff
 /build
+/renderer/path_manager.h
+
+# Visual Studio
 .vscode
