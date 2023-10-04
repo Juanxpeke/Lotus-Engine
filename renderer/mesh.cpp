@@ -38,23 +38,14 @@ Mesh::Mesh(PrimitiveType type) :
   }
 }
 
-void Mesh::createPlane() noexcept
-{
-  // v = { p_x, p_y, p_z, n_x, n_y, n_z, uv_u, uv_v, t_x, t_y, t_z, b_x, b_y, b_z };
-  std::vector<float> planeVertices = 
-  {
-    -1.0f, -1.0f,  0.0f, 0.0f,  0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-     1.0f, -1.0f,  0.0f, 0.0f,  0.0f,  1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-     1.0f,  1.0f,  0.0f, 0.0f,  0.0f,  1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-    -1.0f,  1.0f,  0.0f, 0.0f,  0.0f,  1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f
-  };
-
-  std::vector<unsigned int> planeIndices =
-  {
-    0, 1, 2, 2, 3, 0
-  };
-
-  createPrimitive(planeVertices, planeIndices);
+Mesh::~Mesh() {
+  if (m_vertexArrayID)
+  { // TODO: Handle errors
+    glDeleteBuffers(1, &m_vertexBufferID);
+    glDeleteBuffers(1, &m_indexBufferID);
+    glDeleteVertexArrays(1, &m_vertexArrayID);
+    m_vertexArrayID = 0;
+  }
 }
 
 void Mesh::createPrimitive(std::vector<float>& vertices, std::vector<unsigned int>& indices) noexcept
@@ -94,8 +85,27 @@ void Mesh::createPrimitive(std::vector<float>& vertices, std::vector<unsigned in
   m_indexBufferCount = static_cast<uint32_t>(indices.size());
 }
 
+void Mesh::createPlane() noexcept
+{
+  // v = { p_x, p_y, p_z, n_x, n_y, n_z, uv_u, uv_v, t_x, t_y, t_z, b_x, b_y, b_z };
+  std::vector<float> planeVertices = 
+  {
+    -1.0f, -1.0f,  0.0f, 0.0f,  0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+     1.0f, -1.0f,  0.0f, 0.0f,  0.0f,  1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+     1.0f,  1.0f,  0.0f, 0.0f,  0.0f,  1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+    -1.0f,  1.0f,  0.0f, 0.0f,  0.0f,  1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f
+  };
 
-void Mesh::createCube() noexcept {
+  std::vector<unsigned int> planeIndices =
+  {
+    0, 1, 2, 2, 3, 0
+  };
+
+  createPrimitive(planeVertices, planeIndices);
+}
+
+void Mesh::createCube() noexcept
+{
   // v = { p_x, p_y, p_z, n_x, n_y, n_z, uv_u, uv_v, t_x, t_y, t_z, b_x, b_y, b_z };
   std::vector<float> cubeVertices =
   {
@@ -142,7 +152,8 @@ void Mesh::createCube() noexcept {
   createPrimitive(cubeVertices, cubeIndices);
 }
 
-void Mesh::createSphere() noexcept {
+void Mesh::createSphere() noexcept
+{
   // Source: http://www.songho.ca/opengl/gl_sphere.html
   // v = { p_x, p_y, p_z, n_x, n_y, n_z, uv_u, uv_v, t_x, t_y, t_z, b_x, b_y, b_z };
   std::vector<float> sphereVertices;
@@ -234,14 +245,4 @@ void Mesh::createSphere() noexcept {
   }
 
   createPrimitive(sphereVertices, sphereIndices);
-}
-
-Mesh::~Mesh() {
-  if (m_vertexArrayID)
-  { // TODO: Handle errors
-    glDeleteBuffers(1, &m_vertexBufferID);
-    glDeleteBuffers(1, &m_indexBufferID);
-    glDeleteVertexArrays(1, &m_vertexArrayID);
-    m_vertexArrayID = 0;
-  }
 }

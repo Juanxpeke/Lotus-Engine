@@ -6,16 +6,38 @@
 
 #include "shader_program.h"
 #include "mesh.h"
+#include "diffuse_flat_material.h"
 #include "camera.h"
-#include "vertex_buffer.h"
-#include "index_buffer.h"
 #include "path_manager.h"
 
 int width = 720;
 int height = 720;
 char title[256];
 
+unsigned int m_lightDataUBO;
+
 Camera* camera;
+
+struct DirectionalLight
+{
+	// Paddings (https://learnopengl.com/Advanced-OpenGL/Advanced-GLSL):
+	// 12
+	// 16
+	// 28
+	// 32
+	glm::vec3 color;
+	float padding04;
+	glm::vec3 direction;
+	float padding08;
+};
+
+struct Lights
+{ 
+	DirectionalLight directionalLights[2]; 
+	glm::vec3 ambientLight;
+	// PADDING?
+	int directionalLightsCount; 
+};
 
 // Function to handle mouse movement
 void handleMouseMove(GLFWwindow* window, double xPos, double yPos)
@@ -27,6 +49,36 @@ void handleMouseMove(GLFWwindow* window, double xPos, double yPos)
 void handleMouseClick(GLFWwindow* window, int button, int action, int mods)
 {
   camera->handleMouseClick(button, action, mods);
+}
+
+void lightSetup()
+{
+	glGenBuffers(1, &m_lightDataUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_lightDataUBO);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Lights), NULL, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_lightDataUBO);
+}
+
+void renderLights()
+{
+	//Comienza carga en CPU de la informaci�n lum�nica de la escena
+	Lights lights;
+	lights.ambientLight = { 0.4, 0.4, 0.4 };
+
+	//Se pasa la informacion de a lo mas las primeras NUM_HALF_MAX_DIRECTIONAL_LIGHTS * 2 componentes de luz direccional
+	//A una instancia de Lights (informacion de la escena en CPU)
+	uint32_t directionalLightsCount = 2;
+	lights.directionalLightsCount = static_cast<int>(directionalLightsCount);
+	for (uint32_t i = 0; i < directionalLightsCount; i++) {
+		lights.directionalLights[i].color = { 0.4, 0.0, 0.4 };
+		lights.directionalLights[i].direction = { 0.0, 0.0, 1.0 };
+	}
+
+	//Pasamos la informacion lum�nica a GPU con un unico llamado a OpenGL fuera de los loops de las primitivas.
+	glBindBuffer(GL_UNIFORM_BUFFER, m_lightDataUBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Lights), &lights);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 int main()
@@ -57,8 +109,10 @@ int main()
   glfwSetCursorPosCallback(window, handleMouseMove);
   glfwSetMouseButtonCallback(window, handleMouseClick);
 
-	ShaderProgram mvpShaderProgram(shaderPath("mvp.vert"), shaderPath("mvp2.frag"));
-	mvpShaderProgram.bind();
+	ShaderProgram mvpShaderProgram(shaderPath("diffuse_flat.vert"), shaderPath("diffuse_flat.frag"));
+	DiffuseFlatMaterial dfm(mvpShaderProgram);
+
+	lightSetup();
 
 	Mesh mesh(Mesh::PrimitiveType::Sphere);
 
@@ -85,11 +139,10 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		mvpShaderProgram.bind();
 
-	  glUniformMatrix4fv(glGetUniformLocation(mvpShaderProgram.getProgramID(), "view"), 1, GL_FALSE, glm::value_ptr(camera->view));
-    glUniformMatrix4fv(glGetUniformLocation(mvpShaderProgram.getProgramID(), "projection"), 1, GL_FALSE, glm::value_ptr(camera->projection));
+		renderLights();
 
+		dfm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
     glBindVertexArray(mesh.getVertexArrayID());
 		glDrawElements(GL_TRIANGLES, mesh.getIndexBufferCount(), GL_UNSIGNED_INT, nullptr);
 

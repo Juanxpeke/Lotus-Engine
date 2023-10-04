@@ -45,8 +45,8 @@ private:
 	double mouseX = 0.0;
 	double mouseY = 0.0;
 
-	float targetTheta = 3.1415f / 2;
-	float targetPhi = -3.1415 / 4;
+	float targetTheta = -3.1415f / 2;
+	float targetPhi = 0.0f;
 
 	bool isLeftButtonClicked = false;
 	

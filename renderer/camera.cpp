@@ -22,7 +22,6 @@ void Camera::updateFromInputs(float dt)
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     glm::vec3 front = glm::normalize(targetOffset);
     position += dt * speed * front;
-    std::cout << "Camera position: " << position.x << "," << position.y << "," << position.z << std::endl;
   }
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
     glm::vec3 right = glm::normalize(glm::cross(targetOffset, up));
