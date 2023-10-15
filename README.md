@@ -1,6 +1,6 @@
 # GPU-Driven Renderer
 
-A GPU-Driven renderer extended from the MonaEngine renderer arquitecture.
+A GPU-Driven renderer currently based on the MonaEngine renderer arquitecture.
 
 ## Setup
 
