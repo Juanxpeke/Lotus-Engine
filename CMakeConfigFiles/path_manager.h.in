@@ -12,11 +12,18 @@ Placeholder script, don't modify it
 
 static const std::string directoryPath = "${CMAKE_CURRENT_SOURCE_DIR}/";
 
-static std::filesystem::path assetPath(const std::string& assetFilename) {
+static std::filesystem::path assetPath(const std::string& assetFilename)
+{
   return directoryPath + "assets/" + assetFilename;
+}
+
+static std::filesystem::path testShaderPath(const std::string& shaderFilename)
+{
+  return directoryPath + "gl_test/shaders/" + shaderFilename;
 }
 
 static std::filesystem::path shaderPath(const std::string& shaderFilename)
 {
   return directoryPath + "renderer/shaders/" + shaderFilename;
 }
+

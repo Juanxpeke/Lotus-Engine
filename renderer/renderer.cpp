@@ -88,7 +88,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  sprintf(title, "OpenGL Rendering Engine");
+  sprintf(title, "GPU-Driven Rendering Engine");
 	GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
 
 	if (window == NULL) {
