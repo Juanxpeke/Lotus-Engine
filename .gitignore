@@ -1,6 +1,6 @@
 # Build stuff
 /build
-/gl_test/path_manager.h
+/gl_tests/path_manager.h
 /renderer/path_manager.h
 
 # Visual Studio

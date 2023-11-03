@@ -72,38 +72,48 @@ std::string readShaderFile(const std::filesystem::path& shaderPath)
   return shaderStringStream.str();
 }
 
-unsigned int compileShader(const std::string& shaderCode, unsigned int type)
+GLuint compileShader(const std::string& shaderCode, unsigned int type)
 {
   const char* shaderSource = shaderCode.c_str();
   
-  unsigned int shader = glCreateShader(type);
+  GLuint shader = glCreateShader(type);
   glShaderSource(shader, 1, &shaderSource, 0);
   glCompileShader(shader);
-
-  // Error handling
-  GLint compiled = 0;
-  glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-  if (compiled == GL_FALSE)
-  {
-    GLint length = 0;
-    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-
-    char* message = (char*) alloca(length * sizeof(char));
-    glGetShaderInfoLog(shader, length, &length, message);
-    
-    // TODO: Implement error log system
-    std::cout 
-      << "Failed to compile "
-      << (type == GL_VERTEX_SHADER ? "vertex" : "fragment")
-      << "shader"
-      << std::endl;
-    std::cout << message << std::endl;
-
-    glDeleteShader(shader);
-    return 0;
-  }
+  checkShaderErrors(shader);
 
   return shader;
+}
+
+GLuint createRenderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath)
+{
+  GLuint program = glCreateProgram();
+
+  std::string vertexShaderCode = readShaderFile(vertexShaderPath);
+  GLuint vertexShader = compileShader(vertexShaderCode, GL_VERTEX_SHADER); 
+  glAttachShader(program, vertexShader);
+
+  std::string fragmentShaderCode = readShaderFile(fragmentShaderPath);
+  GLuint fragmentShader = compileShader(fragmentShaderCode, GL_FRAGMENT_SHADER); 
+  glAttachShader(program, fragmentShader);
+
+  glLinkProgram(program);
+  checkProgramErrors(program);
+
+  return program;
+}
+
+GLuint createComputeProgram(const std::filesystem::path& computeShaderPath)
+{
+  GLuint program = glCreateProgram();
+
+  std::string computeShaderCode = readShaderFile(computeShaderPath);
+  GLuint computeShader = compileShader(computeShaderCode, GL_COMPUTE_SHADER); 
+  glAttachShader(program, computeShader);
+
+  glLinkProgram(program);
+  checkProgramErrors(program);
+
+  return program;
 }
 
 bool checkShaderErrors(GLuint shader)
@@ -155,22 +165,4 @@ GLuint createQuadVAO()
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid*) offset);
 
   return vao;
-}
-
-GLuint createQuadProgram()
-{
-  GLuint program = glCreateProgram();
-
-  std::string vertShaderCode = readShaderFile(testShaderPath("quad_shader.vert"));
-  unsigned int vertShader = compileShader(vertShaderCode, GL_VERTEX_SHADER); 
-  glAttachShader(program, vertShader);
-
-  std::string fragShaderCode = readShaderFile(testShaderPath("quad_shader.frag"));
-  unsigned int fragShader = compileShader(fragShaderCode, GL_FRAGMENT_SHADER); 
-  glAttachShader(program, fragShader);
-
-  glLinkProgram(program);
-  checkProgramErrors(program);
-
-  return program;
 }

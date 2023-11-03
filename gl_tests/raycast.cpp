@@ -14,6 +14,23 @@ int textureWidth = 512, textureHeight = 512;
 int globalSize[3] = { textureWidth, textureHeight, 1 };
 int localSize[3] = { 1, 1, 1 };
 
+// Sets up the texture image
+void setUpTextureImage(GLuint* textureID)
+{
+  glGenTextures(1, textureID);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, *textureID);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, textureWidth, textureHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+  // In order to write to a texture we use image storing functions in the shader. OpenGL treats "image units" slightly
+  // differently to textures, so we call a glBindImageTexture() function to make this link. Note that we can set this
+  // to "write only"
+  glBindImageTexture(0, *textureID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+}
+
 // Gets and prints the OpenGl work group data
 void getWorkGroupData(int* workGrpCnt, int* workGrpSize, int& workGrpInv)
 {
@@ -43,53 +60,25 @@ int main()
   startGL(textureWidth, textureHeight, title);
   
   // Set up shaders and geometry
+  GLuint quadProgram = createRenderProgram(shaderPath("quad.vert"), shaderPath("quad.frag"));
+  GLuint rayProgram = createComputeProgram(shaderPath("raycast.comp"));
   GLuint quadVAO = createQuadVAO();
-  GLuint quadProgram = createQuadProgram();
 
-  std::string computeShaderCode = readShaderFile(testShaderPath("compute_shader.comp"));
-  const char* computeShaderSource = computeShaderCode.c_str();
-
-  GLuint rayShader = glCreateShader(GL_COMPUTE_SHADER);
-  glShaderSource(rayShader, 1, &computeShaderSource, NULL);
-  glCompileShader(rayShader);
-  checkShaderErrors(rayShader);
-
-  GLuint rayProgram = glCreateProgram();
-  glAttachShader(rayProgram, rayShader);
-  glLinkProgram(rayProgram);
-  checkProgramErrors(rayProgram);
-
-  // Dimensions of the image
+  // Set up texture image
   GLuint textureID;
-  glGenTextures(1, &textureID);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, textureID);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, textureWidth, textureHeight, 0, GL_RGBA, GL_FLOAT, NULL);
-  // In order to write to a texture we use image storing functions in the shader. OpenGL treats "image units" slightly
-  // differently to textures, so we call a glBindImageTexture() function to make this link. Note that we can set this
-  // to "write only"
-  glBindImageTexture(0, textureID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+  setUpTextureImage(&textureID);
 
+  // Work group data
   int workGrpCnt[3];
   int workGrpSize[3];
   int workGrpInv;
   getWorkGroupData(workGrpCnt, workGrpSize, workGrpInv);
 
-  // Viewport configuration
-	// glViewport(0, 0, textureWidth, textureHeight);
-	// glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	// glClear(GL_COLOR_BUFFER_BIT);
-	// glfwSwapBuffers(window);
-
   // Drawing loop
   while (!glfwWindowShouldClose(window))
   {
 
-    { // Launch compute shaders!
+    { // Launch compute shaders
       glUseProgram(rayProgram);
       glDispatchCompute((GLuint) textureWidth, (GLuint) textureHeight, 1);
     }
