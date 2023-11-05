@@ -57,6 +57,7 @@ void getWorkGroupData(int* workGrpCnt, int* workGrpSize, int& workGrpInv)
 
 int main()
 {
+  sprintf(title, "Raycast rendering (compute shaders)");
   startGL(textureWidth, textureHeight, title);
   
   // Set up shaders and geometry
