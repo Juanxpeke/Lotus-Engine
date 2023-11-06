@@ -60,9 +60,9 @@ int main()
   startGL(textureWidth, textureHeight, title);
   
   // Set up shaders and geometry
-  GLuint quadProgram = createRenderProgram(shaderPath("quad.vert"), shaderPath("quad.frag"));
-  GLuint rayProgram = createComputeProgram(shaderPath("raycast.comp"));
-  GLuint quadVAO = createQuadVAO();
+  GLuint renderProgram = createRenderProgram(shaderPath("background_quad.vert"), shaderPath("background_quad.frag"));
+  GLuint computeProgram = createComputeProgram(shaderPath("raycast.comp"));
+  GLuint quadVAO = createBackgroundQuadVAO();
 
   // Set up texture image
   GLuint textureID;
@@ -79,7 +79,7 @@ int main()
   {
 
     { // Launch compute shaders
-      glUseProgram(rayProgram);
+      glUseProgram(computeProgram);
       glDispatchCompute((GLuint) textureWidth, (GLuint) textureHeight, 1);
     }
     
@@ -88,7 +88,7 @@ int main()
     
     { // Normal drawing pass
       glClear(GL_COLOR_BUFFER_BIT);
-      glUseProgram(quadProgram);
+      glUseProgram(renderProgram);
       glBindVertexArray(quadVAO);
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, textureID);

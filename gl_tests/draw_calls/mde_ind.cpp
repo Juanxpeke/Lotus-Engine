@@ -16,42 +16,11 @@ const unsigned int HEIGHT = 600;
 
 namespace // Unnamed namespace
 {
-  struct Vertex2D
+  struct Vertex2DUV
   {
     float x, y;  // Position
     float u, v;  // UV
   };
-
-  struct Matrix
-  {
-    float a0, a1, a2, a3;
-    float b0, b1, b2, b3;
-    float c0, c1, c2, c3;
-    float d0, d1, d2, d3;
-  };
-
-  void setMatrix(Matrix* matrix, const float x, const float y)
-  {
-    /*
-    1 0 0 0
-    0 1 0 0
-    0 0 1 0
-    x y 0 1
-    */
-    matrix->a0 = 1;
-    matrix->a1 = matrix->a2 = matrix->a3 = 0;
-
-    matrix->b1 = 1;
-    matrix->b0 = matrix->b2 = matrix->b3 = 0;
-
-    matrix->c2 = 1;
-    matrix->c0 = matrix->c1 = matrix->c3 = 0;
-
-    matrix->d0 = x;
-    matrix->d1 = y;
-    matrix->d2 = 0;
-    matrix->d3 = 1;
-  }
 
   struct DrawElementsCommand
   {
@@ -62,7 +31,7 @@ namespace // Unnamed namespace
     GLuint baseInstance;
   };
 
-  const std::vector<Vertex2D> gQuad = {
+  const std::vector<Vertex2DUV> quadVerticesUV = {
     //xy			      //uv
     { 0.00f, 0.00f,	0.0f, 0.0f },
     { 0.10f, 0.00f,	1.0f, 0.0f },
@@ -71,43 +40,43 @@ namespace // Unnamed namespace
     { 0.10f, 0.10f,	1.0f, 1.0f }
   };
 
-  const std::vector<Vertex2D> gTriangle =
+  const std::vector<Vertex2DUV> triangleVerticesUV =
   {
     { 0.00f, 0.0f, 0.0f, 0.0f},
     { 0.05f, 0.1f, 0.5f, 1.0f},
     { 0.10f, 0.0f, 1.0f, 0.0f}
   };
 
-  const std::vector<unsigned int> gQuadIndex = {
+  const std::vector<unsigned int> quadIndicesUV = {
     0, 1, 2,
     1, 4, 2,
     2, 4, 3,
     0, 2, 3
   };
 
-  const std::vector<unsigned int> gTriangleIndex =
+  const std::vector<unsigned int> triangleIndicesUV =
   {
     0, 1, 2
   };
 
   GLuint gVAO(0);
   GLuint gArrayTexture(0);
-  GLuint gVertexBuffer(0);
-  GLuint gElementBuffer(0);
+  GLuint VBO(0);
+  GLuint EBO(0);
   GLuint gIndirectBuffer(0);
-  GLuint gMatrixBuffer(0);
+  GLuint matrixBuffer(0);
   GLuint gProgram(0);
 
-  float gMouseX(0);
-  float gMouseY(0);
+  float mouseX(0);
+  float mouseY(0);
 
 } // Unnamed namespace
 
 void generateGeometry()
 {
   // Generate 50 quads, 50 triangles
-  const unsigned numVertices = gQuad.size() * 50 + gTriangle.size() * 50;
-  std::vector<Vertex2D> vVertex(numVertices);
+  const unsigned numVertices = quadVerticesUV.size() * 50 + triangleVerticesUV.size() * 50;
+  std::vector<Vertex2DUV> vVertex(numVertices);
 
   Matrix vMatrix[100];
 
@@ -126,22 +95,22 @@ void generateGeometry()
       // Quad
       if (j % 2 == 0)
       {
-        for (unsigned int k(0); k != gQuad.size(); ++k)
+        for (unsigned int k(0); k != quadVerticesUV.size(); ++k)
         {
-          vVertex[vertexIndex++] = gQuad[k];
+          vVertex[vertexIndex++] = quadVerticesUV[k];
         }
       }
       // Triangle
       else
       {
-        for (unsigned int k(0); k != gTriangle.size(); ++k)
+        for (unsigned int k(0); k != triangleVerticesUV.size(); ++k)
         {
-          vVertex[vertexIndex++] = gTriangle[k];
+          vVertex[vertexIndex++] = triangleVerticesUV[k];
         }
       }
 
       // Set position in model matrix
-      setMatrix(&vMatrix[matrixIndex++], xOffset, yOffset);
+      setPositionMatrix(&vMatrix[matrixIndex++], xOffset, yOffset);
       xOffset += 0.2f;
     }
     yOffset += 0.2f;
@@ -151,31 +120,31 @@ void generateGeometry()
   glGenVertexArrays(1, &gVAO);
   glBindVertexArray(gVAO);
 
-  glGenBuffers(1, &gVertexBuffer);
-  glBindBuffer(GL_ARRAY_BUFFER, gVertexBuffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * vVertex.size(), vVertex.data(), GL_STATIC_DRAW);
+  glGenBuffers(1, &VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2DUV) * vVertex.size(), vVertex.data(), GL_STATIC_DRAW);
 
   // Specify vertex attributes for the shader
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (GLvoid*) (offsetof(Vertex2D, x)));
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2DUV), (GLvoid*) (offsetof(Vertex2DUV, x)));
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (GLvoid*) (offsetof(Vertex2D, u)));
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2DUV), (GLvoid*) (offsetof(Vertex2DUV, u)));
 
   // Create an element buffer and populate it
-  int triangleBytes = sizeof(unsigned int) * gTriangleIndex.size();
-  int quadBytes = sizeof(unsigned int) * gQuadIndex.size();
+  int triangleBytes = sizeof(unsigned int) * triangleIndicesUV.size();
+  int quadBytes = sizeof(unsigned int) * quadIndicesUV.size();
 
-  glGenBuffers(1, &gElementBuffer);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gElementBuffer);
+  glGenBuffers(1, &EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleBytes + quadBytes, NULL, GL_STATIC_DRAW);
 
-  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, quadBytes, gQuadIndex.data());
-  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, quadBytes, triangleBytes, gTriangleIndex.data());
+  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, quadBytes, quadIndicesUV.data());
+  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, quadBytes, triangleBytes, triangleIndicesUV.data());
 
   // Setup per instance matrices
   // Method 1. Use Vertex attributes and the vertex attrib divisor
-  glGenBuffers(1, &gMatrixBuffer);
-  glBindBuffer(GL_ARRAY_BUFFER, gMatrixBuffer);
+  glGenBuffers(1, &matrixBuffer);
+  glBindBuffer(GL_ARRAY_BUFFER, matrixBuffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vMatrix), vMatrix, GL_STATIC_DRAW);
   // A matrix is 4 vec4s
   glEnableVertexAttribArray(3 + 0);
@@ -248,7 +217,7 @@ void generateDrawCommands()
       vDrawCommand[i].firstIndex = 0; // Draw from index 0 for this instance
       vDrawCommand[i].baseVertex = baseVert; // Starting from baseVert
       vDrawCommand[i].baseInstance = i; // gl_InstanceID
-      baseVert += gQuad.size();
+      baseVert += quadVerticesUV.size();
     }
     // Triangle
     else
@@ -258,7 +227,7 @@ void generateDrawCommands()
       vDrawCommand[i].firstIndex = 0; // Draw from index 0 for this instance
       vDrawCommand[i].baseVertex = baseVert; // Starting from baseVert
       vDrawCommand[i].baseInstance = i; // gl_InstanceID
-      baseVert += gTriangle.size();
+      baseVert += triangleVerticesUV.size();
     }
   }
 
@@ -311,7 +280,7 @@ int main()
     generateDrawCommands();
 
     // Populate light uniform
-    glUniform2f(glGetUniformLocation(gProgram, "light_pos"), gMouseX, gMouseY);
+    glUniform2f(glGetUniformLocation(gProgram, "light_pos"), mouseX, mouseY);
 
     // Draw
     glMultiDrawElementsIndirect(
@@ -338,9 +307,9 @@ int main()
   // Clean-up
   glDeleteProgram(gProgram);
   glDeleteVertexArrays(1, &gVAO);
-  glDeleteBuffers(1, &gVertexBuffer);
-  glDeleteBuffers(1, &gElementBuffer);
-  glDeleteBuffers(1, &gMatrixBuffer);
+  glDeleteBuffers(1, &VBO);
+  glDeleteBuffers(1, &EBO);
+  glDeleteBuffers(1, &matrixBuffer);
   glDeleteBuffers(1, &gIndirectBuffer);
   glDeleteTextures(1, &gArrayTexture);
   return 0;
@@ -348,6 +317,6 @@ int main()
 
 void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
 {
-  gMouseX = -0.5f + float(xpos) / float(WIDTH);
-  gMouseY = 0.5f - float(ypos) / float(HEIGHT);
+  mouseX = -0.5f + float(xpos) / float(WIDTH);
+  mouseY = 0.5f - float(ypos) / float(HEIGHT);
 }

@@ -7,6 +7,37 @@
 
 GLFWwindow* window;
 
+const std::vector<Vertex2D> triangleVertices =
+{
+  // XY          // RGB
+  { 0.00f, 0.0f, 1.0f, 1.0f, 1.0f, },
+  { 0.05f, 0.1f, 1.0f, 1.0f, 1.0f, },
+  { 0.10f, 0.0f, 1.0f, 1.0f, 1.0f, }
+};
+
+const std::vector<unsigned int> triangleIndices =
+{
+  0, 1, 2
+};
+
+const std::vector<Vertex2D> quadVertices =
+{
+  // XY			      // RGB
+  { 0.00f, 0.00f,	1.0f, 0.0f, 1.0f, }, // Bottom left
+  { 0.10f, 0.00f,	0.0f, 1.0f, 0.0f, }, // Bottom right
+  { 0.05f, 0.05f, 0.0f, 0.0f, 1.0f, }, // Center
+  { 0.00f, 0.10f,	1.0f, 1.0f, 0.0f, }, // Top left
+  { 0.10f, 0.10f,	1.0f, 1.0f, 1.0f, }  // Top right
+};
+
+const std::vector<unsigned int> quadIndices =
+{
+  0, 1, 2, // Bottom triangle
+  1, 4, 2, // Right triangle
+  2, 4, 3, // Top triangle
+  0, 2, 3  // Left triangle
+};
+
 // =========
 // Processes
 // =========
@@ -52,9 +83,9 @@ bool startGL(int width, int height, char* title)
 
 void stopGL() { glfwTerminate(); }
 
-// ================
-// Shader compiling
-// ================
+// =======
+// Shaders
+// =======
 
 std::string readShaderFile(const std::filesystem::path& shaderPath)
 {
@@ -140,21 +171,28 @@ bool checkProgramErrors(GLuint program)
   return true;
 }
 
-// ==========
-// Quad stuff
-// ==========
+// ========
+// Geometry
+// ========
 
-GLuint createQuadVAO()
+GLuint createBackgroundQuadVAO()
 {
-  GLuint vao = 0, vbo = 0;
-  float verts[] = { -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f };
-  
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(float), verts, GL_STATIC_DRAW);
+  GLuint VAO = 0, VBO = 0;
 
-  glGenVertexArrays(1, &vao);
-  glBindVertexArray(vao);
+  float vertices[] =
+  { // XY         // UV
+    -1.0f, -1.0f, 0.0f, 0.0f,
+    -1.0f,  1.0f, 0.0f, 1.0f,
+     1.0f, -1.0f, 1.0f, 0.0f,
+     1.0f,  1.0f, 1.0f, 1.0f
+  };
+  
+  glGenBuffers(1, &VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(float), vertices, GL_STATIC_DRAW);
+
+  glGenVertexArrays(1, &VAO);
+  glBindVertexArray(VAO);
   glEnableVertexAttribArray(0);
 
   GLintptr stride = 4 * sizeof(float);
@@ -162,7 +200,34 @@ GLuint createQuadVAO()
   glEnableVertexAttribArray(1);
   
   GLintptr offset = 2 * sizeof(float);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid*) offset);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*) offset);
 
-  return vao;
+  return VAO;
+}
+
+// ========
+// Matrices
+// ========
+
+void setPositionMatrix(Matrix* matrix, const float x, const float y)
+{
+  /*
+  1 0 0 0
+  0 1 0 0
+  0 0 1 0
+  x y 0 1
+  */
+  matrix->a0 = 1;
+  matrix->a1 = matrix->a2 = matrix->a3 = 0;
+
+  matrix->b1 = 1;
+  matrix->b0 = matrix->b2 = matrix->b3 = 0;
+
+  matrix->c2 = 1;
+  matrix->c0 = matrix->c1 = matrix->c3 = 0;
+
+  matrix->d0 = x;
+  matrix->d1 = y;
+  matrix->d2 = 0;
+  matrix->d3 = 1;
 }
