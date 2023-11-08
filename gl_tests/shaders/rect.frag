@@ -1,10 +1,11 @@
 #version 460 core
 
-layout (location = 0) in vec2 uv;
-layout (location = 1) flat in uint drawID;
+uniform sampler2DArray textureArray;
 
-layout (location = 0) out vec4 color;
-layout (binding = 0) uniform sampler2DArray textureArray;
+in vec2 uv;
+flat in uint drawID;
+
+out vec4 color;
 
 void main(void)
 {

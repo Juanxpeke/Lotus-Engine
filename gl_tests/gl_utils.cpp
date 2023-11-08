@@ -1,18 +1,19 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <assert.h>
+#include <format>
 #include "gl_utils.h"
 #include "path_manager.h"
 
 GLFWwindow* window;
+std::string windowTitle;
 
 const std::vector<Vertex2D> triangleVertices =
 {
   // XY          // RGB
-  { 0.00f, 0.0f, 1.0f, 1.0f, 1.0f, },
-  { 0.05f, 0.1f, 1.0f, 1.0f, 1.0f, },
-  { 0.10f, 0.0f, 1.0f, 1.0f, 1.0f, }
+  { 0.00f, 0.0f, 1.0f, 0.0f, 0.0f, },
+  { 0.05f, 0.1f, 0.0f, 1.0f, 0.0f, },
+  { 0.10f, 0.0f, 0.0f, 0.0f, 1.0f, }
 };
 
 const std::vector<unsigned int> triangleIndices =
@@ -23,7 +24,7 @@ const std::vector<unsigned int> triangleIndices =
 const std::vector<Vertex2D> quadVertices =
 {
   // XY			      // RGB
-  { 0.00f, 0.00f,	1.0f, 0.0f, 1.0f, }, // Bottom left
+  { 0.00f, 0.00f,	1.0f, 0.0f, 0.0f, }, // Bottom left
   { 0.10f, 0.00f,	0.0f, 1.0f, 0.0f, }, // Bottom right
   { 0.05f, 0.05f, 0.0f, 0.0f, 1.0f, }, // Center
   { 0.00f, 0.10f,	1.0f, 1.0f, 0.0f, }, // Top left
@@ -38,11 +39,11 @@ const std::vector<unsigned int> quadIndices =
   0, 2, 3  // Left triangle
 };
 
-// =========
-// Processes
-// =========
+// ====
+// GLFW
+// ====
 
-bool startGL(int width, int height, char* title) 
+bool startGL(int width, int height, const char* title) 
 {
   { // GLFW
     if (!glfwInit())
@@ -57,15 +58,20 @@ bool startGL(int width, int height, char* title)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     window = glfwCreateWindow(width, height, title, NULL, NULL);
-    
+    windowTitle = title;
+
     if (!window)
     {
-      fprintf( stderr, "ERROR: could not open window with GLFW3\n" );
+      fprintf(stderr, "ERROR: could not open window with GLFW3\n" );
       glfwTerminate();
       return false;
     }
 
     glfwMakeContextCurrent(window);
+
+#if DISABLE_FPS_CAP
+    glfwSwapInterval(0);
+#endif
   }
 
   { // glad
@@ -230,4 +236,53 @@ void setPositionMatrix(Matrix* matrix, const float x, const float y)
   matrix->d1 = y;
   matrix->d2 = 0;
   matrix->d3 = 1;
+}
+
+// =========
+// Profiling
+// =========
+
+namespace
+{
+  double lastTime = 0.0;
+  double dt = 0.0;
+
+  double firstPreviousFPS = 0.0;
+  double secondPreviousFPS = 0.0;
+  double thirdPreviousFPS = 0.0;
+  double fourthPreviousFPS = 0.0;
+  double meanFPS = 0.0;
+
+  double lastTitleChangeTime = 0.0;
+  double titleChangeDelta = 0.5;
+}
+
+void updateProfiler()
+{
+  double currentTime = glfwGetTime();
+  dt = currentTime - lastTime;
+  lastTime = currentTime;
+
+  if (dt == 0.0) return;
+
+  fourthPreviousFPS = thirdPreviousFPS;
+  thirdPreviousFPS = secondPreviousFPS;
+  secondPreviousFPS = firstPreviousFPS;
+  firstPreviousFPS = 1 / dt;
+
+  meanFPS = (firstPreviousFPS + secondPreviousFPS + thirdPreviousFPS + fourthPreviousFPS) / 4.0;
+
+  if (lastTime - lastTitleChangeTime >= titleChangeDelta)
+  {
+    lastTitleChangeTime = lastTime;
+
+    std::string fpsString = std::format("{:.0f}", meanFPS);
+    std::string titleString = windowTitle + " (" + fpsString + " FPS)";
+    glfwSetWindowTitle(window, titleString.c_str());
+  }
+}
+
+double getFPS()
+{
+  return meanFPS;
 }

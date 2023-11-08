@@ -9,18 +9,18 @@
 #define BASE_VERTEX true
 
 // Settings
-char title[256];
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 800;
 
-const unsigned int INSTANCE_COUNT = 100; // Maximum is 256 because of the shader layout
+// Maximum is 256 because of the shader layout
+const unsigned int INSTANCE_COUNT = 100;
 
 namespace // Unnamed namespace
 {
   GLuint VAO(0);
   GLuint VBO(0);
   GLuint EBO(0);
-  GLuint matrixBuffer(0);
+  GLuint modelsBuffer(0);
   GLuint renderProgram(0);
 
   GLsizei indicesCounts[INSTANCE_COUNT];
@@ -122,26 +122,23 @@ void generateGeometry()
 
   // Method 2. Use Uniform Buffers with gl_DrawID. WARNING: We are not considering the std140 layout with
   // some fancy structure as the Matrix struct has 16 float values
-	glGenBuffers(1, &matrixBuffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, matrixBuffer);
+	glGenBuffers(1, &modelsBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, modelsBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(models), &models, GL_STATIC_DRAW);
 
   // Bind the uniform buffer to index 0
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, matrixBuffer);
-
-  std::cout << "Geometry generated" << std::endl;
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, modelsBuffer);
 }
 
 int main()
 {
-  sprintf(title, "Quads and triangles (MultiDrawElements)");
-  startGL(WIDTH, HEIGHT, title);
+  startGL(WIDTH, HEIGHT, "Quads and triangles with MultiDrawElements");
 
   // Set clear color
   glClearColor(0.0, 0.0, 0.0, 0.0);
 
   // Create and bind the shader program
-  renderProgram = createRenderProgram(shaderPath("flat_m.vert"), shaderPath("flat_m.frag"));
+  renderProgram = createRenderProgram(shaderPath("flat_m.vert"), shaderPath("flat.frag"));
   glUseProgram(renderProgram);
 
   generateGeometry();
@@ -149,6 +146,8 @@ int main()
   // Render loop
   while (!glfwWindowShouldClose(window))
   {
+    updateProfiler();
+
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Use program. Not needed in this example since we only have one that
@@ -197,6 +196,6 @@ int main()
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
   glDeleteBuffers(1, &EBO);
-  glDeleteBuffers(1, &matrixBuffer);
+  glDeleteBuffers(1, &modelsBuffer);
   return 0;
 }

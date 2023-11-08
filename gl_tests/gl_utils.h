@@ -1,10 +1,11 @@
 #pragma once
 
-#include <cstdint>
 #include <filesystem>
 #include <string>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#define DISABLE_FPS_CAP true
 
 extern GLFWwindow* window;
 
@@ -29,8 +30,8 @@ extern const std::vector<unsigned int> triangleIndices;
 extern const std::vector<Vertex2D> quadVertices;
 extern const std::vector<unsigned int> quadIndices;
 
-// Processes
-bool startGL(int width, int height, char* title);
+// GLFW
+bool startGL(int width, int height, const char* title);
 void stopGL();
 // Shaders
 std::string readShaderFile(const std::filesystem::path& shaderPath);
@@ -43,3 +44,6 @@ bool checkProgramErrors(GLuint program);
 GLuint createBackgroundQuadVAO();
 // Matrices
 void setPositionMatrix(Matrix* matrix, const float x, const float y);
+// Profiling
+void updateProfiler();
+double getFPS();

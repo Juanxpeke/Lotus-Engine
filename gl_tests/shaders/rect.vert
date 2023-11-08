@@ -5,8 +5,8 @@ layout (location = 1) in vec2 texCoord;
 layout (location = 2) in uint drawid;
 layout (location = 3) in mat4 instanceMatrix;
 
-layout (location = 0) out vec2 uv;
-layout (location = 1) flat out uint drawID;
+out vec2 uv;
+flat out uint drawID;
 
 void main(void)
 {
