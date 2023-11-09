@@ -16,18 +16,24 @@ const unsigned int HEIGHT = 800;
 // When not using vertex attrib divisor, maximum is 256 because of the shader layout
 const unsigned int INSTANCE_COUNT = 100;
 
-namespace 
-{ // Unnamed namespace
+namespace // Unnamed namespace
+{
   GLuint VAO(0);
   GLuint VBO(0);
   GLuint EBO(0);
   GLuint modelsBuffer(0);
   GLuint renderProgram(0);
+
+  float mouseX(0);
+  float mouseY(0);
+
 } // Unnamed namespace
 
 void generateGeometry()
 {
-  Matrix models[INSTANCE_COUNT];
+  // https://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
+  // https://github.com/opengl-tutorials/ogl/blob/master/tutorial18_billboards_and_particles/tutorial18_particles.cpp
+  GLfloat* g_particule_position_size_data = new GLfloat[INSTANCE_COUNT * 4]; // KEEP WORKING HERE
   unsigned modelIndex(0);
 
   // Clipspace, lower left corner = (-1, -1)

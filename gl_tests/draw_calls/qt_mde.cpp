@@ -15,8 +15,8 @@ const unsigned int HEIGHT = 800;
 // Maximum is 256 because of the shader layout
 const unsigned int INSTANCE_COUNT = 100;
 
-namespace // Unnamed namespace
-{
+namespace
+{ // Unnamed namespace
   GLuint VAO(0);
   GLuint VBO(0);
   GLuint EBO(0);
@@ -28,10 +28,6 @@ namespace // Unnamed namespace
 #if BASE_VERTEX
   GLint baseVertices[INSTANCE_COUNT];
 #endif
-
-  float mouseX(0);
-  float mouseY(0);
-
 } // Unnamed namespace
 
 void generateGeometry()
@@ -67,7 +63,7 @@ void generateGeometry()
       indicesCounts[i] = triangleIndices.size();
       indicesOffsets[i] = (void*) (quadIndices.size() * sizeof(unsigned int));
 #if BASE_VERTEX
-      baseVertices[i] = quadVertices.size();
+      baseVertices[i] = quadVerticesRGB.size();
 #endif
     }
 
@@ -89,21 +85,21 @@ void generateGeometry()
   glGenVertexArrays(1, &VAO);
   glBindVertexArray(VAO);
 
-  int quadVerticesBytes = sizeof(Vertex2D) * quadVertices.size();
-  int triangleVerticesBytes = sizeof(Vertex2D) * triangleVertices.size();
+  int quadVerticesBytes = sizeof(Vertex2D_RGB) * quadVerticesRGB.size();
+  int triangleVerticesBytes = sizeof(Vertex2D_RGB) * triangleVerticesRGB.size();
 
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, quadVerticesBytes + triangleVerticesBytes, NULL, GL_STATIC_DRAW);
 
-  glBufferSubData(GL_ARRAY_BUFFER, 0, quadVerticesBytes, quadVertices.data());
-  glBufferSubData(GL_ARRAY_BUFFER, quadVerticesBytes, triangleVerticesBytes, triangleVertices.data());
+  glBufferSubData(GL_ARRAY_BUFFER, 0, quadVerticesBytes, quadVerticesRGB.data());
+  glBufferSubData(GL_ARRAY_BUFFER, quadVerticesBytes, triangleVerticesBytes, triangleVerticesRGB.data());
 
   // Specify vertex attributes for the shader
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*) (offsetof(Vertex2D, x)));
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D_RGB), (void*) (offsetof(Vertex2D_RGB, x)));
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*) (offsetof(Vertex2D, r)));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex2D_RGB), (void*) (offsetof(Vertex2D_RGB, r)));
 
   // Create an element buffer and populate it
   int quadIndicesBytes = sizeof(unsigned int) * quadIndices.size();

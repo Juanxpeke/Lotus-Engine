@@ -6,77 +6,26 @@
 #include "gl_utils.h"
 #include "path_manager.h"
 
-void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
-
 // Settings
-char title[256];
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 600;
 
-
-namespace // Unnamed namespace
-{
-  struct Vertex2DUV
-  {
-    float x, y;  // Position
-    float u, v;  // UV
-  };
-
-  struct DrawElementsCommand
-  {
-    GLuint vertexCount;
-    GLuint instanceCount;
-    GLuint firstIndex;
-    GLuint baseVertex;
-    GLuint baseInstance;
-  };
-
-  const std::vector<Vertex2DUV> quadVerticesUV = {
-    //xy			      //uv
-    { 0.00f, 0.00f,	0.0f, 0.0f },
-    { 0.10f, 0.00f,	1.0f, 0.0f },
-    { 0.05f, 0.05f, 0.5f, 0.5f },
-    { 0.00f, 0.10f,	0.0f, 1.0f },
-    { 0.10f, 0.10f,	1.0f, 1.0f }
-  };
-
-  const std::vector<Vertex2DUV> triangleVerticesUV =
-  {
-    { 0.00f, 0.0f, 0.0f, 0.0f},
-    { 0.05f, 0.1f, 0.5f, 1.0f},
-    { 0.10f, 0.0f, 1.0f, 0.0f}
-  };
-
-  const std::vector<unsigned int> quadIndicesUV = {
-    0, 1, 2,
-    1, 4, 2,
-    2, 4, 3,
-    0, 2, 3
-  };
-
-  const std::vector<unsigned int> triangleIndicesUV =
-  {
-    0, 1, 2
-  };
-
+namespace
+{ // Unnamed namespace
   GLuint gVAO(0);
   GLuint gArrayTexture(0);
   GLuint VBO(0);
   GLuint EBO(0);
   GLuint gIndirectBuffer(0);
   GLuint matrixBuffer(0);
-  GLuint gProgram(0);
-
-  float mouseX(0);
-  float mouseY(0);
-
+  GLuint renderProgram(0);
 } // Unnamed namespace
 
 void generateGeometry()
 {
   // Generate 50 quads, 50 triangles
   const unsigned numVertices = quadVerticesUV.size() * 50 + triangleVerticesUV.size() * 50;
-  std::vector<Vertex2DUV> vVertex(numVertices);
+  std::vector<Vertex2D_UV> vVertex(numVertices);
 
   Matrix vMatrix[100];
 
@@ -122,24 +71,24 @@ void generateGeometry()
 
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2DUV) * vVertex.size(), vVertex.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D_UV) * vVertex.size(), vVertex.data(), GL_STATIC_DRAW);
 
   // Specify vertex attributes for the shader
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2DUV), (GLvoid*) (offsetof(Vertex2DUV, x)));
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D_UV), (GLvoid*) (offsetof(Vertex2D_UV, x)));
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2DUV), (GLvoid*) (offsetof(Vertex2DUV, u)));
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D_UV), (GLvoid*) (offsetof(Vertex2D_UV, u)));
 
   // Create an element buffer and populate it
-  int triangleBytes = sizeof(unsigned int) * triangleIndicesUV.size();
-  int quadBytes = sizeof(unsigned int) * quadIndicesUV.size();
+  int triangleBytes = sizeof(unsigned int) * triangleIndices.size();
+  int quadBytes = sizeof(unsigned int) * quadIndices.size();
 
   glGenBuffers(1, &EBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleBytes + quadBytes, NULL, GL_STATIC_DRAW);
 
-  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, quadBytes, quadIndicesUV.data());
-  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, quadBytes, triangleBytes, triangleIndicesUV.data());
+  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, quadBytes, quadIndices.data());
+  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, quadBytes, triangleBytes, triangleIndices.data());
 
   // Setup per instance matrices
   // Method 1. Use Vertex attributes and the vertex attrib divisor
@@ -207,12 +156,12 @@ void generateDrawCommands()
   // Generate draw commands
   DrawElementsCommand vDrawCommand[100];
   GLuint baseVert = 0;
-  for (unsigned int i(0); i<100; ++i)
+  for (unsigned int i(0); i < 100; ++i)
   {
     // Quad
     if (i % 2 == 0)
     {
-      vDrawCommand[i].vertexCount = 12; // 4 triangles = 12 vertices
+      vDrawCommand[i].vertexCount = quadIndices.size(); // 4 triangles = 12 vertices
       vDrawCommand[i].instanceCount = 1; // Draw 1 instance
       vDrawCommand[i].firstIndex = 0; // Draw from index 0 for this instance
       vDrawCommand[i].baseVertex = baseVert; // Starting from baseVert
@@ -222,7 +171,7 @@ void generateDrawCommands()
     // Triangle
     else
     {
-      vDrawCommand[i].vertexCount = 3; // 1 triangle = 3 vertices
+      vDrawCommand[i].vertexCount = triangleIndices.size(); // 1 triangle = 3 vertices
       vDrawCommand[i].instanceCount = 1; // Draw 1 instance
       vDrawCommand[i].firstIndex = 0; // Draw from index 0 for this instance
       vDrawCommand[i].baseVertex = baseVert; // Starting from baseVert
@@ -244,15 +193,14 @@ void generateDrawCommands()
 
 int main()
 {
-  sprintf(title, "Rectangles and triangles (MultiDrawElementsIndirect)");
-  startGL(WIDTH, HEIGHT, title);
+  startGL(WIDTH, HEIGHT, "Quads and triangles with MultiDrawElementsIndirect");
 
   // Set clear color
   glClearColor(1.0, 1.0, 1.0, 0.0);
 
   // Create and bind the shader program
-  gProgram = createRenderProgram(shaderPath("rect.vert"), shaderPath("rect.frag"));
-  glUseProgram(gProgram);
+  renderProgram = createRenderProgram(shaderPath("rect.vert"), shaderPath("rect.frag"));
+  glUseProgram(renderProgram);
 
   generateGeometry();
   generateArrayTexture();
@@ -271,16 +219,13 @@ int main()
 
     // Use program. Not needed in this example since we only have one that
     // we already use
-    // glUseProgram(gProgram);
+    // glUseProgram(renderProgram);
 
     // Bind the vertex array we want to draw from. Not needed in this example
     // since we only have one that is already bounded
     // glBindVertexArray(gVAO);
 
     generateDrawCommands();
-
-    // Populate light uniform
-    glUniform2f(glGetUniformLocation(gProgram, "light_pos"), mouseX, mouseY);
 
     // Draw
     glMultiDrawElementsIndirect(
@@ -305,7 +250,7 @@ int main()
   glfwTerminate();
 
   // Clean-up
-  glDeleteProgram(gProgram);
+  glDeleteProgram(renderProgram);
   glDeleteVertexArrays(1, &gVAO);
   glDeleteBuffers(1, &VBO);
   glDeleteBuffers(1, &EBO);
@@ -313,10 +258,4 @@ int main()
   glDeleteBuffers(1, &gIndirectBuffer);
   glDeleteTextures(1, &gArrayTexture);
   return 0;
-}
-
-void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
-{
-  mouseX = -0.5f + float(xpos) / float(WIDTH);
-  mouseY = 0.5f - float(ypos) / float(HEIGHT);
 }

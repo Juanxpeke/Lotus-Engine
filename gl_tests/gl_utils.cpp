@@ -8,7 +8,15 @@
 GLFWwindow* window;
 std::string windowTitle;
 
-const std::vector<Vertex2D> triangleVertices =
+const std::vector<Vertex2D_UV> triangleVerticesUV =
+{
+  // XY          // UV
+  { 0.00f, 0.0f, 0.0f, 0.0f},
+  { 0.05f, 0.1f, 0.5f, 1.0f},
+  { 0.10f, 0.0f, 1.0f, 0.0f}
+};
+
+const std::vector<Vertex2D_RGB> triangleVerticesRGB =
 {
   // XY          // RGB
   { 0.00f, 0.0f, 1.0f, 0.0f, 0.0f, },
@@ -21,7 +29,17 @@ const std::vector<unsigned int> triangleIndices =
   0, 1, 2
 };
 
-const std::vector<Vertex2D> quadVertices =
+const std::vector<Vertex2D_UV> quadVerticesUV =
+{
+  // XY           // UV
+  { 0.00f, 0.00f,	0.0f, 0.0f },
+  { 0.10f, 0.00f,	1.0f, 0.0f },
+  { 0.05f, 0.05f, 0.5f, 0.5f },
+  { 0.00f, 0.10f,	0.0f, 1.0f },
+  { 0.10f, 0.10f,	1.0f, 1.0f }
+};
+
+const std::vector<Vertex2D_RGB> quadVerticesRGB =
 {
   // XY			      // RGB
   { 0.00f, 0.00f,	1.0f, 0.0f, 0.0f, }, // Bottom left

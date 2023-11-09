@@ -9,7 +9,13 @@
 
 extern GLFWwindow* window;
 
-struct Vertex2D
+struct Vertex2D_UV
+{
+  float x, y; // Position
+  float u, v; // Texture UV
+};
+
+struct Vertex2D_RGB
 {
   float x, y; // Position
   float r, g, b; // Color
@@ -23,11 +29,22 @@ struct Matrix
   float d0, d1, d2, d3;
 };
 
+struct DrawElementsCommand
+{
+  GLuint vertexCount;
+  GLuint instanceCount;
+  GLuint firstIndex;
+  GLuint baseVertex;
+  GLuint baseInstance;
+};
+
 // Triangle
-extern const std::vector<Vertex2D> triangleVertices;
+extern const std::vector<Vertex2D_UV> triangleVerticesUV;
+extern const std::vector<Vertex2D_RGB> triangleVerticesRGB;
 extern const std::vector<unsigned int> triangleIndices;
 // Four triangles quad
-extern const std::vector<Vertex2D> quadVertices;
+extern const std::vector<Vertex2D_UV> quadVerticesUV;
+extern const std::vector<Vertex2D_RGB> quadVerticesRGB;
 extern const std::vector<unsigned int> quadIndices;
 
 // GLFW
