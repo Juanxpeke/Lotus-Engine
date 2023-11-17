@@ -57,6 +57,21 @@ const std::vector<unsigned int> quadIndices =
   0, 2, 3  // Left triangle
 };
 
+extern const std::vector<float> billboardQuadVertices =
+{ 
+  // XY
+  -0.5f, -0.5f,
+   0.5f, -0.5f,
+  -0.5f,  0.5f,
+   0.5f,  0.5f,
+};
+
+extern const std::vector<unsigned int> billboardQuadIndices =
+{ 
+  0, 1, 2, // Bottom left
+  1, 2, 3  // Top right
+};
+
 // ====
 // GLFW
 // ====
@@ -298,6 +313,11 @@ void updateProfiler()
     std::string titleString = windowTitle + " (" + fpsString + " FPS)";
     glfwSetWindowTitle(window, titleString.c_str());
   }
+}
+
+double getDeltaTime()
+{
+  return dt;
 }
 
 double getFPS()

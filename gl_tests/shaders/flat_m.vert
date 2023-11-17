@@ -5,7 +5,7 @@
 
 #version 460 core
 
-// Model uniform buffer
+// Models uniform buffer
 layout(std140, binding = 0) uniform Models
 {
 	mat4[256] models;

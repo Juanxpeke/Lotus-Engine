@@ -1,133 +1,74 @@
-// Based on: Jakob Törmä Ruhl
+// Based on: https://github.com/opengl-tutorials/ogl/blob/master/tutorial18_billboards_and_particles/tutorial18_particles.cpp
 #include <iostream>
 #include <vector>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/norm.hpp>
 #include "gl_utils.h"
 #include "path_manager.h"
-
-#define BASE_INSTANCE false
-#define VERTEX_ATTRIB_DIVISOR false
 
 // Settings
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 800;
 
-// When not using vertex attrib divisor, maximum is 256 because of the shader layout
-const unsigned int INSTANCE_COUNT = 100;
+const unsigned int INSTANCE_COUNT = 200000;
+const float PARTICLE_SIZE = 0.01f;
+const float PARTICLE_LIFE_TIME = 1.0f;
+const float PARTICLE_HORIZONTAL_SPREAD = 2.0f;
+const float PARTICLE_VERTICAL_IMPULSE = 4.0f;
 
-namespace // Unnamed namespace
-{
+namespace
+{ // Unnamed namespace
   GLuint VAO(0);
-  GLuint VBO(0);
-  GLuint EBO(0);
-  GLuint modelsBuffer(0);
+  GLuint billboardQuadVBO(0);
+  GLuint billboardQuadEBO(0);
+  GLuint particlesPositionsBuffer(0);
   GLuint renderProgram(0);
 
-  float mouseX(0);
-  float mouseY(0);
-
+  Particle particlesContainer[INSTANCE_COUNT];
+  float particlesLifeTime;
+  float particlesPositionData[INSTANCE_COUNT * 2];
 } // Unnamed namespace
-
-void generateGeometry()
-{
-  // https://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
-  // https://github.com/opengl-tutorials/ogl/blob/master/tutorial18_billboards_and_particles/tutorial18_particles.cpp
-  GLfloat* g_particule_position_size_data = new GLfloat[INSTANCE_COUNT * 4]; // KEEP WORKING HERE
-  unsigned modelIndex(0);
-
-  // Clipspace, lower left corner = (-1, -1)
-  float xOffset(-0.95f);
-  float yOffset(-0.95f);
-
-  unsigned int instanceCountSqrt = sqrt(INSTANCE_COUNT);
-  if (instanceCountSqrt * instanceCountSqrt != INSTANCE_COUNT)
-  {
-    std::cout << "Error: INSTANCE_COUNT has to be a perfect square" << std::endl;
-    exit(1);
-  }
-
-  // Populate position matrices
-  for (unsigned int i(0); i != instanceCountSqrt; ++i)
-  {
-    for (unsigned int j(0); j != instanceCountSqrt; ++j)
-    {
-      // Set position in model matrix
-      setPositionMatrix(&models[modelIndex++], xOffset, yOffset);
-      xOffset += 0.15f;
-    }
-    yOffset += 0.15f;
-    xOffset = -0.95f;
-  }
-
-  glGenVertexArrays(1, &VAO);
-  glBindVertexArray(VAO);
-
-  glGenBuffers(1, &VBO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D_RGB) * quadVerticesRGB.size(), quadVerticesRGB.data(), GL_STATIC_DRAW);
-
-  // Specify vertex attributes for the shader
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D_RGB), (void*) (offsetof(Vertex2D_RGB, x)));
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex2D_RGB), (void*) (offsetof(Vertex2D_RGB, r)));
-
-  // Create an element buffer and populate it
-  glGenBuffers(1, &EBO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * quadIndices.size(), quadIndices.data(), GL_STATIC_DRAW);
-
-  // Setup per instance matrices
-  // Method 1. Use Vertex attributes and the vertex attrib divisor
-#if VERTEX_ATTRIB_DIVISOR
-  glGenBuffers(1, &modelsBuffer);
-  glBindBuffer(GL_ARRAY_BUFFER, modelsBuffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(models), models, GL_STATIC_DRAW);
-
-  // A matrix is 4 vec4s
-  glEnableVertexAttribArray(3 + 0);
-  glEnableVertexAttribArray(3 + 1);
-  glEnableVertexAttribArray(3 + 2);
-  glEnableVertexAttribArray(3 + 3);
-  glVertexAttribPointer(3 + 0, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), (void*) (offsetof(Matrix, a0)));
-  glVertexAttribPointer(3 + 1, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), (void*) (offsetof(Matrix, b0)));
-  glVertexAttribPointer(3 + 2, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), (void*) (offsetof(Matrix, c0)));
-  glVertexAttribPointer(3 + 3, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), (void*) (offsetof(Matrix, d0)));
-
-  // Only apply one per instance
-  glVertexAttribDivisor(3 + 0, 1);
-  glVertexAttribDivisor(3 + 1, 1);
-  glVertexAttribDivisor(3 + 2, 1);
-  glVertexAttribDivisor(3 + 3, 1);
-#else
-  // Method 2. Use Uniform Buffers with gl_InstanceID. WARNING: We are not considering the std140 layout with
-  // some fancy structure as the Matrix struct has 16 float values
-	glGenBuffers(1, &modelsBuffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, modelsBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(models), &models, GL_STATIC_DRAW);
-
-  // Bind the uniform buffer to index 0
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, modelsBuffer);
-#endif
-}
 
 int main()
 {
-  startGL(WIDTH, HEIGHT, "Quads with DrawElementsInstanced");
+  startGL(WIDTH, HEIGHT, "Particles with DrawElementsInstanced");
 
   // Set clear color
   glClearColor(0.0, 0.0, 0.0, 0.0);
 
   // Create and bind the shader program
-#if VERTEX_ATTRIB_DIVISOR
-  renderProgram = createRenderProgram(shaderPath("flat_ins_div.vert"), shaderPath("flat.frag"));
-#else
-  renderProgram = createRenderProgram(shaderPath("flat_ins.vert"), shaderPath("flat.frag"));
-#endif
+  renderProgram = createRenderProgram(shaderPath("particle_ins_div.vert"), shaderPath("particle.frag"));
   glUseProgram(renderProgram);
 
-  generateGeometry();
+  glGenVertexArrays(1, &VAO);
+  glBindVertexArray(VAO);
+
+	glGenBuffers(1, &billboardQuadVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, billboardQuadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * billboardQuadVertices.size(), billboardQuadVertices.data(), GL_STATIC_DRAW);
+
+  glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2,	GL_FLOAT,	GL_FALSE,	0, (void*) 0);
+  glVertexAttribDivisor(0, 0);
+
+  glGenBuffers(1, &billboardQuadEBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, billboardQuadEBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * billboardQuadIndices.size(), billboardQuadIndices.data(), GL_STATIC_DRAW);
+
+	// The VBO containing the positions of the center of the particles
+	glGenBuffers(1, &particlesPositionsBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, particlesPositionsBuffer);
+	glBufferData(GL_ARRAY_BUFFER, INSTANCE_COUNT * 2 * sizeof(float), NULL, GL_STREAM_DRAW);
+
+  glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*) 0);
+  glVertexAttribDivisor(1, 1);
+
+  // Set particle size uniform
+  glUniform1f(glGetUniformLocation(renderProgram, "particleSize"), PARTICLE_SIZE);
 
   // Render loop
   while (!glfwWindowShouldClose(window))
@@ -144,23 +85,56 @@ int main()
     // since we only have one that is already bounded
     // glBindVertexArray(VAO);
 
+    float delta = getDeltaTime();
+		
+    if (particlesLifeTime <= 0.0f)
+    {
+      particlesLifeTime = PARTICLE_LIFE_TIME;
+
+      for (int i = 0; i < INSTANCE_COUNT; i++)
+      {
+        Particle& p = particlesContainer[i];
+
+        p.pos = glm::vec2(0, 0);
+
+        // Horizontal speed between -PARTICLE_HORIZONTAL_SPREAD and PARTICLE_HORIZONTAL_SPREAD
+        float horizontalSpeed = (rand() % 2000 - 1000.0f) / 1000.0f * PARTICLE_HORIZONTAL_SPREAD;
+
+        // Vertical speed between 0 and PARTICLE_VERTICAL_IMPULSE
+        float verticalSpeed = (rand() % 1000) / 1000.0f * PARTICLE_VERTICAL_IMPULSE;
+        
+        p.vel = glm::vec2(horizontalSpeed, verticalSpeed);
+      }
+		}
+    else
+    {
+      particlesLifeTime -= delta;
+
+      for (int i = 0; i < INSTANCE_COUNT; i++)
+      {
+        Particle& p = particlesContainer[i];
+
+        // Simulate simple physics : gravity only, no collisions
+        p.vel += glm::vec2(0.0f, -9.81f) * (float) delta;
+        p.pos += p.vel * (float) delta;
+
+        // Fill the GPU buffer
+        particlesPositionData[2 * i + 0] = p.pos.x;
+        particlesPositionData[2 * i + 1] = p.pos.y;
+      }
+    }
+      
+    glBindBuffer(GL_ARRAY_BUFFER, particlesPositionsBuffer);
+		glBufferData(GL_ARRAY_BUFFER, INSTANCE_COUNT * 2 * sizeof(float), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
+		glBufferSubData(GL_ARRAY_BUFFER, 0, INSTANCE_COUNT * 2 * sizeof(float), particlesPositionData);
+
     // Draw
-#if BASE_INSTANCE
-    glDrawElementsInstancedBaseInstance(
-        GL_TRIANGLES, // Primitive type
-        quadIndices.size(), // Amount of indices to use for each instance
-        GL_UNSIGNED_INT, // Type of the indices
-        (void*) (0 * sizeof(unsigned int)), // Offset into the index buffer object to begin reading data
-        INSTANCE_COUNT, // Draw INSTANCE_COUNT objects
-        INSTANCE_COUNT / 2); // Base instance
-#else
     glDrawElementsInstanced(
         GL_TRIANGLES, // Primitive type
-        quadIndices.size(), // Amount of indices to use for each instance
+        billboardQuadIndices.size(), // Amount of indices to use for each instance
         GL_UNSIGNED_INT, // Type of the indices
         (void*) (0 * sizeof(unsigned int)), // Offset into the index buffer object to begin reading data
         INSTANCE_COUNT); // Draw INSTANCE_COUNT objects
-#endif
 
     if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
     {
@@ -178,8 +152,8 @@ int main()
   // Clean-up
   glDeleteProgram(renderProgram);
   glDeleteVertexArrays(1, &VAO);
-  glDeleteBuffers(1, &VBO);
-  glDeleteBuffers(1, &EBO);
-  glDeleteBuffers(1, &modelsBuffer);
+  glDeleteBuffers(1, &billboardQuadVBO);
+  glDeleteBuffers(1, &billboardQuadEBO);
+  glDeleteBuffers(1, &particlesPositionsBuffer);
   return 0;
 }

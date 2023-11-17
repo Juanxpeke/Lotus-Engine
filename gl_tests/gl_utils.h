@@ -4,6 +4,9 @@
 #include <string>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/norm.hpp>
 
 #define DISABLE_FPS_CAP true
 
@@ -29,6 +32,11 @@ struct Matrix
   float d0, d1, d2, d3;
 };
 
+struct Particle
+{
+	glm::vec2 pos, vel;
+};
+
 struct DrawElementsCommand
 {
   GLuint vertexCount;
@@ -46,6 +54,9 @@ extern const std::vector<unsigned int> triangleIndices;
 extern const std::vector<Vertex2D_UV> quadVerticesUV;
 extern const std::vector<Vertex2D_RGB> quadVerticesRGB;
 extern const std::vector<unsigned int> quadIndices;
+// Two triangles quad with no color nor texture
+extern const std::vector<float> billboardQuadVertices;
+extern const std::vector<unsigned int> billboardQuadIndices;
 
 // GLFW
 bool startGL(int width, int height, const char* title);
@@ -63,4 +74,5 @@ GLuint createBackgroundQuadVAO();
 void setPositionMatrix(Matrix* matrix, const float x, const float y);
 // Profiling
 void updateProfiler();
+double getDeltaTime();
 double getFPS();
