@@ -109,7 +109,7 @@ int main()
           GL_TRIANGLES, // Primitive type
           quadIndices.size(), // Amount of indices to use for the instance
           GL_UNSIGNED_INT, // Type of the indices
-          (void*) 0);
+          (void*) (0 * sizeof(unsigned int))); // Offset into the index buffer object to begin reading data
     }
 
     if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
