@@ -1,4 +1,3 @@
-// Based on: https://github.com/opengl-tutorials/ogl/blob/master/tutorial18_billboards_and_particles/tutorial18_particles.cpp
 #include <iostream>
 #include <vector>
 #include <glad/glad.h>
@@ -13,7 +12,7 @@
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 800;
 
-const unsigned int INSTANCE_COUNT = 2000;
+const unsigned int INSTANCE_COUNT = 200000;
 const float PARTICLE_SIZE = 0.01f;
 const float PARTICLE_LIFE_TIME = 1.0f;
 const float PARTICLE_HORIZONTAL_SPREAD = 2.0f;

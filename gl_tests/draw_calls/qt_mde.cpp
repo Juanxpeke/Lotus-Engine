@@ -1,4 +1,3 @@
-// Based on: Jakob Törmä Ruhl
 #include <iostream>
 #include <vector>
 #include <glad/glad.h>
@@ -12,7 +11,7 @@
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 800;
 
-// Maximum is 256 because of the shader layout
+// Maximum is 1024 because of the UBO
 const unsigned int INSTANCE_COUNT = 100;
 
 namespace
@@ -164,8 +163,9 @@ int main()
         INSTANCE_COUNT, // Draw INSTANCE_COUNT objects
         baseVertices); // Array of values added to each index before pulling from the vertex data
 #else
-    // This is not useful as you would need to define custom indices for each element as the VBO is shared
-    // Ex: If the first vertices in the VBO are of the quad, the indices for the triangle can't start at 0
+    // This is not useful for multiple meshes as you would need to define custom indices for each element
+    // as the VBO is shared. Ex: If the first vertices in the VBO are of the quad, the indices for the triangle
+    // can't start at 0
     glMultiDrawElements(
         GL_TRIANGLES, // Primitive type
         indicesCounts, // Array of amount of indices to use for each drawing

@@ -1,4 +1,3 @@
-// Based on: Jakob Törmä Ruhl
 #include <iostream>
 #include <vector>
 #include <glad/glad.h>
@@ -13,7 +12,7 @@
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 800;
 
-// When not using vertex attrib divisor, maximum is 256 because of the shader layout
+// When not using vertex attrib divisor, maximum is 1024 because of the UBO
 const unsigned int INSTANCE_COUNT = 100;
 
 namespace 
@@ -73,11 +72,11 @@ void generateGeometry()
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * quadIndices.size(), quadIndices.data(), GL_STATIC_DRAW);
 
   // Setup per instance matrices
-  // Method 1. Use Vertex attributes and the vertex attrib divisor
 #if VERTEX_ATTRIB_DIVISOR
+  // Method 1. Use Vertex attributes and the vertex attrib divisor
   glGenBuffers(1, &modelsBuffer);
   glBindBuffer(GL_ARRAY_BUFFER, modelsBuffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(models), models, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(models), &models, GL_STATIC_DRAW);
 
   // A matrix is 4 vec4s
   glEnableVertexAttribArray(3 + 0);

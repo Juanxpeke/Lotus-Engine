@@ -1,4 +1,3 @@
-// Based on: https://github.com/opengl-tutorials/ogl/blob/master/tutorial18_billboards_and_particles/tutorial18_particles.cpp
 #include <iostream>
 #include <vector>
 #include <glad/glad.h>

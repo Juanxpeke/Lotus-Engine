@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(gpu-driven-rendering-engine C CXX)
+project(gpu-driven-renderer C CXX)
 
 add_definitions(-D_USE_MATH_DEFINES)
 

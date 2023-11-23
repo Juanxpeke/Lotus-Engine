@@ -8,7 +8,9 @@
 // Models uniform buffer
 layout(std140, binding = 0) uniform Models
 {
-	mat4[256] models;
+  // For me, UBO maximum size is 64Kib (with std140 layout each element in an array
+  // of mat4 occupies 64 bytes)
+	mat4[1024] models;
 };
 
 

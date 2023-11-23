@@ -1,4 +1,3 @@
-// Based on: Jakob Törmä Ruhl
 #include <iostream>
 #include <vector>
 #include <glad/glad.h>
