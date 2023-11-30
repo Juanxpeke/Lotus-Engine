@@ -13,4 +13,4 @@ This program uses compute shaders to continously write data on a texture that is
 ## Draw Calls
 
 Particles: // Based on: https://github.com/opengl-tutorials/ogl/blob/master/tutorial18_billboards_and_particles/tutorial18_particles.cpp
-Quad Triangle Indirect: // Based on: Jakob Törmä Ruhl
+Quad Triangle Indirect: // Based on: Jakob Törmä Ruhl (https://litasa.github.io/blog/2017/09/04/OpenGL-MultiDrawIndirect-with-Individual-Textures)

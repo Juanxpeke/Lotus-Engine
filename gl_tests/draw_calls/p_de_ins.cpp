@@ -8,10 +8,14 @@
 #include "gl_utils.h"
 #include "path_manager.h"
 
+#define VERTEX_ATTRIB_DIVISOR true
+#define SHADER_STORAGE_BUFFER false
+
 // Settings
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 800;
 
+// When not using vertex attrib divisor nor shader storage buffer, maximum is 4096 because of the UBO
 const unsigned int INSTANCE_COUNT = 200000;
 const float PARTICLE_SIZE = 0.01f;
 const float PARTICLE_LIFE_TIME = 1.0f;
@@ -28,7 +32,21 @@ namespace
 
   Particle particlesContainer[INSTANCE_COUNT];
   float particlesLifeTime;
+#if VERTEX_ATTRIB_DIVISOR
   float particlesPositionData[INSTANCE_COUNT * 2];
+#else
+  struct ParticlePositionData
+  { 
+    // The UBO will be represented as an array of vec2, so each element will
+    // have the same size of a vec4 (16 bytes for GLSL) based on std140 layout
+    float x;
+    float y;
+    float padding04;
+    float padding08;
+  };
+
+  ParticlePositionData particlesPositionData[INSTANCE_COUNT];
+#endif
 } // Unnamed namespace
 
 int main()
@@ -39,7 +57,15 @@ int main()
   glClearColor(0.0, 0.0, 0.0, 0.0);
 
   // Create and bind the shader program
+#if VERTEX_ATTRIB_DIVISOR
   renderProgram = createRenderProgram(shaderPath("particle_ins_div.vert"), shaderPath("particle.frag"));
+#else
+  #if SHADER_STORAGE_BUFFER
+  renderProgram = createRenderProgram(shaderPath("particle_ins_s.vert"), shaderPath("particle.frag"));
+  #else
+  renderProgram = createRenderProgram(shaderPath("particle_ins.vert"), shaderPath("particle.frag"));
+  #endif
+#endif
   glUseProgram(renderProgram);
 
   glGenVertexArrays(1, &VAO);
@@ -57,6 +83,7 @@ int main()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, billboardQuadEBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * billboardQuadIndices.size(), billboardQuadIndices.data(), GL_STATIC_DRAW);
 
+#if VERTEX_ATTRIB_DIVISOR
 	// The VBO containing the positions of the center of the particles
 	glGenBuffers(1, &particlesPositionsBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, particlesPositionsBuffer);
@@ -65,6 +92,25 @@ int main()
   glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*) 0);
   glVertexAttribDivisor(1, 1);
+#else
+  #if SHADER_STORAGE_BUFFER
+  // The SSBO containing the positions of the center of the particles
+  glGenBuffers(1, &particlesPositionsBuffer);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, particlesPositionsBuffer);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, INSTANCE_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW);
+
+  // Bind the shader storage buffer to index 0
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, particlesPositionsBuffer);
+  #else
+	// The UBO containing the positions of the center of the particles
+	glGenBuffers(1, &particlesPositionsBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, particlesPositionsBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, INSTANCE_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW);
+
+  // Bind the uniform buffer to index 0
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, particlesPositionsBuffer);
+  #endif
+#endif
 
   // Set particle size uniform
   glUniform1f(glGetUniformLocation(renderProgram, "particleSize"), PARTICLE_SIZE);
@@ -118,14 +164,25 @@ int main()
         p.pos += p.vel * (float) delta;
 
         // Fill the GPU buffer
+#if VERTEX_ATTRIB_DIVISOR
         particlesPositionData[2 * i + 0] = p.pos.x;
         particlesPositionData[2 * i + 1] = p.pos.y;
+#else
+        particlesPositionData[i].x = p.pos.x;
+        particlesPositionData[i].y = p.pos.y;
+#endif
       }
     }
-      
+
+#if VERTEX_ATTRIB_DIVISOR
     glBindBuffer(GL_ARRAY_BUFFER, particlesPositionsBuffer);
 		glBufferData(GL_ARRAY_BUFFER, INSTANCE_COUNT * 2 * sizeof(float), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
 		glBufferSubData(GL_ARRAY_BUFFER, 0, INSTANCE_COUNT * 2 * sizeof(float), particlesPositionData);
+#else
+    glBindBuffer(GL_ARRAY_BUFFER, particlesPositionsBuffer);
+		glBufferData(GL_ARRAY_BUFFER, INSTANCE_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
+		glBufferSubData(GL_ARRAY_BUFFER, 0, INSTANCE_COUNT * sizeof(ParticlePositionData), particlesPositionData);
+#endif
 
     // Draw
     glDrawElementsInstanced(
