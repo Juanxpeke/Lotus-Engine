@@ -183,7 +183,7 @@ void generateDrawCommands()
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, gIndirectBuffer);
   glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(vDrawCommand), vDrawCommand, GL_DYNAMIC_DRAW);
 
-  // Feed the instance id to the shader.
+  // Feed the instance id to the shader. TODO: Review this and the entire program
   glBindBuffer(GL_ARRAY_BUFFER, gIndirectBuffer);
   glEnableVertexAttribArray(2);
   glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(DrawElementsCommand), (void*) (offsetof(DrawElementsCommand, baseInstance)));

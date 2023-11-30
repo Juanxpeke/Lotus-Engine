@@ -17,3 +17,4 @@ configure_executable(quads_triangles_multi_draw_elements_indirect draw_calls/qt_
 configure_executable(particles_draw_elements draw_calls/p_de.cpp)
 configure_executable(particles_draw_elements_instanced draw_calls/p_de_ins.cpp)
 configure_executable(particles_multi_draw_elements draw_calls/p_mde.cpp)
+configure_executable(particles_multi_draw_elements_indirect draw_calls/p_mde_ind.cpp)
