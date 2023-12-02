@@ -102,6 +102,7 @@ void generateGeometry()
 
 void generateDrawCommands()
 {
+  // Generate draw commands
 #if INSTANCING
   DrawElementsCommand drawCommands[2];
 
@@ -117,7 +118,6 @@ void generateDrawCommands()
   drawCommands[1].baseVertex = quadVerticesRGB.size(); // Value added to each index before pulling from the vertex data
   drawCommands[1].baseInstance = 0; // Base instance
 #else
-  // Generate draw commands
   DrawElementsCommand drawCommands[DRAW_COUNT];
 
   for (unsigned int i(0); i < DRAW_COUNT; ++i)

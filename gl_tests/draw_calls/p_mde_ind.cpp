@@ -8,14 +8,18 @@
 #include "gl_utils.h"
 #include "path_manager.h"
 
+#define INSTANCING true
 #define SHADER_STORAGE_BUFFER true
 
 // Settings
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 800;
 
-// When not using shader storage buffer, maximum is 4096 because of the UBO
-const unsigned int DRAW_COUNT = 20;
+// When not using instancing, you can't draw thousands of particles because
+// that would mean thousands of draw commands and lead to an stack overflow,
+// besices, when not using shader storage buffer, maximum is 4096 because of
+// the UBO
+const unsigned int DRAW_COUNT = 200000;
 const float PARTICLE_SIZE = 0.01f;
 const float PARTICLE_LIFE_TIME = 1.0f;
 const float PARTICLE_HORIZONTAL_SPREAD = 2.0f;
@@ -49,6 +53,15 @@ namespace
 void generateDrawCommands()
 {
   // Generate draw commands
+#if INSTANCING
+  DrawElementsCommand drawCommands[1];
+
+  drawCommands[0].vertexCount = billboardQuadIndices.size(); // Amount of indices to use for each instance
+  drawCommands[0].instanceCount = DRAW_COUNT; // Draw DRAW_COUNT instances
+  drawCommands[0].firstIndex = 0; // Offset into the index buffer object to begin reading data
+  drawCommands[0].baseVertex = 0; // Value added to each index before pulling from the vertex data
+  drawCommands[0].baseInstance = 0; // Base instance
+#else
   DrawElementsCommand drawCommands[DRAW_COUNT];
 
   for (unsigned int i(0); i < DRAW_COUNT; ++i)
@@ -59,7 +72,7 @@ void generateDrawCommands()
     drawCommands[i].baseVertex = 0; // Value added to each index before pulling from the vertex data
     drawCommands[i].baseInstance = 0; // Base instance
   }
-
+#endif
   // Feed the draw command data to the GPU
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
   glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(drawCommands), drawCommands, GL_DYNAMIC_DRAW);
@@ -73,10 +86,18 @@ int main()
   glClearColor(0.0, 0.0, 0.0, 0.0);
 
   // Create and bind the shader program
-#if SHADER_STORAGE_BUFFER
-  renderProgram = createRenderProgram(shaderPath("particle_m_s.vert"), shaderPath("particle.frag"));
+#if INSTANCING
+  #if SHADER_STORAGE_BUFFER
+    renderProgram = createRenderProgram(shaderPath("particle_ins_s.vert"), shaderPath("particle.frag"));
+  #else
+    renderProgram = createRenderProgram(shaderPath("particle_ins.vert"), shaderPath("particle.frag"));
+  #endif
 #else
-  renderProgram = createRenderProgram(shaderPath("particle_m.vert"), shaderPath("particle.frag"));
+  #if SHADER_STORAGE_BUFFER
+    renderProgram = createRenderProgram(shaderPath("particle_m_s.vert"), shaderPath("particle.frag"));
+  #else
+    renderProgram = createRenderProgram(shaderPath("particle_m.vert"), shaderPath("particle.frag"));
+  #endif
 #endif
   glUseProgram(renderProgram);
 
@@ -170,18 +191,29 @@ int main()
     glBufferData(GL_SHADER_STORAGE_BUFFER, DRAW_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, DRAW_COUNT * sizeof(ParticlePositionData), particlesPositionData);
 #else
-
+    glBindBuffer(GL_UNIFORM_BUFFER, particlesPositionsBuffer);
+		glBufferData(GL_UNIFORM_BUFFER, DRAW_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, DRAW_COUNT * sizeof(ParticlePositionData), particlesPositionData);
 #endif
 
     generateDrawCommands();
 
     // Draw
+#if INSTANCING
+    glMultiDrawElementsIndirect(
+        GL_TRIANGLES, // Primitive type
+        GL_UNSIGNED_INT, // Type of the indices
+        (GLvoid*) 0, // Offset into the indirect buffer object to begin reading commands
+        1, // Make 1 draw of DRAW_COUNT instances
+        0); // No stride, the draw commands are tightly packed
+#else
     glMultiDrawElementsIndirect(
         GL_TRIANGLES, // Primitive type
         GL_UNSIGNED_INT, // Type of the indices
         (GLvoid*) 0, // Offset into the indirect buffer object to begin reading commands
         DRAW_COUNT, // Make DRAW_COUNT draws of 1 instance
         0); // No stride, the draw commands are tightly packed
+#endif
 
     if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
     {
