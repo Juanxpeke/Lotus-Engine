@@ -15,7 +15,7 @@ const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 800;
 
 // When not using shader storage buffer, maximum is 4096 because of the UBO
-const unsigned int INSTANCE_COUNT = 200000;
+const unsigned int DRAW_COUNT = 200000;
 const float PARTICLE_SIZE = 0.01f;
 const float PARTICLE_LIFE_TIME = 1.0f;
 const float PARTICLE_HORIZONTAL_SPREAD = 2.0f;
@@ -29,10 +29,10 @@ namespace
   GLuint particlesPositionsBuffer(0);
   GLuint renderProgram(0);
 
-  GLsizei indicesCounts[INSTANCE_COUNT];
-  void* indicesOffsets[INSTANCE_COUNT];
+  GLsizei indicesCounts[DRAW_COUNT];
+  void* indicesOffsets[DRAW_COUNT];
 
-  Particle particlesContainer[INSTANCE_COUNT];
+  Particle particlesContainer[DRAW_COUNT];
   float particlesLifeTime;
 
   struct ParticlePositionData
@@ -45,7 +45,7 @@ namespace
     float padding08;
   };
 
-  ParticlePositionData particlesPositionData[INSTANCE_COUNT];
+  ParticlePositionData particlesPositionData[DRAW_COUNT];
 } // Unnamed namespace
 
 int main()
@@ -82,7 +82,7 @@ int main()
   // The SSBO containing the positions of the center of the particles
   glGenBuffers(1, &particlesPositionsBuffer);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, particlesPositionsBuffer);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, INSTANCE_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, DRAW_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW);
 
   // Bind the shader storage buffer to index 0
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, particlesPositionsBuffer);
@@ -90,7 +90,7 @@ int main()
 	// The UBO containing the positions of the center of the particles
 	glGenBuffers(1, &particlesPositionsBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, particlesPositionsBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, INSTANCE_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, DRAW_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW);
 
   // Bind the uniform buffer to index 0
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, particlesPositionsBuffer);
@@ -100,7 +100,7 @@ int main()
   glUniform1f(glGetUniformLocation(renderProgram, "particleSize"), PARTICLE_SIZE);
 
   // Set multiple data
-  for (int i = 0; i < INSTANCE_COUNT; i++)
+  for (int i = 0; i < DRAW_COUNT; i++)
   {
     indicesCounts[i] = billboardQuadIndices.size();
     indicesOffsets[i] = (void*) (0 * sizeof(unsigned int));
@@ -113,21 +113,13 @@ int main()
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Use program. Not needed in this example since we only have one that
-    // we already use
-    // glUseProgram(renderProgram);
-
-    // Bind the vertex array we want to draw from. Not needed in this example
-    // since we only have one that is already bounded
-    // glBindVertexArray(VAO);
-
     float delta = getDeltaTime();
 		
     if (particlesLifeTime <= 0.0f)
     {
       particlesLifeTime = PARTICLE_LIFE_TIME;
 
-      for (int i = 0; i < INSTANCE_COUNT; i++)
+      for (int i = 0; i < DRAW_COUNT; i++)
       {
         Particle& p = particlesContainer[i];
 
@@ -146,7 +138,7 @@ int main()
     {
       particlesLifeTime -= delta;
 
-      for (int i = 0; i < INSTANCE_COUNT; i++)
+      for (int i = 0; i < DRAW_COUNT; i++)
       {
         Particle& p = particlesContainer[i];
 
@@ -159,10 +151,16 @@ int main()
         particlesPositionData[i].y = p.pos.y;
       }
     }
-      
-    glBindBuffer(GL_ARRAY_BUFFER, particlesPositionsBuffer);
-		glBufferData(GL_ARRAY_BUFFER, INSTANCE_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
-		glBufferSubData(GL_ARRAY_BUFFER, 0, INSTANCE_COUNT * sizeof(ParticlePositionData), particlesPositionData);
+
+#if SHADER_STORAGE_BUFFER
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, particlesPositionsBuffer);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, DRAW_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
+		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, DRAW_COUNT * sizeof(ParticlePositionData), particlesPositionData);
+#else
+    glBindBuffer(GL_UNIFORM_BUFFER, particlesPositionsBuffer);
+		glBufferData(GL_UNIFORM_BUFFER, DRAW_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, DRAW_COUNT * sizeof(ParticlePositionData), particlesPositionData);
+#endif
 
     // Draw
     glMultiDrawElements(
@@ -170,7 +168,7 @@ int main()
         indicesCounts, // Array of amount of indices to use for each drawing
         GL_UNSIGNED_INT, // Type of the indices
         indicesOffsets, // Array of offsets into the index buffer object to begin reading data
-        INSTANCE_COUNT); // Draw INSTANCE_COUNT objects
+        DRAW_COUNT); // Draw DRAW_COUNT objects
 
     if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
     {

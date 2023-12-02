@@ -1,6 +1,7 @@
 /*
   Flat shader for drawing instances in different positions. It uses a uniform
-  buffer object with the models and a instance index to setup per instance models
+  buffer object with the models, a draw index and a instance index to setup per 
+  instance models
 */
 
 #version 460 core
@@ -21,5 +22,10 @@ out vec3 fragColor;
 void main(void)
 {
   fragColor = color;
-  gl_Position = models[gl_InstanceID] * vec4(position, 0.0, 1.0);
+
+  // As positions are interleaved between quads and triangle and the first draw
+  // command draws all the quads and the second all the triangles, we have to
+  // calculate the model index this way
+  int modelID = gl_InstanceID * 2 + gl_DrawID;
+  gl_Position = models[modelID] * vec4(position, 0.0, 1.0);
 }

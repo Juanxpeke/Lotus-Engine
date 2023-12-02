@@ -5,189 +5,146 @@
 #include "gl_utils.h"
 #include "path_manager.h"
 
+#define INSTANCING true
+
 // Settings
 const unsigned int WIDTH = 800;
-const unsigned int HEIGHT = 600;
+const unsigned int HEIGHT = 800;
+
+// Maximum is 1024 because of the UBO
+const unsigned int DRAW_COUNT = 100;
 
 namespace
 { // Unnamed namespace
-  GLuint gVAO(0);
-  GLuint gArrayTexture(0);
+  GLuint VAO(0);
   GLuint VBO(0);
   GLuint EBO(0);
-  GLuint gIndirectBuffer(0);
-  GLuint matrixBuffer(0);
+  GLuint indirectBuffer(0);
+  GLuint modelsBuffer(0);
   GLuint renderProgram(0);
 } // Unnamed namespace
 
 void generateGeometry()
 {
-  // Generate 50 quads, 50 triangles
-  const unsigned numVertices = quadVerticesUV.size() * 50 + triangleVerticesUV.size() * 50;
-  std::vector<Vertex2D_UV> vVertex(numVertices);
-
-  Matrix vMatrix[100];
-
-  unsigned vertexIndex(0);
-  unsigned matrixIndex(0);
+  Matrix models[DRAW_COUNT];
+  unsigned modelIndex(0);
 
   // Clipspace, lower left corner = (-1, -1)
   float xOffset(-0.95f);
   float yOffset(-0.95f);
 
-  // Populate geometry
-  for (unsigned int i(0); i != 10; ++i)
+  unsigned int instanceCountSqrt = sqrt(DRAW_COUNT);
+  if (instanceCountSqrt * instanceCountSqrt != DRAW_COUNT)
   {
-    for (unsigned int j(0); j != 10; ++j)
-    {
-      // Quad
-      if (j % 2 == 0)
-      {
-        for (unsigned int k(0); k != quadVerticesUV.size(); ++k)
-        {
-          vVertex[vertexIndex++] = quadVerticesUV[k];
-        }
-      }
-      // Triangle
-      else
-      {
-        for (unsigned int k(0); k != triangleVerticesUV.size(); ++k)
-        {
-          vVertex[vertexIndex++] = triangleVerticesUV[k];
-        }
-      }
+    std::cout << "Error: DRAW_COUNT has to be a perfect square" << std::endl;
+    exit(1);
+  }
 
+  // Populate position matrices
+  for (unsigned int i(0); i != instanceCountSqrt; ++i)
+  {
+    for (unsigned int j(0); j != instanceCountSqrt; ++j)
+    {
       // Set position in model matrix
-      setPositionMatrix(&vMatrix[matrixIndex++], xOffset, yOffset);
-      xOffset += 0.2f;
+      setPositionMatrix(&models[modelIndex++], xOffset, yOffset);
+      xOffset += 0.15f;
     }
-    yOffset += 0.2f;
+    yOffset += 0.15f;
     xOffset = -0.95f;
   }
 
-  glGenVertexArrays(1, &gVAO);
-  glBindVertexArray(gVAO);
+  glGenVertexArrays(1, &VAO);
+  glBindVertexArray(VAO);
+
+  int quadVerticesBytes = sizeof(Vertex2D_RGB) * quadVerticesRGB.size();
+  int triangleVerticesBytes = sizeof(Vertex2D_RGB) * triangleVerticesRGB.size();
 
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D_UV) * vVertex.size(), vVertex.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, quadVerticesBytes + triangleVerticesBytes, NULL, GL_STATIC_DRAW);
+
+  glBufferSubData(GL_ARRAY_BUFFER, 0, quadVerticesBytes, quadVerticesRGB.data());
+  glBufferSubData(GL_ARRAY_BUFFER, quadVerticesBytes, triangleVerticesBytes, triangleVerticesRGB.data());
 
   // Specify vertex attributes for the shader
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D_UV), (GLvoid*) (offsetof(Vertex2D_UV, x)));
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D_RGB), (void*) (offsetof(Vertex2D_RGB, x)));
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D_UV), (GLvoid*) (offsetof(Vertex2D_UV, u)));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex2D_RGB), (void*) (offsetof(Vertex2D_RGB, r)));
 
   // Create an element buffer and populate it
-  int triangleBytes = sizeof(unsigned int) * triangleIndices.size();
-  int quadBytes = sizeof(unsigned int) * quadIndices.size();
+  int quadIndicesBytes = sizeof(unsigned int) * quadIndices.size();
+  int triangleIndicesBytes = sizeof(unsigned int) * triangleIndices.size();
 
   glGenBuffers(1, &EBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleBytes + quadBytes, NULL, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, quadIndicesBytes + triangleIndicesBytes, NULL, GL_STATIC_DRAW);
 
-  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, quadBytes, quadIndices.data());
-  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, quadBytes, triangleBytes, triangleIndices.data());
+  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, quadIndicesBytes, quadIndices.data());
+  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, quadIndicesBytes, triangleIndicesBytes, triangleIndices.data());
 
   // Setup per instance matrices
-  // Method 1. Use Vertex attributes and the vertex attrib divisor
-  glGenBuffers(1, &matrixBuffer);
-  glBindBuffer(GL_ARRAY_BUFFER, matrixBuffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vMatrix), vMatrix, GL_STATIC_DRAW);
-  // A matrix is 4 vec4s
-  glEnableVertexAttribArray(3 + 0);
-  glEnableVertexAttribArray(3 + 1);
-  glEnableVertexAttribArray(3 + 2);
-  glEnableVertexAttribArray(3 + 3);
+#if INSTANCING
+  // Use Uniform Buffers with gl_DrawID and gl_InstanceID. WARNING: We are not considering the std140 layout with
+  // some fancy structure as the Matrix struct has 16 float values
+#else
+  // Use Uniform Buffers with gl_DrawID. WARNING: We are not considering the std140 layout with
+  // some fancy structure as the Matrix struct has 16 float values
+#endif
+	glGenBuffers(1, &modelsBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, modelsBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(models), &models, GL_STATIC_DRAW);
 
-  glVertexAttribPointer(3 + 0, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), (GLvoid*) (offsetof(Matrix, a0)));
-  glVertexAttribPointer(3 + 1, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), (GLvoid*) (offsetof(Matrix, b0)));
-  glVertexAttribPointer(3 + 2, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), (GLvoid*) (offsetof(Matrix, c0)));
-  glVertexAttribPointer(3 + 3, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), (GLvoid*) (offsetof(Matrix, d0)));
-  // Only apply one per instance
-  glVertexAttribDivisor(3 + 0, 1);
-  glVertexAttribDivisor(3 + 1, 1);
-  glVertexAttribDivisor(3 + 2, 1);
-  glVertexAttribDivisor(3 + 3, 1);
+  // Bind the uniform buffer to index 0
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, modelsBuffer);
 
-  // Method 2. Use Uniform Buffers. Not shown here
-}
-
-void generateArrayTexture()
-{
-  // Generate an array texture
-  glGenTextures(1, &gArrayTexture);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D_ARRAY, gArrayTexture);
-
-  // Create storage for the texture. (100 layers of 1x1 texels)
-  glTexStorage3D(
-      GL_TEXTURE_2D_ARRAY,
-      1, // No mipmaps as textures are 1x1
-      GL_RGB8, // Internal format
-      1, 1, // Width, height
-      100); //Number of layers
-
-  for (unsigned int i(0); i != 100; ++i)
-  {
-    // Choose a random color for the i-essim image
-    GLubyte color[3] = { GLubyte(rand() % 255),GLubyte(rand() % 255),GLubyte(rand() % 255) };
-
-    // Specify i-essim image
-    glTexSubImage3D(
-        GL_TEXTURE_2D_ARRAY,
-        0, // Mipmap number
-        0, 0, i, // xoffset, yoffset, zoffset
-        1, 1, 1, // Width, height, depth
-        GL_RGB, // Format
-        GL_UNSIGNED_BYTE, // Type
-        color); // Pointer to data
-  }
-
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 void generateDrawCommands()
 {
+#if INSTANCING
+  DrawElementsCommand drawCommands[2];
+
+  drawCommands[0].vertexCount = quadIndices.size(); // Amount of indices to use for each instance
+  drawCommands[0].instanceCount = DRAW_COUNT / 2; // Draw DRAW_COUNT / 2 instances
+  drawCommands[0].firstIndex = 0; // Offset into the index buffer object to begin reading data
+  drawCommands[0].baseVertex = 0; // Value added to each index before pulling from the vertex data
+  drawCommands[0].baseInstance = 0; // Base instance
+
+  drawCommands[1].vertexCount = triangleIndices.size(); // Amount of indices to use for each instance
+  drawCommands[1].instanceCount = DRAW_COUNT / 2; // Draw DRAW_COUNT / 2 instances
+  drawCommands[1].firstIndex = quadIndices.size(); // Offset into the index buffer object to begin reading data
+  drawCommands[1].baseVertex = quadVerticesRGB.size(); // Value added to each index before pulling from the vertex data
+  drawCommands[1].baseInstance = 0; // Base instance
+#else
   // Generate draw commands
-  DrawElementsCommand vDrawCommand[100];
-  GLuint baseVert = 0;
-  for (unsigned int i(0); i < 100; ++i)
+  DrawElementsCommand drawCommands[DRAW_COUNT];
+
+  for (unsigned int i(0); i < DRAW_COUNT; ++i)
   {
     // Quad
     if (i % 2 == 0)
     {
-      vDrawCommand[i].vertexCount = quadIndices.size(); // 4 triangles = 12 vertices
-      vDrawCommand[i].instanceCount = 1; // Draw 1 instance
-      vDrawCommand[i].firstIndex = 0; // Draw from index 0 for this instance
-      vDrawCommand[i].baseVertex = baseVert; // Starting from baseVert
-      vDrawCommand[i].baseInstance = i; // gl_InstanceID
-      baseVert += quadVerticesUV.size();
+      drawCommands[i].vertexCount = quadIndices.size(); // Amount of indices to use for each instance
+      drawCommands[i].instanceCount = 1; // Draw 1 instance
+      drawCommands[i].firstIndex = 0; // Offset into the index buffer object to begin reading data
+      drawCommands[i].baseVertex = 0; // Value added to each index before pulling from the vertex data
+      drawCommands[i].baseInstance = 0; // Base instance
     }
     // Triangle
     else
     {
-      vDrawCommand[i].vertexCount = triangleIndices.size(); // 1 triangle = 3 vertices
-      vDrawCommand[i].instanceCount = 1; // Draw 1 instance
-      vDrawCommand[i].firstIndex = 0; // Draw from index 0 for this instance
-      vDrawCommand[i].baseVertex = baseVert; // Starting from baseVert
-      vDrawCommand[i].baseInstance = i; // gl_InstanceID
-      baseVert += triangleVerticesUV.size();
+      drawCommands[i].vertexCount = triangleIndices.size(); // Amount of indices to use for each instance
+      drawCommands[i].instanceCount = 1; // Draw 1 instance
+      drawCommands[i].firstIndex = quadIndices.size(); // Offset into the index buffer object to begin reading data
+      drawCommands[i].baseVertex = quadVerticesRGB.size(); // Value added to each index before pulling from the vertex data
+      drawCommands[i].baseInstance = 0; // Base instance
     }
   }
-
+#endif
   // Feed the draw command data to the GPU
-  glBindBuffer(GL_DRAW_INDIRECT_BUFFER, gIndirectBuffer);
-  glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(vDrawCommand), vDrawCommand, GL_DYNAMIC_DRAW);
-
-  // Feed the instance id to the shader. TODO: Review this and the entire program
-  glBindBuffer(GL_ARRAY_BUFFER, gIndirectBuffer);
-  glEnableVertexAttribArray(2);
-  glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, sizeof(DrawElementsCommand), (void*) (offsetof(DrawElementsCommand, baseInstance)));
-  glVertexAttribDivisor(2, 1); // Only once per instance
+  glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
+  glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(drawCommands), drawCommands, GL_DYNAMIC_DRAW);
 }
 
 int main()
@@ -195,25 +152,26 @@ int main()
   startGL(WIDTH, HEIGHT, "Quads and triangles with MultiDrawElementsIndirect");
 
   // Set clear color
-  glClearColor(1.0, 1.0, 1.0, 0.0);
+  glClearColor(0.0, 0.0, 0.0, 0.0);
 
   // Create and bind the shader program
-  renderProgram = createRenderProgram(shaderPath("rect.vert"), shaderPath("rect.frag"));
+#if INSTANCING
+  renderProgram = createRenderProgram(shaderPath("flat_m_ind.vert"), shaderPath("flat.frag"));
+#else
+  renderProgram = createRenderProgram(shaderPath("flat_m.vert"), shaderPath("flat.frag"));
+#endif
   glUseProgram(renderProgram);
 
   generateGeometry();
-  generateArrayTexture();
-
-  // Set the sampler for the texture.
-  // Hacky but we know that the arraysampler is at bindingpoint 0.
-  glUniform1i(0, 0);
 
   // Generate one indirect draw buffer
-  glGenBuffers(1, &gIndirectBuffer);
+  glGenBuffers(1, &indirectBuffer);
 
   // Render loop
   while (!glfwWindowShouldClose(window))
   {
+    updateProfiler();
+
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Use program. Not needed in this example since we only have one that
@@ -222,17 +180,26 @@ int main()
 
     // Bind the vertex array we want to draw from. Not needed in this example
     // since we only have one that is already bounded
-    // glBindVertexArray(gVAO);
+    // glBindVertexArray(VAO);
 
     generateDrawCommands();
 
     // Draw
+#if INSTANCING
     glMultiDrawElementsIndirect(
-        GL_TRIANGLES, // Type
-        GL_UNSIGNED_INT, // Indices represented as unsigned ints
-        (GLvoid*) 0, // Start with the first draw command
-        100, // Draw 100 objects
+        GL_TRIANGLES, // Primitive type
+        GL_UNSIGNED_INT, // Type of the indices
+        (GLvoid*) 0, // Offset into the indirect buffer object to begin reading commands
+        2, // Make 2 draws of DRAW_COUNT /  2 instances
         0); // No stride, the draw commands are tightly packed
+#else
+    glMultiDrawElementsIndirect(
+        GL_TRIANGLES, // Primitive type
+        GL_UNSIGNED_INT, // Type of the indices
+        (GLvoid*) 0, // Offset into the indirect buffer object to begin reading commands
+        DRAW_COUNT, // Make DRAW_COUNT draws of 1 instance
+        0); // No stride, the draw commands are tightly packed
+#endif
 
 
     if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
@@ -250,11 +217,10 @@ int main()
 
   // Clean-up
   glDeleteProgram(renderProgram);
-  glDeleteVertexArrays(1, &gVAO);
+  glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
   glDeleteBuffers(1, &EBO);
-  glDeleteBuffers(1, &matrixBuffer);
-  glDeleteBuffers(1, &gIndirectBuffer);
-  glDeleteTextures(1, &gArrayTexture);
+  glDeleteBuffers(1, &modelsBuffer);
+  glDeleteBuffers(1, &indirectBuffer);
   return 0;
 }

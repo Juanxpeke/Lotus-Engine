@@ -13,7 +13,6 @@ layout(std140, binding = 0) uniform Models
 	mat4[1024] models;
 };
 
-
 layout (location = 0) in vec2 position;
 layout (location = 1) in vec3 color;
 

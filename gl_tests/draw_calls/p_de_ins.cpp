@@ -8,8 +8,8 @@
 #include "gl_utils.h"
 #include "path_manager.h"
 
-#define VERTEX_ATTRIB_DIVISOR true
-#define SHADER_STORAGE_BUFFER false
+#define VERTEX_ATTRIB_DIVISOR false
+#define SHADER_STORAGE_BUFFER true
 
 // Settings
 const unsigned int WIDTH = 800;
@@ -122,14 +122,6 @@ int main()
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Use program. Not needed in this example since we only have one that
-    // we already use
-    // glUseProgram(renderProgram);
-
-    // Bind the vertex array we want to draw from. Not needed in this example
-    // since we only have one that is already bounded
-    // glBindVertexArray(VAO);
-
     float delta = getDeltaTime();
 		
     if (particlesLifeTime <= 0.0f)
@@ -179,9 +171,15 @@ int main()
 		glBufferData(GL_ARRAY_BUFFER, INSTANCE_COUNT * 2 * sizeof(float), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
 		glBufferSubData(GL_ARRAY_BUFFER, 0, INSTANCE_COUNT * 2 * sizeof(float), particlesPositionData);
 #else
-    glBindBuffer(GL_ARRAY_BUFFER, particlesPositionsBuffer);
-		glBufferData(GL_ARRAY_BUFFER, INSTANCE_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
-		glBufferSubData(GL_ARRAY_BUFFER, 0, INSTANCE_COUNT * sizeof(ParticlePositionData), particlesPositionData);
+  #if SHADER_STORAGE_BUFFER
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, particlesPositionsBuffer);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, INSTANCE_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
+		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, INSTANCE_COUNT * sizeof(ParticlePositionData), particlesPositionData);
+  #else
+    glBindBuffer(GL_UNIFORM_BUFFER, particlesPositionsBuffer);
+		glBufferData(GL_UNIFORM_BUFFER, INSTANCE_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, INSTANCE_COUNT * sizeof(ParticlePositionData), particlesPositionData);
+  #endif
 #endif
 
     // Draw

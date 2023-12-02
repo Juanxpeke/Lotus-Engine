@@ -65,14 +65,6 @@ int main()
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Use program. Not needed in this example since we only have one that
-    // we already use
-    // glUseProgram(renderProgram);
-
-    // Bind the vertex array we want to draw from. Not needed in this example
-    // since we only have one that is already bounded
-    // glBindVertexArray(VAO);
-
     float delta = getDeltaTime();
 		
     if (particlesLifeTime <= 0.0f)

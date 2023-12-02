@@ -12,7 +12,7 @@ const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 800;
 
 // Maximum is 1024 because of the UBO
-const unsigned int INSTANCE_COUNT = 100;
+const unsigned int DRAW_COUNT = 100;
 
 namespace
 { // Unnamed namespace
@@ -22,31 +22,31 @@ namespace
   GLuint modelsBuffer(0);
   GLuint renderProgram(0);
 
-  GLsizei indicesCounts[INSTANCE_COUNT];
-  void* indicesOffsets[INSTANCE_COUNT];
+  GLsizei indicesCounts[DRAW_COUNT];
+  void* indicesOffsets[DRAW_COUNT];
 #if BASE_VERTEX
-  GLint baseVertices[INSTANCE_COUNT];
+  GLint baseVertices[DRAW_COUNT];
 #endif
 } // Unnamed namespace
 
 void generateGeometry()
 {
-  Matrix models[INSTANCE_COUNT];
+  Matrix models[DRAW_COUNT];
   unsigned modelIndex(0);
 
   // Clipspace, lower left corner = (-1, -1)
   float xOffset(-0.95f);
   float yOffset(-0.95f);
 
-  unsigned int instanceCountSqrt = sqrt(INSTANCE_COUNT);
-  if (instanceCountSqrt * instanceCountSqrt != INSTANCE_COUNT)
+  unsigned int instanceCountSqrt = sqrt(DRAW_COUNT);
+  if (instanceCountSqrt * instanceCountSqrt != DRAW_COUNT)
   {
-    std::cout << "Error: INSTANCE_COUNT has to be a perfect square" << std::endl;
+    std::cout << "Error: DRAW_COUNT has to be a perfect square" << std::endl;
     exit(1);
   }
 
   // Populate geometry data
-  for (unsigned int i(0); i != INSTANCE_COUNT; i++)
+  for (unsigned int i(0); i != DRAW_COUNT; i++)
   {
     // Quad
     if (i % 2 == 0)
@@ -160,7 +160,7 @@ int main()
         indicesCounts, // Array of amount of indices to use for each drawing
         GL_UNSIGNED_INT, // Type of the indices
         indicesOffsets, // Array of offsets into the index buffer object to begin reading data
-        INSTANCE_COUNT, // Draw INSTANCE_COUNT objects
+        DRAW_COUNT, // Draw DRAW_COUNT objects
         baseVertices); // Array of values added to each index before pulling from the vertex data
 #else
     // This is not useful for multiple meshes as you would need to define custom indices for each element
@@ -171,7 +171,7 @@ int main()
         indicesCounts, // Array of amount of indices to use for each drawing
         GL_UNSIGNED_INT, // Type of the indices
         indicesOffsets, // Array of offsets into the index buffer object to begin reading data
-        INSTANCE_COUNT); // Draw INSTANCE_COUNT objects
+        DRAW_COUNT); // Draw DRAW_COUNT objects
 #endif
 
     if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))

@@ -15,7 +15,7 @@ const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 800;
 
 // When not using shader storage buffer, maximum is 4096 because of the UBO
-const unsigned int INSTANCE_COUNT = 20;
+const unsigned int DRAW_COUNT = 20;
 const float PARTICLE_SIZE = 0.01f;
 const float PARTICLE_LIFE_TIME = 1.0f;
 const float PARTICLE_HORIZONTAL_SPREAD = 2.0f;
@@ -30,7 +30,7 @@ namespace
   GLuint particlesPositionsBuffer(0);
   GLuint renderProgram(0);
 
-  Particle particlesContainer[INSTANCE_COUNT];
+  Particle particlesContainer[DRAW_COUNT];
   float particlesLifeTime;
 
   struct ParticlePositionData
@@ -43,21 +43,21 @@ namespace
     float padding08;
   };
 
-  ParticlePositionData particlesPositionData[INSTANCE_COUNT];
+  ParticlePositionData particlesPositionData[DRAW_COUNT];
 } // Unnamed namespace
 
 void generateDrawCommands()
 {
   // Generate draw commands
-  DrawElementsCommand drawCommands[INSTANCE_COUNT];
+  DrawElementsCommand drawCommands[DRAW_COUNT];
 
-  for (unsigned int i(0); i < INSTANCE_COUNT; ++i)
+  for (unsigned int i(0); i < DRAW_COUNT; ++i)
   {
-    drawCommands[i].vertexCount = billboardQuadIndices.size();
+    drawCommands[i].vertexCount = billboardQuadIndices.size(); // Amount of indices to use for each instance
     drawCommands[i].instanceCount = 1; // Draw 1 instance
-    drawCommands[i].firstIndex = 0; // Draw from index 0 for this instance
-    drawCommands[i].baseVertex = 0; // Starting from baseVert
-    drawCommands[i].baseInstance = i; // gl_InstanceID
+    drawCommands[i].firstIndex = 0; // Offset into the index buffer object to begin reading data
+    drawCommands[i].baseVertex = 0; // Value added to each index before pulling from the vertex data
+    drawCommands[i].baseInstance = 0; // Base instance
   }
 
   // Feed the draw command data to the GPU
@@ -74,9 +74,9 @@ int main()
 
   // Create and bind the shader program
 #if SHADER_STORAGE_BUFFER
-  renderProgram = createRenderProgram(shaderPath("particle_m_ind_s.vert"), shaderPath("particle.frag"));
+  renderProgram = createRenderProgram(shaderPath("particle_m_s.vert"), shaderPath("particle.frag"));
 #else
-  renderProgram = createRenderProgram(shaderPath("particle_m_ind.vert"), shaderPath("particle.frag"));
+  renderProgram = createRenderProgram(shaderPath("particle_m.vert"), shaderPath("particle.frag"));
 #endif
   glUseProgram(renderProgram);
 
@@ -88,7 +88,7 @@ int main()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * billboardQuadVertices.size(), billboardQuadVertices.data(), GL_STATIC_DRAW);
 
   glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2,	GL_FLOAT,	GL_FALSE,	0, (void*) 0);
+  glVertexAttribPointer(0, 2,	GL_FLOAT,	GL_FALSE,	2 * sizeof(float), (void*) 0);
   glVertexAttribDivisor(0, 0);
 
   glGenBuffers(1, &billboardQuadEBO);
@@ -99,7 +99,7 @@ int main()
   // The SSBO containing the positions of the center of the particles
   glGenBuffers(1, &particlesPositionsBuffer);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, particlesPositionsBuffer);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, INSTANCE_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, DRAW_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW);
 
   // Bind the shader storage buffer to index 0
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, particlesPositionsBuffer);
@@ -107,11 +107,14 @@ int main()
 	// The UBO containing the positions of the center of the particles
 	glGenBuffers(1, &particlesPositionsBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, particlesPositionsBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, INSTANCE_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, DRAW_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW);
 
   // Bind the uniform buffer to index 0
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, particlesPositionsBuffer);
 #endif
+
+  // Generate one indirect draw buffer
+  glGenBuffers(1, &indirectBuffer);
 
   // Set particle size uniform
   glUniform1f(glGetUniformLocation(renderProgram, "particleSize"), PARTICLE_SIZE);
@@ -123,21 +126,13 @@ int main()
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Use program. Not needed in this example since we only have one that
-    // we already use
-    // glUseProgram(renderProgram);
-
-    // Bind the vertex array we want to draw from. Not needed in this example
-    // since we only have one that is already bounded
-    // glBindVertexArray(VAO);
-
     float delta = getDeltaTime();
 		
     if (particlesLifeTime <= 0.0f)
     {
       particlesLifeTime = PARTICLE_LIFE_TIME;
 
-      for (int i = 0; i < INSTANCE_COUNT; i++)
+      for (int i = 0; i < DRAW_COUNT; i++)
       {
         Particle& p = particlesContainer[i];
 
@@ -156,7 +151,7 @@ int main()
     {
       particlesLifeTime -= delta;
 
-      for (int i = 0; i < INSTANCE_COUNT; i++)
+      for (int i = 0; i < DRAW_COUNT; i++)
       {
         Particle& p = particlesContainer[i];
 
@@ -169,11 +164,14 @@ int main()
         particlesPositionData[i].y = p.pos.y;
       }
     }
-      
-    glBindBuffer(GL_ARRAY_BUFFER, particlesPositionsBuffer);
-		glBufferData(GL_ARRAY_BUFFER, INSTANCE_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
-		glBufferSubData(GL_ARRAY_BUFFER, 0, INSTANCE_COUNT * sizeof(ParticlePositionData), particlesPositionData);
+    
+#if SHADER_STORAGE_BUFFER
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, particlesPositionsBuffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, DRAW_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, DRAW_COUNT * sizeof(ParticlePositionData), particlesPositionData);
+#else
 
+#endif
 
     generateDrawCommands();
 
@@ -182,7 +180,7 @@ int main()
         GL_TRIANGLES, // Primitive type
         GL_UNSIGNED_INT, // Type of the indices
         (GLvoid*) 0, // Offset into the indirect buffer object to begin reading commands
-        INSTANCE_COUNT, // Draw INSTANCE_COUNT objects
+        DRAW_COUNT, // Make DRAW_COUNT draws of 1 instance
         0); // No stride, the draw commands are tightly packed
 
     if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
