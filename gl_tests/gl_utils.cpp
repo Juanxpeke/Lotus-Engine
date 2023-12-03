@@ -84,57 +84,19 @@ const std::vector<unsigned int> fQuadIndices =
   0, 2, 3  // Left triangle
 };
 
-
-
-
-
-
-
-const std::vector<float> billboardRectangleVertices =
+const std::vector<Vertex2D_Flat> rectangleVerticesFlat =
 { 
   // XY
-  -0.5f, -1.5f,
-   0.5f, -1.5f,
-  -0.5f,  1.5f,
-   0.5f,  1.5f,
+  { -0.3f, -1.0f },
+  {  0.3f, -1.0f },
+  { -0.3f,  1.0f },
+  {  0.3f,  1.0f }
 };
 
-const std::vector<unsigned int> billboardRectangleIndices =
+const std::vector<unsigned int> rectangleIndices =
 { 
   0, 1, 2, // Bottom left
   1, 2, 3  // Top right
-};
-
-const std::vector<float> billboardCircleVertices =
-{
-    // XY
-    0.5f, 0.0f,  // Vertex 0 (center)
-    0.4045f, 0.2939f, // Vertex 1
-    0.2939f, 0.4045f, // Vertex 2
-    0.0f, 0.5f,  // Vertex 3
-   -0.2939f, 0.4045f, // Vertex 4
-   -0.4045f, 0.2939f, // Vertex 5
-   -0.5f, 0.0f,  // Vertex 6
-   -0.4045f, -0.2939f, // Vertex 7
-   -0.2939f, -0.4045f, // Vertex 8
-    0.0f, -0.5f, // Vertex 9
-    0.2939f, -0.4045f, // Vertex 10
-    0.4045f, -0.2939f, // Vertex 11
-};
-
-const std::vector<unsigned int> billboardCircleIndices =
-{
-    0, 1, 2,
-    0, 2, 3,
-    0, 3, 4,
-    0, 4, 5,
-    0, 5, 6,
-    0, 6, 7,
-    0, 7, 8,
-    0, 8, 9,
-    0, 9, 10,
-    0, 10, 11,
-    0, 11, 1,
 };
 
 

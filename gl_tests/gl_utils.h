@@ -63,13 +63,10 @@ extern const std::vector<unsigned int> quadIndices;
 extern const std::vector<Vertex2D_UV> fQuadVerticesUV;
 extern const std::vector<Vertex2D_RGB> fQuadVerticesRGB;
 extern const std::vector<unsigned int> fQuadIndices;
+// Vertical rectangle
+extern const std::vector<Vertex2D_Flat> rectangleVerticesFlat;
+extern const std::vector<unsigned int> rectangleIndices;
 
-// A rectangle with no color nor texture
-extern const std::vector<float> billboardRectangleVertices;
-extern const std::vector<unsigned int> billboardRectangleIndices;
-// A circle with no color nor texture
-extern const std::vector<float> billboardCircleVertices;
-extern const std::vector<unsigned int> billboardCircleIndices;
 
 // GLFW
 bool startGL(int width, int height, const char* title);

@@ -18,8 +18,8 @@ const unsigned int HEIGHT = 800;
 // that would mean thousands of draw commands and lead to an stack overflow,
 // besices, when not using shader storage buffer, maximum is 4096 because of
 // the UBO
-const unsigned int DRAW_COUNT = 7;
-const float PARTICLE_SIZE = 0.1f;
+const unsigned int DRAW_COUNT = 200000;
+const float PARTICLE_SIZE = 0.01f;
 const float PARTICLE_LIFE_TIME = 1.0f;
 const float PARTICLE_HORIZONTAL_SPREAD = 2.0f;
 const float PARTICLE_VERTICAL_IMPULSE = 4.0f;
@@ -53,32 +53,32 @@ void generateDrawCommands()
 {
   // Generate draw commands
 #if INSTANCING
-  DrawElementsCommand drawCommands[2];
+  DrawElementsCommand drawCommands[3];
 
   drawCommands[0].vertexCount = quadIndices.size(); // Amount of indices to use for each instance
-  drawCommands[0].instanceCount = DRAW_COUNT / 2; // Draw DRAW_COUNT / 3 instances
+  drawCommands[0].instanceCount = DRAW_COUNT / 3; // Draw DRAW_COUNT / 3 instances
   drawCommands[0].firstIndex = 0; // Offset into the index buffer object to begin reading data
   drawCommands[0].baseVertex = 0; // Value added to each index before pulling from the vertex data
   drawCommands[0].baseInstance = 0; // Base instance
 
   drawCommands[1].vertexCount = triangleIndices.size(); // Amount of indices to use for each instance
-  drawCommands[1].instanceCount = DRAW_COUNT / 2; // Draw DRAW_COUNT / 3 instances
+  drawCommands[1].instanceCount = DRAW_COUNT / 3; // Draw DRAW_COUNT / 3 instances
   drawCommands[1].firstIndex = quadIndices.size(); // Offset into the index buffer object to begin reading data
   drawCommands[1].baseVertex = quadVerticesFlat.size(); // Value added to each index before pulling from the vertex data
   drawCommands[1].baseInstance = 0; // Base instance
 
-  //drawCommands[2].vertexCount = billboardRectangleIndices.size(); // Amount of indices to use for each instance
-  //drawCommands[2].instanceCount = DRAW_COUNT / 3; // Draw DRAW_COUNT / 3 instances
-  //drawCommands[2].firstIndex = quadIndices.size() + billboardTriangleIndices.size(); // Offset into the index buffer object to begin reading data
-  //drawCommands[2].baseVertex = quadVerticesFlat.size() + triangleVerticesFlat.size(); // Value added to each index before pulling from the vertex data
-  //drawCommands[2].baseInstance = 0; // Base instance
+  drawCommands[2].vertexCount = rectangleIndices.size(); // Amount of indices to use for each instance
+  drawCommands[2].instanceCount = DRAW_COUNT / 3; // Draw DRAW_COUNT / 3 instances
+  drawCommands[2].firstIndex = quadIndices.size() + triangleIndices.size(); // Offset into the index buffer object to begin reading data
+  drawCommands[2].baseVertex = quadVerticesFlat.size() + triangleVerticesFlat.size(); // Value added to each index before pulling from the vertex data
+  drawCommands[2].baseInstance = 0; // Base instance
 #else
   DrawElementsCommand drawCommands[DRAW_COUNT];
 
   for (unsigned int i(0); i < DRAW_COUNT; ++i)
   {
     // Quad
-    if (i % 2 == 0)
+    if (i % 3 == 0)
     {
       drawCommands[i].vertexCount = quadIndices.size(); // Amount of indices to use for each instance
       drawCommands[i].instanceCount = 1; // Draw 1 instance
@@ -87,12 +87,20 @@ void generateDrawCommands()
       drawCommands[i].baseInstance = 0; // Base instance
     }
     // Triangle
-    else
+    else if (i % 3 == 1)
     {
       drawCommands[i].vertexCount = triangleIndices.size(); // Amount of indices to use for each instance
       drawCommands[i].instanceCount = 1; // Draw 1 instance
       drawCommands[i].firstIndex = quadIndices.size(); // Offset into the index buffer object to begin reading data
       drawCommands[i].baseVertex = quadVerticesFlat.size(); // Value added to each index before pulling from the vertex data
+      drawCommands[i].baseInstance = 0; // Base instance
+    }
+    else
+    {
+      drawCommands[i].vertexCount = rectangleIndices.size(); // Amount of indices to use for each instance
+      drawCommands[i].instanceCount = 1; // Draw 1 instance
+      drawCommands[i].firstIndex = quadIndices.size() + triangleIndices.size(); // Offset into the index buffer object to begin reading data
+      drawCommands[i].baseVertex = quadVerticesFlat.size() + triangleVerticesFlat.size(); // Value added to each index before pulling from the vertex data
       drawCommands[i].baseInstance = 0; // Base instance
     }
   }
@@ -122,15 +130,15 @@ int main()
 
   int quadVerticesBytes = sizeof(Vertex2D_Flat) * quadVerticesFlat.size();
   int triangleVerticesBytes = sizeof(Vertex2D_Flat) * triangleVerticesFlat.size();
-  int rectangleVerticesBytes = sizeof(Vertex2D_Flat) * billboardRectangleVertices.size();
+  int rectangleVerticesBytes = sizeof(Vertex2D_Flat) * rectangleVerticesFlat.size();
 
   glGenBuffers(1, &billboardsVBO);
   glBindBuffer(GL_ARRAY_BUFFER, billboardsVBO);
-  glBufferData(GL_ARRAY_BUFFER, quadVerticesBytes + triangleVerticesBytes, NULL, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, quadVerticesBytes + triangleVerticesBytes + rectangleVerticesBytes, NULL, GL_STATIC_DRAW);
 
   glBufferSubData(GL_ARRAY_BUFFER, 0, quadVerticesBytes, quadVerticesFlat.data());
   glBufferSubData(GL_ARRAY_BUFFER, quadVerticesBytes, triangleVerticesBytes, triangleVerticesFlat.data());
-  //glBufferSubData(GL_ARRAY_BUFFER, quadVerticesBytes + triangleVerticesBytes, rectangleVerticesBytes, billboardRectangleVertices.data());
+  glBufferSubData(GL_ARRAY_BUFFER, quadVerticesBytes + triangleVerticesBytes, rectangleVerticesBytes, rectangleVerticesFlat.data());
 
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 2,	GL_FLOAT,	GL_FALSE,	2 * sizeof(float), (void*) 0);
@@ -138,15 +146,15 @@ int main()
 
   int quadIndicesBytes = sizeof(unsigned int) * quadIndices.size();
   int triangleIndicesBytes = sizeof(unsigned int) * triangleIndices.size();
-  int rectangleIndicesBytes = sizeof(unsigned int) * billboardRectangleIndices.size();
+  int rectangleIndicesBytes = sizeof(unsigned int) * rectangleIndices.size();
 
   glGenBuffers(1, &billboardsEBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, billboardsEBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, quadIndicesBytes + triangleIndicesBytes, NULL, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, quadIndicesBytes + triangleIndicesBytes + rectangleIndicesBytes, NULL, GL_STATIC_DRAW);
 
   glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, quadIndicesBytes, quadIndices.data());
   glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, quadIndicesBytes, triangleIndicesBytes, triangleIndices.data());
-  //glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, quadIndicesBytes + triangleIndicesBytes, rectangleIndicesBytes, billboardRectangleIndices.data());
+  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, quadIndicesBytes + triangleIndicesBytes, rectangleIndicesBytes, rectangleIndices.data());
 
   // The SSBO containing the positions of the center of the particles
   glGenBuffers(1, &particlesPositionsBuffer);
@@ -220,7 +228,7 @@ int main()
         GL_TRIANGLES, // Primitive type
         GL_UNSIGNED_INT, // Type of the indices
         (GLvoid*) 0, // Offset into the indirect buffer object to begin reading commands
-        2, // Make 3 draws of DRAW_COUNT / 3 instances
+        3, // Make 3 draws of DRAW_COUNT / 3 instances
         0); // No stride, the draw commands are tightly packed
 #else
     glMultiDrawElementsIndirect(

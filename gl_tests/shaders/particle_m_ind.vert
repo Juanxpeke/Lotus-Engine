@@ -19,7 +19,7 @@ void main()
 	// In the case we needed the positions divided by shape sequentially, that is, like
 	// (quad = 0 1 2 ... | triangle = n_quads n_quads+1 n_quads+2 ...), we could use 
 	// uniforms to know the amount of instances for each shape
-	int positionID = gl_InstanceID * 2 + gl_DrawID;
+	int positionID = gl_InstanceID * 3 + gl_DrawID;
 	vec2 vertexPosition = particlesPositions[positionID] + billboardVertex * particleSize;
 
 	gl_Position = vec4(vertexPosition, 0.0, 1.0);
