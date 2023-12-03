@@ -45,7 +45,7 @@ int main()
 
 	glGenBuffers(1, &billboardQuadVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, billboardQuadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * billboardQuadVertices.size(), billboardQuadVertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D_Flat) * quadVerticesFlat.size(), quadVerticesFlat.data(), GL_STATIC_DRAW);
 
   glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2,	GL_FLOAT,	GL_FALSE,	2 * sizeof(float), (void*) 0);
@@ -53,7 +53,7 @@ int main()
 
   glGenBuffers(1, &billboardQuadEBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, billboardQuadEBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * billboardQuadIndices.size(), billboardQuadIndices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * quadIndices.size(), quadIndices.data(), GL_STATIC_DRAW);
 
   // Set particle size uniform
   glUniform1f(glGetUniformLocation(renderProgram, "particleSize"), PARTICLE_SIZE);
@@ -110,7 +110,7 @@ int main()
 
       glDrawElements(
           GL_TRIANGLES, // Primitive type
-          billboardQuadIndices.size(), // Amount of indices to use for the instance
+          quadIndices.size(), // Amount of indices to use for the instance
           GL_UNSIGNED_INT, // Type of the indices
           (void*) (0 * sizeof(unsigned int))); // Offset into the index buffer object to begin reading data
     }

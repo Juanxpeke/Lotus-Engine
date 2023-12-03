@@ -68,7 +68,7 @@ int main()
 
 	glGenBuffers(1, &billboardQuadVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, billboardQuadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * billboardQuadVertices.size(), billboardQuadVertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D_Flat) * quadVerticesFlat.size(), quadVerticesFlat.data(), GL_STATIC_DRAW);
 
   glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2,	GL_FLOAT,	GL_FALSE,	2 * sizeof(float), (void*) 0);
@@ -76,7 +76,7 @@ int main()
 
   glGenBuffers(1, &billboardQuadEBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, billboardQuadEBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * billboardQuadIndices.size(), billboardQuadIndices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * quadIndices.size(), quadIndices.data(), GL_STATIC_DRAW);
 
 #if SHADER_STORAGE_BUFFER
   // The SSBO containing the positions of the center of the particles
@@ -102,7 +102,7 @@ int main()
   // Set multiple data
   for (int i = 0; i < DRAW_COUNT; i++)
   {
-    indicesCounts[i] = billboardQuadIndices.size();
+    indicesCounts[i] = quadIndices.size();
     indicesOffsets[i] = (void*) (0 * sizeof(unsigned int));
   }
 

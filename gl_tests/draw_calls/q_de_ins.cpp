@@ -58,7 +58,7 @@ void generateGeometry()
 
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D_RGB) * quadVerticesRGB.size(), quadVerticesRGB.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D_RGB) * fQuadVerticesRGB.size(), fQuadVerticesRGB.data(), GL_STATIC_DRAW);
 
   // Specify vertex attributes for the shader
   glEnableVertexAttribArray(0);
@@ -69,7 +69,7 @@ void generateGeometry()
   // Create an element buffer and populate it
   glGenBuffers(1, &EBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * quadIndices.size(), quadIndices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * fQuadIndices.size(), fQuadIndices.data(), GL_STATIC_DRAW);
 
   // Setup per instance matrices
 #if VERTEX_ATTRIB_DIVISOR
@@ -141,7 +141,7 @@ int main()
 #if BASE_INSTANCE
     glDrawElementsInstancedBaseInstance(
         GL_TRIANGLES, // Primitive type
-        quadIndices.size(), // Amount of indices to use for each instance
+        fQuadIndices.size(), // Amount of indices to use for each instance
         GL_UNSIGNED_INT, // Type of the indices
         (void*) (0 * sizeof(unsigned int)), // Offset into the index buffer object to begin reading data
         INSTANCE_COUNT, // Draw INSTANCE_COUNT objects
@@ -149,7 +149,7 @@ int main()
 #else
     glDrawElementsInstanced(
         GL_TRIANGLES, // Primitive type
-        quadIndices.size(), // Amount of indices to use for each instance
+        fQuadIndices.size(), // Amount of indices to use for each instance
         GL_UNSIGNED_INT, // Type of the indices
         (void*) (0 * sizeof(unsigned int)), // Offset into the index buffer object to begin reading data
         INSTANCE_COUNT); // Draw INSTANCE_COUNT objects

@@ -12,6 +12,11 @@
 
 extern GLFWwindow* window;
 
+struct Vertex2D_Flat
+{
+  float x, y; // Position
+};
+
 struct Vertex2D_UV
 {
   float x, y; // Position
@@ -47,16 +52,24 @@ struct DrawElementsCommand
 };
 
 // Triangle
+extern const std::vector<Vertex2D_Flat> triangleVerticesFlat;
 extern const std::vector<Vertex2D_UV> triangleVerticesUV;
 extern const std::vector<Vertex2D_RGB> triangleVerticesRGB;
 extern const std::vector<unsigned int> triangleIndices;
-// Four triangles quad
-extern const std::vector<Vertex2D_UV> quadVerticesUV;
-extern const std::vector<Vertex2D_RGB> quadVerticesRGB;
+// Two triangles quad
+extern const std::vector<Vertex2D_Flat> quadVerticesFlat;
 extern const std::vector<unsigned int> quadIndices;
-// Two triangles quad with no color nor texture
-extern const std::vector<float> billboardQuadVertices;
-extern const std::vector<unsigned int> billboardQuadIndices;
+// Four triangles quad
+extern const std::vector<Vertex2D_UV> fQuadVerticesUV;
+extern const std::vector<Vertex2D_RGB> fQuadVerticesRGB;
+extern const std::vector<unsigned int> fQuadIndices;
+
+// A rectangle with no color nor texture
+extern const std::vector<float> billboardRectangleVertices;
+extern const std::vector<unsigned int> billboardRectangleIndices;
+// A circle with no color nor texture
+extern const std::vector<float> billboardCircleVertices;
+extern const std::vector<unsigned int> billboardCircleIndices;
 
 // GLFW
 bool startGL(int width, int height, const char* title);

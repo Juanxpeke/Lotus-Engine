@@ -51,7 +51,7 @@ void generateGeometry()
     // Quad
     if (i % 2 == 0)
     {
-      indicesCounts[i] = quadIndices.size();
+      indicesCounts[i] = fQuadIndices.size();
       indicesOffsets[i] = (void*) (0 * sizeof(unsigned int));
 #if BASE_VERTEX
       baseVertices[i] = 0;
@@ -60,9 +60,9 @@ void generateGeometry()
     // Triangle
     else {
       indicesCounts[i] = triangleIndices.size();
-      indicesOffsets[i] = (void*) (quadIndices.size() * sizeof(unsigned int));
+      indicesOffsets[i] = (void*) (fQuadIndices.size() * sizeof(unsigned int));
 #if BASE_VERTEX
-      baseVertices[i] = quadVerticesRGB.size();
+      baseVertices[i] = fQuadVerticesRGB.size();
 #endif
     }
 
@@ -84,14 +84,14 @@ void generateGeometry()
   glGenVertexArrays(1, &VAO);
   glBindVertexArray(VAO);
 
-  int quadVerticesBytes = sizeof(Vertex2D_RGB) * quadVerticesRGB.size();
+  int quadVerticesBytes = sizeof(Vertex2D_RGB) * fQuadVerticesRGB.size();
   int triangleVerticesBytes = sizeof(Vertex2D_RGB) * triangleVerticesRGB.size();
 
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, quadVerticesBytes + triangleVerticesBytes, NULL, GL_STATIC_DRAW);
 
-  glBufferSubData(GL_ARRAY_BUFFER, 0, quadVerticesBytes, quadVerticesRGB.data());
+  glBufferSubData(GL_ARRAY_BUFFER, 0, quadVerticesBytes, fQuadVerticesRGB.data());
   glBufferSubData(GL_ARRAY_BUFFER, quadVerticesBytes, triangleVerticesBytes, triangleVerticesRGB.data());
 
   // Specify vertex attributes for the shader
@@ -101,14 +101,14 @@ void generateGeometry()
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex2D_RGB), (void*) (offsetof(Vertex2D_RGB, r)));
 
   // Create an element buffer and populate it
-  int quadIndicesBytes = sizeof(unsigned int) * quadIndices.size();
+  int quadIndicesBytes = sizeof(unsigned int) * fQuadIndices.size();
   int triangleIndicesBytes = sizeof(unsigned int) * triangleIndices.size();
 
   glGenBuffers(1, &EBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, quadIndicesBytes + triangleIndicesBytes, NULL, GL_STATIC_DRAW);
 
-  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, quadIndicesBytes, quadIndices.data());
+  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, quadIndicesBytes, fQuadIndices.data());
   glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, quadIndicesBytes, triangleIndicesBytes, triangleIndices.data());
 
   // Setup per instance matrices

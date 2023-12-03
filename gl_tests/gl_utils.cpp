@@ -8,14 +8,24 @@
 GLFWwindow* window;
 std::string windowTitle;
 
+const std::vector<Vertex2D_Flat> triangleVerticesFlat =
+{ 
+  // XY
+  { -0.5f, -0.5f },
+  {  0.5f, -0.5f },
+  {  0.0f,  0.5f }
+};
+
+// WARNING: These are downscaled and not centered
 const std::vector<Vertex2D_UV> triangleVerticesUV =
 {
   // XY          // UV
-  { 0.00f, 0.0f, 0.0f, 0.0f},
-  { 0.05f, 0.1f, 0.5f, 1.0f},
-  { 0.10f, 0.0f, 1.0f, 0.0f}
+  { 0.00f, 0.0f, 0.0f, 0.0f },
+  { 0.05f, 0.1f, 0.5f, 1.0f },
+  { 0.10f, 0.0f, 1.0f, 0.0f }
 };
 
+// WARNING: These are downscaled and not centered
 const std::vector<Vertex2D_RGB> triangleVerticesRGB =
 {
   // XY          // RGB
@@ -29,7 +39,23 @@ const std::vector<unsigned int> triangleIndices =
   0, 1, 2
 };
 
-const std::vector<Vertex2D_UV> quadVerticesUV =
+const std::vector<Vertex2D_Flat> quadVerticesFlat =
+{ 
+  // XY
+  { -0.5f, -0.5f },
+  {  0.5f, -0.5f },
+  { -0.5f,  0.5f },
+  {  0.5f,  0.5f }
+};
+
+const std::vector<unsigned int> quadIndices =
+{ 
+  0, 1, 2, // Bottom left
+  1, 2, 3  // Top right
+};
+
+// WARNING: These are downscaled and not centered
+const std::vector<Vertex2D_UV> fQuadVerticesUV =
 {
   // XY           // UV
   { 0.00f, 0.00f,	0.0f, 0.0f },
@@ -39,7 +65,8 @@ const std::vector<Vertex2D_UV> quadVerticesUV =
   { 0.10f, 0.10f,	1.0f, 1.0f }
 };
 
-const std::vector<Vertex2D_RGB> quadVerticesRGB =
+// WARNING: These are downscaled and not centered
+const std::vector<Vertex2D_RGB> fQuadVerticesRGB =
 {
   // XY			      // RGB
   { 0.00f, 0.00f,	1.0f, 0.0f, 0.0f, }, // Bottom left
@@ -49,7 +76,7 @@ const std::vector<Vertex2D_RGB> quadVerticesRGB =
   { 0.10f, 0.10f,	1.0f, 1.0f, 1.0f, }  // Top right
 };
 
-const std::vector<unsigned int> quadIndices =
+const std::vector<unsigned int> fQuadIndices =
 {
   0, 1, 2, // Bottom triangle
   1, 4, 2, // Right triangle
@@ -57,20 +84,59 @@ const std::vector<unsigned int> quadIndices =
   0, 2, 3  // Left triangle
 };
 
-extern const std::vector<float> billboardQuadVertices =
+
+
+
+
+
+
+const std::vector<float> billboardRectangleVertices =
 { 
   // XY
-  -0.5f, -0.5f,
-   0.5f, -0.5f,
-  -0.5f,  0.5f,
-   0.5f,  0.5f,
+  -0.5f, -1.5f,
+   0.5f, -1.5f,
+  -0.5f,  1.5f,
+   0.5f,  1.5f,
 };
 
-extern const std::vector<unsigned int> billboardQuadIndices =
+const std::vector<unsigned int> billboardRectangleIndices =
 { 
   0, 1, 2, // Bottom left
   1, 2, 3  // Top right
 };
+
+const std::vector<float> billboardCircleVertices =
+{
+    // XY
+    0.5f, 0.0f,  // Vertex 0 (center)
+    0.4045f, 0.2939f, // Vertex 1
+    0.2939f, 0.4045f, // Vertex 2
+    0.0f, 0.5f,  // Vertex 3
+   -0.2939f, 0.4045f, // Vertex 4
+   -0.4045f, 0.2939f, // Vertex 5
+   -0.5f, 0.0f,  // Vertex 6
+   -0.4045f, -0.2939f, // Vertex 7
+   -0.2939f, -0.4045f, // Vertex 8
+    0.0f, -0.5f, // Vertex 9
+    0.2939f, -0.4045f, // Vertex 10
+    0.4045f, -0.2939f, // Vertex 11
+};
+
+const std::vector<unsigned int> billboardCircleIndices =
+{
+    0, 1, 2,
+    0, 2, 3,
+    0, 3, 4,
+    0, 4, 5,
+    0, 5, 6,
+    0, 6, 7,
+    0, 7, 8,
+    0, 8, 9,
+    0, 9, 10,
+    0, 10, 11,
+    0, 11, 1,
+};
+
 
 // ====
 // GLFW
@@ -81,7 +147,7 @@ bool startGL(int width, int height, const char* title)
   { // GLFW
     if (!glfwInit())
     {
-      fprintf(stderr, "ERROR: could not start GLFW3\n");
+      fprintf(stderr, "Error: Could not start GLFW3\n");
       return false;
     }
 
@@ -95,7 +161,7 @@ bool startGL(int width, int height, const char* title)
 
     if (!window)
     {
-      fprintf(stderr, "ERROR: could not open window with GLFW3\n" );
+      fprintf(stderr, "Error: Could not open window with GLFW3\n" );
       glfwTerminate();
       return false;
     }
@@ -192,7 +258,7 @@ bool checkShaderErrors(GLuint shader)
   glGetShaderiv(shader, GL_COMPILE_STATUS, &params);
   if (GL_TRUE != params)
   {
-    fprintf(stderr, "ERROR: shader %u did not compile\n", shader);
+    fprintf(stderr, "Error: Shader %u did not compile\n", shader);
     return false;
   }
   return true;
@@ -204,7 +270,7 @@ bool checkProgramErrors(GLuint program)
   glGetProgramiv(program, GL_LINK_STATUS, &params);
   if (GL_TRUE != params)
   {
-    fprintf(stderr, "ERROR: program %u did not link\n", program);
+    fprintf(stderr, "Error: Program %u did not link\n", program);
     return false;
   }
   return true;

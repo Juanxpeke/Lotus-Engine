@@ -56,14 +56,14 @@ void generateGeometry()
   glGenVertexArrays(1, &VAO);
   glBindVertexArray(VAO);
 
-  int quadVerticesBytes = sizeof(Vertex2D_RGB) * quadVerticesRGB.size();
+  int quadVerticesBytes = sizeof(Vertex2D_RGB) * fQuadVerticesRGB.size();
   int triangleVerticesBytes = sizeof(Vertex2D_RGB) * triangleVerticesRGB.size();
 
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, quadVerticesBytes + triangleVerticesBytes, NULL, GL_STATIC_DRAW);
 
-  glBufferSubData(GL_ARRAY_BUFFER, 0, quadVerticesBytes, quadVerticesRGB.data());
+  glBufferSubData(GL_ARRAY_BUFFER, 0, quadVerticesBytes, fQuadVerticesRGB.data());
   glBufferSubData(GL_ARRAY_BUFFER, quadVerticesBytes, triangleVerticesBytes, triangleVerticesRGB.data());
 
   // Specify vertex attributes for the shader
@@ -73,14 +73,14 @@ void generateGeometry()
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex2D_RGB), (void*) (offsetof(Vertex2D_RGB, r)));
 
   // Create an element buffer and populate it
-  int quadIndicesBytes = sizeof(unsigned int) * quadIndices.size();
+  int quadIndicesBytes = sizeof(unsigned int) * fQuadIndices.size();
   int triangleIndicesBytes = sizeof(unsigned int) * triangleIndices.size();
 
   glGenBuffers(1, &EBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, quadIndicesBytes + triangleIndicesBytes, NULL, GL_STATIC_DRAW);
 
-  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, quadIndicesBytes, quadIndices.data());
+  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, quadIndicesBytes, fQuadIndices.data());
   glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, quadIndicesBytes, triangleIndicesBytes, triangleIndices.data());
 
   // Setup per instance matrices
@@ -106,7 +106,7 @@ void generateDrawCommands()
 #if INSTANCING
   DrawElementsCommand drawCommands[2];
 
-  drawCommands[0].vertexCount = quadIndices.size(); // Amount of indices to use for each instance
+  drawCommands[0].vertexCount = fQuadIndices.size(); // Amount of indices to use for each instance
   drawCommands[0].instanceCount = DRAW_COUNT / 2; // Draw DRAW_COUNT / 2 instances
   drawCommands[0].firstIndex = 0; // Offset into the index buffer object to begin reading data
   drawCommands[0].baseVertex = 0; // Value added to each index before pulling from the vertex data
@@ -114,8 +114,8 @@ void generateDrawCommands()
 
   drawCommands[1].vertexCount = triangleIndices.size(); // Amount of indices to use for each instance
   drawCommands[1].instanceCount = DRAW_COUNT / 2; // Draw DRAW_COUNT / 2 instances
-  drawCommands[1].firstIndex = quadIndices.size(); // Offset into the index buffer object to begin reading data
-  drawCommands[1].baseVertex = quadVerticesRGB.size(); // Value added to each index before pulling from the vertex data
+  drawCommands[1].firstIndex = fQuadIndices.size(); // Offset into the index buffer object to begin reading data
+  drawCommands[1].baseVertex = fQuadVerticesRGB.size(); // Value added to each index before pulling from the vertex data
   drawCommands[1].baseInstance = 0; // Base instance
 #else
   DrawElementsCommand drawCommands[DRAW_COUNT];
@@ -125,7 +125,7 @@ void generateDrawCommands()
     // Quad
     if (i % 2 == 0)
     {
-      drawCommands[i].vertexCount = quadIndices.size(); // Amount of indices to use for each instance
+      drawCommands[i].vertexCount = fQuadIndices.size(); // Amount of indices to use for each instance
       drawCommands[i].instanceCount = 1; // Draw 1 instance
       drawCommands[i].firstIndex = 0; // Offset into the index buffer object to begin reading data
       drawCommands[i].baseVertex = 0; // Value added to each index before pulling from the vertex data
@@ -136,8 +136,8 @@ void generateDrawCommands()
     {
       drawCommands[i].vertexCount = triangleIndices.size(); // Amount of indices to use for each instance
       drawCommands[i].instanceCount = 1; // Draw 1 instance
-      drawCommands[i].firstIndex = quadIndices.size(); // Offset into the index buffer object to begin reading data
-      drawCommands[i].baseVertex = quadVerticesRGB.size(); // Value added to each index before pulling from the vertex data
+      drawCommands[i].firstIndex = fQuadIndices.size(); // Offset into the index buffer object to begin reading data
+      drawCommands[i].baseVertex = fQuadVerticesRGB.size(); // Value added to each index before pulling from the vertex data
       drawCommands[i].baseInstance = 0; // Base instance
     }
   }
