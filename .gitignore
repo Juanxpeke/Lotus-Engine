@@ -7,4 +7,4 @@
 .vscode
 
 # Results
-/gl_tests/results/.ipynb_checkpoints
+/**/.ipynb_checkpoints
