@@ -81,6 +81,7 @@ void generateDrawCommands()
 int main()
 {
   startGL(WIDTH, HEIGHT, "Particles with MultiDrawElementsIndirect");
+  startProfiler("particle_multi_draw_elements_indirect");
 
   // Set clear color
   glClearColor(0.0, 0.0, 0.0, 0.0);

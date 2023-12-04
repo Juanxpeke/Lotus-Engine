@@ -52,6 +52,7 @@ namespace
 int main()
 {
   startGL(WIDTH, HEIGHT, "Particles with DrawElementsInstanced");
+  startProfiler("particle_draw_elements_instanced");
 
   // Set clear color
   glClearColor(0.0, 0.0, 0.0, 0.0);

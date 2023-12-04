@@ -8,16 +8,11 @@
 #include "gl_utils.h"
 #include "path_manager.h"
 
-#define INSTANCING true
-
 // Settings
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 800;
 
-// When not using instancing, you can't draw thousands of particles because
-// that would mean thousands of draw commands and lead to an stack overflow,
-// besices, when not using shader storage buffer, maximum is 4096 because of
-// the UBO
+// When not using shader storage buffer, maximum is 4096 because of the UBO
 const unsigned int DRAW_COUNT = 200000;
 const float PARTICLE_SIZE = 0.01f;
 const float PARTICLE_LIFE_TIME = 1.0f;
@@ -29,9 +24,12 @@ namespace
   GLuint VAO(0);
   GLuint billboardsVBO(0);
   GLuint billboardsEBO(0);
-  GLuint indirectBuffer(0);
   GLuint particlesPositionsBuffer(0);
   GLuint renderProgram(0);
+
+  GLsizei indicesCounts[DRAW_COUNT];
+  void* indicesOffsets[DRAW_COUNT];
+  GLint baseVertices[DRAW_COUNT];
 
   Particle particlesContainer[DRAW_COUNT];
   float particlesLifeTime;
@@ -49,81 +47,17 @@ namespace
   ParticlePositionData particlesPositionData[DRAW_COUNT];
 } // Unnamed namespace
 
-void generateDrawCommands()
-{
-  // Generate draw commands
-#if INSTANCING
-  DrawElementsCommand drawCommands[3];
-
-  drawCommands[0].vertexCount = quadIndices.size(); // Amount of indices to use for each instance
-  drawCommands[0].instanceCount = DRAW_COUNT / 3; // Draw DRAW_COUNT / 3 instances
-  drawCommands[0].firstIndex = 0; // Offset into the index buffer object to begin reading data
-  drawCommands[0].baseVertex = 0; // Value added to each index before pulling from the vertex data
-  drawCommands[0].baseInstance = 0; // Base instance
-
-  drawCommands[1].vertexCount = triangleIndices.size(); // Amount of indices to use for each instance
-  drawCommands[1].instanceCount = DRAW_COUNT / 3; // Draw DRAW_COUNT / 3 instances
-  drawCommands[1].firstIndex = quadIndices.size(); // Offset into the index buffer object to begin reading data
-  drawCommands[1].baseVertex = quadVerticesFlat.size(); // Value added to each index before pulling from the vertex data
-  drawCommands[1].baseInstance = 0; // Base instance
-
-  drawCommands[2].vertexCount = rectangleIndices.size(); // Amount of indices to use for each instance
-  drawCommands[2].instanceCount = DRAW_COUNT / 3; // Draw DRAW_COUNT / 3 instances
-  drawCommands[2].firstIndex = quadIndices.size() + triangleIndices.size(); // Offset into the index buffer object to begin reading data
-  drawCommands[2].baseVertex = quadVerticesFlat.size() + triangleVerticesFlat.size(); // Value added to each index before pulling from the vertex data
-  drawCommands[2].baseInstance = 0; // Base instance
-#else
-  DrawElementsCommand drawCommands[DRAW_COUNT];
-
-  for (unsigned int i(0); i < DRAW_COUNT; ++i)
-  {
-    // Quad
-    if (i % 3 == 0)
-    {
-      drawCommands[i].vertexCount = quadIndices.size(); // Amount of indices to use for each instance
-      drawCommands[i].instanceCount = 1; // Draw 1 instance
-      drawCommands[i].firstIndex = 0; // Offset into the index buffer object to begin reading data
-      drawCommands[i].baseVertex = 0; // Value added to each index before pulling from the vertex data
-      drawCommands[i].baseInstance = 0; // Base instance
-    }
-    // Triangle
-    else if (i % 3 == 1)
-    {
-      drawCommands[i].vertexCount = triangleIndices.size(); // Amount of indices to use for each instance
-      drawCommands[i].instanceCount = 1; // Draw 1 instance
-      drawCommands[i].firstIndex = quadIndices.size(); // Offset into the index buffer object to begin reading data
-      drawCommands[i].baseVertex = quadVerticesFlat.size(); // Value added to each index before pulling from the vertex data
-      drawCommands[i].baseInstance = 0; // Base instance
-    }
-    else
-    {
-      drawCommands[i].vertexCount = rectangleIndices.size(); // Amount of indices to use for each instance
-      drawCommands[i].instanceCount = 1; // Draw 1 instance
-      drawCommands[i].firstIndex = quadIndices.size() + triangleIndices.size(); // Offset into the index buffer object to begin reading data
-      drawCommands[i].baseVertex = quadVerticesFlat.size() + triangleVerticesFlat.size(); // Value added to each index before pulling from the vertex data
-      drawCommands[i].baseInstance = 0; // Base instance
-    }
-  }
-#endif
-  // Feed the draw command data to the GPU
-  glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
-  glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(drawCommands), drawCommands, GL_DYNAMIC_DRAW);
-}
-
 int main()
 {
-  startGL(WIDTH, HEIGHT, "Different particles with MultiDrawElementsIndirect");
-  startProfiler("different_particles_multi_draw_elements_indirect");
+  startGL(WIDTH, HEIGHT, "Different particles with MultiDrawElements");
+  startProfiler("different_particles_multi_draw_elements");
 
   // Set clear color
   glClearColor(0.0, 0.0, 0.0, 0.0);
 
   // Create and bind the shader program
-#if INSTANCING
-    renderProgram = createRenderProgram(shaderPath("particle_m_ind.vert"), shaderPath("particle.frag"));
-#else
-    renderProgram = createRenderProgram(shaderPath("particle_m_s.vert"), shaderPath("particle.frag"));
-#endif
+  renderProgram = createRenderProgram(shaderPath("particle_m_s.vert"), shaderPath("particle.frag"));
+
   glUseProgram(renderProgram);
 
   glGenVertexArrays(1, &VAO);
@@ -165,11 +99,31 @@ int main()
   // Bind the shader storage buffer to index 0
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, particlesPositionsBuffer);
 
-  // Generate one indirect draw buffer
-  glGenBuffers(1, &indirectBuffer);
-
   // Set particle size uniform
   glUniform1f(glGetUniformLocation(renderProgram, "particleSize"), PARTICLE_SIZE);
+
+  // Set multiple data
+  for (int i = 0; i < DRAW_COUNT; i++)
+  {
+    if (i % 3 == 0)
+    {
+      indicesCounts[i] = quadIndices.size();
+      indicesOffsets[i] = (void*) (0 * sizeof(unsigned int));
+      baseVertices[i] = 0;
+    }
+    else if (i % 3 == 1)
+    {
+      indicesCounts[i] = triangleIndices.size();
+      indicesOffsets[i] = (void*) (quadIndices.size() * sizeof(unsigned int));
+      baseVertices[i] = quadVerticesFlat.size();
+    }
+    else
+    {
+      indicesCounts[i] = rectangleIndices.size();
+      indicesOffsets[i] = (void*) ((quadIndices.size() + triangleIndices.size()) * sizeof(unsigned int));
+      baseVertices[i] = quadVerticesFlat.size() + triangleVerticesFlat.size();
+    }
+  }
 
   // Render loop
   while (!glfwWindowShouldClose(window))
@@ -216,29 +170,19 @@ int main()
         particlesPositionData[i].y = p.pos.y;
       }
     }
-    
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, particlesPositionsBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, DRAW_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, DRAW_COUNT * sizeof(ParticlePositionData), particlesPositionData);
 
-    generateDrawCommands();
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, particlesPositionsBuffer);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, DRAW_COUNT * sizeof(ParticlePositionData), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming performance
+		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, DRAW_COUNT * sizeof(ParticlePositionData), particlesPositionData);
 
     // Draw
-#if INSTANCING
-    glMultiDrawElementsIndirect(
+    glMultiDrawElementsBaseVertex(
         GL_TRIANGLES, // Primitive type
+        indicesCounts, // Array of amount of indices to use for each drawing
         GL_UNSIGNED_INT, // Type of the indices
-        (GLvoid*) 0, // Offset into the indirect buffer object to begin reading commands
-        3, // Make 3 draws of DRAW_COUNT / 3 instances
-        0); // No stride, the draw commands are tightly packed
-#else
-    glMultiDrawElementsIndirect(
-        GL_TRIANGLES, // Primitive type
-        GL_UNSIGNED_INT, // Type of the indices
-        (GLvoid*) 0, // Offset into the indirect buffer object to begin reading commands
-        DRAW_COUNT, // Make DRAW_COUNT draws of 1 instance
-        0); // No stride, the draw commands are tightly packed
-#endif
+        indicesOffsets, // Array of offsets into the index buffer object to begin reading data
+        DRAW_COUNT, // Draw DRAW_COUNT objects
+        baseVertices); // Array of values added to each index before pulling from the vertex data
 
     if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
     {
@@ -258,7 +202,6 @@ int main()
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &billboardsVBO);
   glDeleteBuffers(1, &billboardsEBO);
-  glDeleteBuffers(1, &indirectBuffer);
   glDeleteBuffers(1, &particlesPositionsBuffer);
   return 0;
 }

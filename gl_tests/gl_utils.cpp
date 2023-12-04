@@ -2,6 +2,8 @@
 #include <sstream>
 #include <fstream>
 #include <format>
+#include <map>
+#include <vector>
 #include "gl_utils.h"
 #include "path_manager.h"
 
@@ -98,7 +100,6 @@ const std::vector<unsigned int> rectangleIndices =
   0, 1, 2, // Bottom left
   1, 2, 3  // Top right
 };
-
 
 // ====
 // GLFW
@@ -305,26 +306,44 @@ void setPositionMatrix(Matrix* matrix, const float x, const float y)
 
 namespace
 {
+  int totalIterations = 0;
+  // Times
+  double totalElapsedTime = 0.0;
   double lastTime = 0.0;
   double dt = 0.0;
-
+  // FPS
   double firstPreviousFPS = 0.0;
   double secondPreviousFPS = 0.0;
   double thirdPreviousFPS = 0.0;
   double fourthPreviousFPS = 0.0;
   double meanFPS = 0.0;
-
+  // Title
   double lastTitleChangeTime = 0.0;
   double titleChangeDelta = 0.5;
+  // Data export
+  std::string dataFolderName;
+  bool dataExported = false;
+  int measureDataIterations = 100;
+  int exportDataIterations = 1000;
+  std::map<std::string,std::vector<std::pair<double, double>>> store;
+}
+
+void startProfiler(const std::string& name)
+{
+  dataFolderName = name;
 }
 
 void updateProfiler()
 {
+  totalIterations += 1;
+
   double currentTime = glfwGetTime();
   dt = currentTime - lastTime;
   lastTime = currentTime;
 
   if (dt == 0.0) return;
+  
+  totalElapsedTime += dt;
 
   fourthPreviousFPS = thirdPreviousFPS;
   thirdPreviousFPS = secondPreviousFPS;
@@ -332,6 +351,11 @@ void updateProfiler()
   firstPreviousFPS = 1 / dt;
 
   meanFPS = (firstPreviousFPS + secondPreviousFPS + thirdPreviousFPS + fourthPreviousFPS) / 4.0;
+
+  if (!dataExported && totalIterations > measureDataIterations) {
+    store["FPS"].push_back(std::make_pair(meanFPS, totalIterations - measureDataIterations));
+    store["Time"].push_back(std::make_pair(totalElapsedTime, totalIterations - measureDataIterations));
+  }
 
   if (lastTime - lastTitleChangeTime >= titleChangeDelta)
   {
@@ -341,6 +365,12 @@ void updateProfiler()
     std::string titleString = windowTitle + " (" + fpsString + " FPS)";
     glfwSetWindowTitle(window, titleString.c_str());
   }
+
+  if (totalIterations >= exportDataIterations + measureDataIterations && !dataExported)
+  {
+    exportData(resultPath(dataFolderName));
+    dataExported = true;
+  } 
 }
 
 double getDeltaTime()
@@ -351,4 +381,34 @@ double getDeltaTime()
 double getFPS()
 {
   return meanFPS;
+}
+
+void exportData(const std::filesystem::path& folderPath)
+{
+  std::filesystem::create_directories(folderPath);
+
+  // For each vector of the store
+  for (auto it = store.begin(); it != store.end(); ++it)
+  {
+    std::string key = it->first;
+    std::vector<std::pair<double, double>> values = it->second;
+
+    // Write into a representative csv file all the pairs from the vector
+    std::string filePath = folderPath.string() + "/" + key + ".csv";
+    std::ofstream file(filePath);
+    for (auto vIt = values.begin(); vIt != values.end(); ++vIt)
+    {
+      double p1 = vIt->first;
+      double p2 = vIt->second;
+      if (file.is_open()) {
+        file << p1 << "," << p2 << std::endl;
+      } else {
+        std::cout << "Failed to open the file: " << filePath << std::endl;
+      }
+    }
+
+    file.close();
+  }
+
+  std::cout << "Data exported" << std::endl;
 }

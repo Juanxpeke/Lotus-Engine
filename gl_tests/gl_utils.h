@@ -83,6 +83,8 @@ GLuint createBackgroundQuadVAO();
 // Matrices
 void setPositionMatrix(Matrix* matrix, const float x, const float y);
 // Profiling
+void startProfiler(const std::string& name);
 void updateProfiler();
 double getDeltaTime();
 double getFPS();
+void exportData(const std::filesystem::path& folderPath);
