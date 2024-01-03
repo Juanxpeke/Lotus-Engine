@@ -18,7 +18,7 @@ public:
   
   void bind();
   void unbind();
-  uint32_t getProgramID() const noexcept { return m_programID; }
+  uint32_t getProgramID() const noexcept { return programID; }
 
 private:
   std::string readShaderFile(const std::filesystem::path& shaderPath) const noexcept;
@@ -26,5 +26,5 @@ private:
   unsigned int compileShader(const std::string& shaderCode, unsigned int type) const noexcept;
   unsigned int linkProgram(unsigned int vertexShader, unsigned int fragmentShader) noexcept;
   
-  uint32_t m_programID;
+  uint32_t programID;
 };

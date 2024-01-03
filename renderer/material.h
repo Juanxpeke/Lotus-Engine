@@ -20,7 +20,7 @@ enum class MaterialType
 class Material
 {
 public:
-  Material(const ShaderProgram& shaderProgram) : m_shaderID(shaderProgram.getProgramID()) {}
+  Material(const ShaderProgram& shaderProgram) : shaderID(shaderProgram.getProgramID()) {}
   virtual ~Material() = default;
 
   void setUniforms(
@@ -32,6 +32,6 @@ public:
   virtual void setMaterialUniforms(const glm::vec3& cameraPosition) = 0;
 
 protected:
-  uint32_t m_shaderID;
+  uint32_t shaderID;
 
 };

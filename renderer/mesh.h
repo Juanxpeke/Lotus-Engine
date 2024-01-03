@@ -17,8 +17,8 @@ public:
   Mesh(PrimitiveType type);
   ~Mesh();
 
-  uint32_t getVertexArrayID() const noexcept { return m_vertexArrayID; }
-  uint32_t getIndexBufferCount() const noexcept { return m_indexBufferCount; }
+  uint32_t getVertexArrayID() const noexcept { return vertexArrayID; }
+  uint32_t getIndexBufferCount() const noexcept { return indexBufferCount; }
 
 private:
   void createPlane() noexcept;
@@ -26,8 +26,8 @@ private:
   void createCube() noexcept;
   void createPrimitive(std::vector<float>& vertices, std::vector<unsigned int>& indices) noexcept;
 
-  uint32_t m_vertexArrayID;
-  uint32_t m_vertexBufferID;
-  uint32_t m_indexBufferID;
-  uint32_t m_indexBufferCount;
+  uint32_t vertexArrayID;
+  uint32_t vertexBufferID;
+  uint32_t indexBufferID;
+  uint32_t indexBufferCount;
 };

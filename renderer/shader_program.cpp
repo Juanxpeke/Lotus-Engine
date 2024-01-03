@@ -8,7 +8,7 @@
 
 ShaderProgram::ShaderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath) noexcept
 {
-  m_programID = 0;
+  programID = 0;
 
   // Read shader files to string
   std::string vertexShaderCode = readShaderFile(vertexShaderPath);
@@ -27,13 +27,13 @@ ShaderProgram::ShaderProgram(const std::filesystem::path& vertexShaderPath, cons
   
   if (vertexShader && fragmentShader)
   {
-    m_programID = linkProgram(vertexShader, fragmentShader);
+    programID = linkProgram(vertexShader, fragmentShader);
   }
 }
 
 ShaderProgram::~ShaderProgram()
 {
-  if (m_programID) glDeleteProgram(m_programID);
+  if (programID) glDeleteProgram(programID);
 }
 
 std::string ShaderProgram::readShaderFile(const std::filesystem::path& shaderPath) const noexcept
@@ -151,7 +151,7 @@ unsigned int ShaderProgram::linkProgram(unsigned int vertexShader, unsigned int 
 
 void ShaderProgram::bind()
 {
-  glUseProgram(m_programID);
+  glUseProgram(programID);
 }
 
 void ShaderProgram::unbind()

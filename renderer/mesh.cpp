@@ -8,10 +8,10 @@
 #include <glm/gtc/constants.hpp>
 
 Mesh::Mesh(PrimitiveType type) :
-  m_vertexArrayID(0),
-  m_vertexBufferID(0),
-  m_indexBufferID(0),
-  m_indexBufferCount(0)
+  vertexArrayID(0),
+  vertexBufferID(0),
+  indexBufferID(0),
+  indexBufferCount(0)
 {
   switch (type)
   {
@@ -39,12 +39,12 @@ Mesh::Mesh(PrimitiveType type) :
 }
 
 Mesh::~Mesh() {
-  if (m_vertexArrayID)
+  if (vertexArrayID)
   { // TODO: Handle errors
-    glDeleteBuffers(1, &m_vertexBufferID);
-    glDeleteBuffers(1, &m_indexBufferID);
-    glDeleteVertexArrays(1, &m_vertexArrayID);
-    m_vertexArrayID = 0;
+    glDeleteBuffers(1, &vertexBufferID);
+    glDeleteBuffers(1, &indexBufferID);
+    glDeleteVertexArrays(1, &vertexArrayID);
+    vertexArrayID = 0;
   }
 }
 
@@ -79,10 +79,10 @@ void Mesh::createPrimitive(std::vector<float>& vertices, std::vector<unsigned in
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-  m_vertexArrayID = VAO;
-  m_vertexBufferID = VBO;
-  m_indexBufferID = EBO;
-  m_indexBufferCount = static_cast<uint32_t>(indices.size());
+  vertexArrayID = VAO;
+  vertexBufferID = VBO;
+  indexBufferID = EBO;
+  indexBufferCount = static_cast<uint32_t>(indices.size());
 }
 
 void Mesh::createPlane() noexcept

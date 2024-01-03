@@ -6,7 +6,7 @@ void Material::setUniforms(
     const glm::mat4& modelMatrix,
     const glm::vec3& cameraPosition)
 {
-  glUseProgram(m_shaderID);
+  glUseProgram(shaderID);
     
   const glm::mat4 mvpMatrix = perspectiveMatrix * viewMatrix * modelMatrix;
   const glm::mat4 modelInverseTransposeMatrix = glm::transpose(glm::inverse(modelMatrix));
