@@ -18,4 +18,5 @@ configure_file(CMakeConfigFiles/path_manager_renderer.h.in ${CMAKE_CURRENT_SOURC
 
 add_subdirectory(third_party)
 add_subdirectory(gl_tests)
+add_subdirectory(tests)
 add_subdirectory(renderer)
