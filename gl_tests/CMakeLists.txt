@@ -1,8 +1,8 @@
 function(configure_executable EXECUTABLE_NAME SOURCES)
     add_executable(${EXECUTABLE_NAME} ${SOURCES} gl_utils.cpp path_manager.h gl_utils.h)
 
-    target_include_directories(${EXECUTABLE_NAME} PRIVATE ${THIRD_PARTY_INCLUDE_DIRECTORIES} ${CMAKE_CURRENT_SOURCE_DIR})
-    target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${THIRD_PARTY_LIBRARIES})
+    target_include_directories(${EXECUTABLE_NAME} PRIVATE ${GRAPHICS_INCLUDE_DIRECTORIES} ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${GRAPHICS_LIBRARIES})
 
     set_property(TARGET ${EXECUTABLE_NAME} PROPERTY CXX_STANDARD 20)
 

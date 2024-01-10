@@ -1,4 +1,5 @@
 set(RENDERER_HEADERS
+    assimp_transformations.h
     path_manager.h
     camera.h
     shader_program.h

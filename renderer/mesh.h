@@ -14,6 +14,7 @@ public:
     Sphere
   };
 
+  Mesh(const std::string& filePath, bool flipUVs = false);
   Mesh(PrimitiveType type);
   ~Mesh();
 

@@ -115,6 +115,7 @@ int main()
 	lightSetup();
 
 	Mesh mesh(Mesh::PrimitiveType::Sphere);
+	Mesh amesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -143,8 +144,8 @@ int main()
 		renderLights();
 
 		dfm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
-    glBindVertexArray(mesh.getVertexArrayID());
-		glDrawElements(GL_TRIANGLES, mesh.getIndexBufferCount(), GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(amesh.getVertexArrayID());
+		glDrawElements(GL_TRIANGLES, amesh.getIndexBufferCount(), GL_UNSIGNED_INT, nullptr);
 
     glfwSwapBuffers(window);
 	}

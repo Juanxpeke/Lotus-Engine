@@ -1,11 +1,152 @@
 #include "mesh.h"
 
+#include "assimp_transformations.h"
 #include <iostream>
 #include <vector>
 #include <stack>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+struct MeshVertex
+{
+  glm::vec3 position;
+  glm::vec3 normal;
+  glm::vec2 uv;
+  glm::vec3 tangent;
+  glm::vec3 bitangent;
+};
+
+Mesh::Mesh(const std::string& filePath, bool flipUVs) :
+  vertexArrayID(0),
+  vertexBufferID(0),
+  indexBufferID(0),
+  indexBufferCount(0)
+{
+  Assimp::Importer importer;
+  unsigned int postProcessFlags = flipUVs ? aiProcess_FlipUVs : 0;
+  postProcessFlags |= aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace;
+  const aiScene* scene = importer.ReadFile(filePath, postProcessFlags);
+
+  if (!scene)
+  {
+    //MONA_LOG_ERROR("Mesh Error: Failed to open file with path {0}", filePath);
+    return;
+  }
+
+  std::vector<MeshVertex> vertices;
+  std::vector<unsigned int> faces;
+  size_t numVertices = 0;
+  size_t numFaces = 0;
+  // First, we count the number of vertices and total faces, so we can reserve memory and avoid memory realocation
+  for (uint32_t i = 0; i < scene->mNumMeshes; i++)
+  {
+  numVertices += scene->mMeshes[i]->mNumVertices;
+  numFaces += scene->mMeshes[i]->mNumFaces;
+  }
+
+  vertices.reserve(numVertices);
+  faces.reserve(numFaces);
+
+  // Scene graph is traversed using Depth-first Search, with two stacks
+  std::stack<const aiNode*> sceneNodes;
+  std::stack<aiMatrix4x4> sceneTransforms;
+  // Then we push information related to the graph root
+  sceneNodes.push(scene->mRootNode);
+  sceneTransforms.push(scene->mRootNode->mTransformation);
+  unsigned int offset = 0;
+
+  while (!sceneNodes.empty())
+  {
+    const aiNode* currentNode = sceneNodes.top();
+    auto currentTransform = sceneTransforms.top();
+    sceneNodes.pop();
+    sceneTransforms.pop();
+    auto currentInvTranspose = currentTransform;
+    
+    // Normals have to be transformed different than positions, thats why it is necessary to invert the matrix and then transpose it
+    // Source: https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/transforming-normals
+    currentInvTranspose.Inverse().Transpose();
+
+    for (uint32_t j = 0; j < currentNode->mNumMeshes; j++)
+    {
+      const aiMesh* meshOBJ = scene->mMeshes[currentNode->mMeshes[j]];
+      
+      for (uint32_t i = 0; i < meshOBJ->mNumVertices; i++)
+      {
+        aiVector3D position = currentTransform * meshOBJ->mVertices[i];
+        aiVector3D tangent = currentTransform * meshOBJ->mTangents[i];
+        tangent.Normalize();
+        aiVector3D normal = currentInvTranspose * meshOBJ->mNormals[i];
+        normal.Normalize();
+        aiVector3D bitangent = currentTransform * meshOBJ->mBitangents[i];
+        bitangent.Normalize();
+
+        MeshVertex vertex;
+        vertex.position = AssimpToGlmVec3(position);
+        vertex.normal = AssimpToGlmVec3(normal);
+        vertex.tangent = AssimpToGlmVec3(tangent);
+        vertex.bitangent = AssimpToGlmVec3(bitangent);
+        if (meshOBJ->mTextureCoords[0])
+        {
+          vertex.uv.x = meshOBJ->mTextureCoords[0][i].x;
+          vertex.uv.y = meshOBJ->mTextureCoords[0][i].y;
+        }
+        else
+        {
+          vertex.uv = glm::vec2(0.0f);
+        }
+        vertices.push_back(vertex);
+      }
+
+      for (uint32_t i = 0; i < meshOBJ->mNumFaces; i++)
+      {
+        const aiFace& face = meshOBJ->mFaces[i];
+        // MONA_ASSERT(face.mNumIndices == 3, "Mesh Error: Can load meshes with faces that have {0} vertices", face.mNumIndices);
+        faces.push_back(face.mIndices[0] + offset);
+        faces.push_back(face.mIndices[1] + offset);
+        faces.push_back(face.mIndices[2] + offset);
+      }
+      
+      offset += meshOBJ->mNumVertices;
+    }
+
+    for (uint32_t j = 0; j < currentNode->mNumChildren; j++)
+    {
+      // Push the children and accumulate the transformation matrix
+      sceneNodes.push(currentNode->mChildren[j]);
+      sceneTransforms.push(currentNode->mChildren[j]->mTransformation * currentTransform);
+    }
+  }
+
+  indexBufferCount = static_cast<uint32_t>(faces.size());
+
+  glGenVertexArrays(1, &vertexArrayID);
+  glBindVertexArray(vertexArrayID);
+
+  glGenBuffers(1, &vertexBufferID);
+  glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
+  glBufferData(GL_ARRAY_BUFFER, static_cast<unsigned int>(vertices.size()) * sizeof(MeshVertex), vertices.data(), GL_STATIC_DRAW);
+  
+  glGenBuffers(1, &indexBufferID);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<unsigned int>(faces.size()) * sizeof(unsigned int), faces.data(), GL_STATIC_DRAW);
+  
+  // v = { p_x, p_y, p_z, n_x, n_y, n_z, uv_u, uv_v, t_x, t_y, t_z, b_x, b_y, b_z };
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void*) offsetof(MeshVertex, position));
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void*) offsetof(MeshVertex, normal));
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void*) offsetof(MeshVertex, uv));
+  glEnableVertexAttribArray(3);
+  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void*) offsetof(MeshVertex, tangent));
+  glEnableVertexAttribArray(4);
+  glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void*) offsetof(MeshVertex, bitangent));
+}
 
 Mesh::Mesh(PrimitiveType type) :
   vertexArrayID(0),
@@ -38,7 +179,8 @@ Mesh::Mesh(PrimitiveType type) :
   }
 }
 
-Mesh::~Mesh() {
+Mesh::~Mesh()
+{
   if (vertexArrayID)
   { // TODO: Handle errors
     glDeleteBuffers(1, &vertexBufferID);
@@ -140,7 +282,8 @@ void Mesh::createCube() noexcept
     -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f
   };
 
-  std::vector<unsigned int> cubeIndices = {
+  std::vector<unsigned int> cubeIndices =
+  {
     0, 1, 2, 2, 3, 0,
     4, 5, 6, 6, 7, 4,
     8, 9, 10, 10, 11, 8,
