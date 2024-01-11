@@ -7,6 +7,7 @@
 #include "shader_program.h"
 #include "mesh.h"
 #include "diffuse_flat_material.h"
+#include "diffuse_textured_material.h"
 #include "camera.h"
 #include "path_manager.h"
 
@@ -72,7 +73,7 @@ void renderLights()
 	lights.directionalLightsCount = static_cast<int>(directionalLightsCount);
 	for (uint32_t i = 0; i < directionalLightsCount; i++) {
 		lights.directionalLights[i].color = { 0.4, 0.0, 0.4 };
-		lights.directionalLights[i].direction = { 0.0, 0.0, 1.0 };
+		lights.directionalLights[i].direction = { 0.0, -1.0, 1.0 };
 	}
 
 	//Pasamos la informacion lum�nica a GPU con un unico llamado a OpenGL fuera de los loops de las primitivas.
@@ -111,11 +112,21 @@ int main()
 
 	ShaderProgram mvpShaderProgram(shaderPath("diffuse_flat.vert"), shaderPath("diffuse_flat.frag"));
 	DiffuseFlatMaterial dfm(mvpShaderProgram);
+	
+	ShaderProgram mvpSPT(shaderPath("diffuse_textured.vert"), shaderPath("diffuse_textured.frag"));
+	DiffuseTexturedMaterial dtm(mvpSPT);
 
 	lightSetup();
 
 	Mesh mesh(Mesh::PrimitiveType::Sphere);
 	Mesh amesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
+	
+	
+	Texture* texturePtr = new Texture(assetPath("models/air_conditioner/Albedo.png").string());
+	std::shared_ptr<Texture> textureSharedPtr = std::shared_ptr<Texture>(texturePtr);
+	
+	dtm.setMaterialTint(glm::vec3(1.0f));
+	dtm.setDiffuseTexture(textureSharedPtr);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -143,8 +154,9 @@ int main()
 
 		renderLights();
 
-		dfm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
-    glBindVertexArray(amesh.getVertexArrayID());
+		// dfm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
+    dtm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
+		glBindVertexArray(amesh.getVertexArrayID());
 		glDrawElements(GL_TRIANGLES, amesh.getIndexBufferCount(), GL_UNSIGNED_INT, nullptr);
 
     glfwSwapBuffers(window);

@@ -32,7 +32,6 @@ public:
         const InnerComponentHandle& cameraHandle,
         const glm::vec3& ambientLight,
         ComponentManager<StaticMeshComponent>& staticMeshDataManager,
-        ComponentManager<SkeletalMeshComponent>& skeletalMeshDataManager,
         ComponentManager<TransformComponent> &transformDataManager,
         ComponentManager<CameraComponent> &cameraDataManager,
         ComponentManager<DirectionalLightComponent> &directionalLightDataManager,

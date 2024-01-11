@@ -12,6 +12,10 @@ public:
   static constexpr int ModelMatrixShaderLocation = 1;
   static constexpr int ModelInverseTransposeMatrixShaderLocation = 2;
   static constexpr int DiffuseColorShaderLocation = 3;
+  static constexpr int DiffuseTextureSamplerShaderLocation = 3;
+  static constexpr int MaterialTintShaderLocation = 4;
+
+  static constexpr int DiffuseTextureUnit = 0;
   
   ShaderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath) noexcept;
   ~ShaderProgram();

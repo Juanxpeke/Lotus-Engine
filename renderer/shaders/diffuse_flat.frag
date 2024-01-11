@@ -1,4 +1,4 @@
-// All expressions of the form ${SOME_NAME} are repliced before runtime compile this shader
+// All expressions of the form ${SOME_NAME} are replaced before runtime compile this shader
 
 #version 460 core
 

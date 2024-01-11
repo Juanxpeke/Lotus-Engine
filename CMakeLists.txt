@@ -14,8 +14,9 @@ set(THIRD_PARTY_INCLUDE_DIRECTORIES
 	${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw/include
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/assimp/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/assimp/include/assimp)
-set(THIRD_PARTY_LIBRARIES glfw glad assimp ${OPENGL_LIBRARIES})
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/assimp/include/assimp
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/stb)
+set(THIRD_PARTY_LIBRARIES glfw glad ${OPENGL_LIBRARIES} assimp stb)
 
 # Header generated automatically by CMake
 configure_file(CMakeConfigFiles/path_manager_gl_tests.h.in ${CMAKE_CURRENT_SOURCE_DIR}/gl_tests/path_manager.h)

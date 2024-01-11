@@ -3,14 +3,17 @@ set(RENDERER_HEADERS
     path_manager.h
     camera.h
     shader_program.h
+    texture.h
     material.h
     diffuse_flat_material.h
+    diffuse_textured_material.h
     mesh.h)
 
 set(RENDERER_SOURCES
     renderer.cpp
     camera.cpp
     shader_program.cpp
+    texture.cpp
     material.cpp
     mesh.cpp)
 
