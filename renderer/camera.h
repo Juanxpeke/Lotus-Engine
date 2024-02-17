@@ -26,7 +26,7 @@ public:
 	glm::mat4 projection = glm::mat4(1.0f);
 
 	// Movement
-	float speed = 2.0f;
+	float speed = 12.0f;
 	float sensitivity = 0.01f;
 
   Camera(GLFWwindow* window, int width, int height, glm::vec3 position, glm::vec3 target);

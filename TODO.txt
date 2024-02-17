@@ -1,0 +1,15 @@
+-Learning
+  -Understand frame buffers
+
+-Renderer
+  -Improve camera class / see components logic
+  -Why rotation uses quaternions
+  -Add shader programs manager
+  -Add material creators
+  -Add static mesh
+  -Add transformations handlers (?)
+  -Add textures
+  -Add textures diffuse flat shaders
+  -Use CMake instruction for project organization (in specific separate glad from there)
+  -Add namespace
+  -Add ImGUI for changing values in runtime
