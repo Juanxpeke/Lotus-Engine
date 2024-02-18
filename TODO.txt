@@ -1,15 +1,30 @@
--Learning
-  -Understand frame buffers
+# Learning
+  - Study Cell engine
+  - Study Vulkan guide
+  - Understand frame buffers
 
--Renderer
-  -Improve camera class / see components logic
-  -Why rotation uses quaternions
-  -Add shader programs manager
-  -Add material creators
-  -Add static mesh
-  -Add transformations handlers (?)
-  -Add textures
-  -Add textures diffuse flat shaders
-  -Use CMake instruction for project organization (in specific separate glad from there)
-  -Add namespace
-  -Add ImGUI for changing values in runtime
+# Renderer
+  - Remove repeated assimp in CMakeLists
+  - See "casual" way of setting sampler2D uniform without glUniform1i
+  - Add texture manager
+  - Add mesh manager
+  - See CMake add_subdirectory logic
+  - Study GetInstance() method in some clases
+  - Improve camera class / see components logic
+  - Why rotation uses quaternions
+  - Add shader programs manager
+  - Add material creators
+  - Add static mesh
+  - Add transformations handlers (?)
+  - Add textures
+  - Add textures diffuse flat shaders
+  - Use CMake instruction for project organization (in specific separate glad from there)
+  - Add namespace
+  - Add ImGUI for changing values in runtime
+
+
++ Study PLIMP idiom
++ Study unique_ptr
++ Study shared_ptr
++ Import meshes with assimp
++ Use textures with stb
