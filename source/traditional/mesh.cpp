@@ -1,6 +1,5 @@
 #include "mesh.h"
 
-#include "../util/assimp_transformations.h"
 #include <iostream>
 #include <vector>
 #include <stack>
@@ -10,6 +9,8 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
+#include "../util/assimp_transformations.h"
 
 struct MeshVertex
 {
@@ -33,7 +34,7 @@ Mesh::Mesh(const std::string& filePath, bool flipUVs) :
 
   if (!scene)
   {
-    //MONA_LOG_ERROR("Mesh Error: Failed to open file with path {0}", filePath);
+    // TODO: Error log
     return;
   }
 
@@ -41,7 +42,7 @@ Mesh::Mesh(const std::string& filePath, bool flipUVs) :
   std::vector<unsigned int> faces;
   size_t numVertices = 0;
   size_t numFaces = 0;
-  // First, we count the number of vertices and total faces, so we can reserve memory and avoid memory realocation
+  // First, we count the number of vertices and total faces, so we can reserve memory and avoid memory reallocation
   for (uint32_t i = 0; i < scene->mNumMeshes; i++)
   {
   numVertices += scene->mMeshes[i]->mNumVertices;
@@ -105,7 +106,7 @@ Mesh::Mesh(const std::string& filePath, bool flipUVs) :
       for (uint32_t i = 0; i < meshOBJ->mNumFaces; i++)
       {
         const aiFace& face = meshOBJ->mFaces[i];
-        // MONA_ASSERT(face.mNumIndices == 3, "Mesh Error: Can load meshes with faces that have {0} vertices", face.mNumIndices);
+        // TODO: ASSERT(face.mNumIndices == 3, "Mesh Error: Can load meshes with faces that have {0} vertices", face.mNumIndices);
         faces.push_back(face.mIndices[0] + offset);
         faces.push_back(face.mIndices[1] + offset);
         faces.push_back(face.mIndices[2] + offset);
@@ -181,13 +182,7 @@ Mesh::Mesh(PrimitiveType type) :
 
 Mesh::~Mesh()
 {
-  if (vertexArrayID)
-  { // TODO: Handle errors
-    glDeleteBuffers(1, &vertexBufferID);
-    glDeleteBuffers(1, &indexBufferID);
-    glDeleteVertexArrays(1, &vertexArrayID);
-    vertexArrayID = 0;
-  }
+  clearData();
 }
 
 void Mesh::createPrimitive(std::vector<float>& vertices, std::vector<unsigned int>& indices) noexcept
@@ -388,4 +383,15 @@ void Mesh::createSphere() noexcept
   }
 
   createPrimitive(sphereVertices, sphereIndices);
+}
+
+void Mesh::clearData() noexcept
+{
+  if (vertexArrayID)
+  { // TODO: Handle errors
+    glDeleteBuffers(1, &vertexBufferID);
+    glDeleteBuffers(1, &indexBufferID);
+    glDeleteVertexArrays(1, &vertexArrayID);
+    vertexArrayID = 0;
+  }
 }

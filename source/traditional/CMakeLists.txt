@@ -6,12 +6,14 @@ set(RENDERER_HEADERS
     diffuse_textured_material.h
     material.h
     mesh.h
+    mesh_manager.h
     shader_program.h
     texture.h)
 
 set(RENDERER_SOURCES
     material.cpp
     mesh.cpp
+    mesh_manager.cpp
     renderer.cpp
     shader_program.cpp
     texture.cpp)

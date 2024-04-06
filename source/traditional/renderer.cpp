@@ -5,7 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader_program.h"
-#include "mesh.h"
+#include "mesh_manager.h"
 #include "diffuse_flat_material.h"
 #include "diffuse_textured_material.h"
 #include "../scene/camera.h"
@@ -118,8 +118,9 @@ int main()
 
 	lightSetup();
 
-	Mesh mesh(Mesh::PrimitiveType::Sphere);
-	Mesh amesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
+	auto& meshManager = MeshManager::getInstance();
+	std::shared_ptr<Mesh> mesh = meshManager.loadMesh(Mesh::PrimitiveType::Sphere);
+	std::shared_ptr<Mesh> amesh= meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
 	
 	
 	Texture* texturePtr = new Texture(assetPath("models/air_conditioner/Albedo.png").string());
@@ -156,8 +157,8 @@ int main()
 
 		// dfm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
     dtm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
-		glBindVertexArray(amesh.getVertexArrayID());
-		glDrawElements(GL_TRIANGLES, amesh.getIndexBufferCount(), GL_UNSIGNED_INT, nullptr);
+		glBindVertexArray(amesh->getVertexArrayID());
+		glDrawElements(GL_TRIANGLES, amesh->getIndexBufferCount(), GL_UNSIGNED_INT, nullptr);
 
     glfwSwapBuffers(window);
 	}

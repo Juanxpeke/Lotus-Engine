@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <glm/glm.hpp>
+
 #include "texture.h"
 #include "material.h"
 
@@ -18,7 +19,7 @@ public:
 
   virtual void setMaterialUniforms(const glm::vec3& cameraPosition) override
   {
-    // MONA_ASSERT(m_diffuseTexture != nullptr, "Material Error: Texture must be not nullptr for rendering to be posible");
+    // TODO: ASSERT(m_diffuseTexture != nullptr, "Material Error: Texture must be not nullptr for rendering to be possible");
     glBindTextureUnit(ShaderProgram::DiffuseTextureUnit, diffuseTexture->getID());
     glUniform3fv(ShaderProgram::MaterialTintShaderLocation, 1, glm::value_ptr(materialTint));
   }
