@@ -1,6 +1,6 @@
 #include "mesh.h"
 
-#include "assimp_transformations.h"
+#include "../util/assimp_transformations.h"
 #include <iostream>
 #include <vector>
 #include <stack>

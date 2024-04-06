@@ -8,8 +8,8 @@
 #include "mesh.h"
 #include "diffuse_flat_material.h"
 #include "diffuse_textured_material.h"
-#include "camera.h"
-#include "path_manager.h"
+#include "../scene/camera.h"
+#include "../path_manager.h"
 
 int width = 720;
 int height = 720;

@@ -107,13 +107,13 @@ void generateDrawCommands()
   DrawElementsCommand drawCommands[2];
 
   drawCommands[0].vertexCount = fQuadIndices.size(); // Amount of indices to use for each instance
-  drawCommands[0].instanceCount = DRAW_COUNT / 2; // Draw DRAW_COUNT / 2 instances
+  drawCommands[0].instanceCount = DRAW_COUNT / 2; // Draw (DRAW_COUNT / 2) instances
   drawCommands[0].firstIndex = 0; // Offset into the index buffer object to begin reading data
   drawCommands[0].baseVertex = 0; // Value added to each index before pulling from the vertex data
   drawCommands[0].baseInstance = 0; // Base instance
 
   drawCommands[1].vertexCount = triangleIndices.size(); // Amount of indices to use for each instance
-  drawCommands[1].instanceCount = DRAW_COUNT / 2; // Draw DRAW_COUNT / 2 instances
+  drawCommands[1].instanceCount = DRAW_COUNT / 2; // Draw (DRAW_COUNT / 2) instances
   drawCommands[1].firstIndex = fQuadIndices.size(); // Offset into the index buffer object to begin reading data
   drawCommands[1].baseVertex = fQuadVerticesRGB.size(); // Value added to each index before pulling from the vertex data
   drawCommands[1].baseInstance = 0; // Base instance
@@ -190,7 +190,7 @@ int main()
         GL_TRIANGLES, // Primitive type
         GL_UNSIGNED_INT, // Type of the indices
         (GLvoid*) 0, // Offset into the indirect buffer object to begin reading commands
-        2, // Make 2 draws of DRAW_COUNT /  2 instances
+        2, // Make 2 draws of (DRAW_COUNT / 2) instances
         0); // No stride, the draw commands are tightly packed
 #else
     glMultiDrawElementsIndirect(

@@ -1,7 +1,7 @@
 # Build stuff
 /build
-/gl_tests/path_manager.h
-/renderer/path_manager.h
+*/build
+*/path_manager.h
 
 # Visual Studio
 .vscode

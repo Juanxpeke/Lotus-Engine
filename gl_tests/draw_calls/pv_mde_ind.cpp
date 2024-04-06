@@ -56,19 +56,19 @@ void generateDrawCommands()
   DrawElementsCommand drawCommands[3];
 
   drawCommands[0].vertexCount = quadIndices.size(); // Amount of indices to use for each instance
-  drawCommands[0].instanceCount = DRAW_COUNT / 3; // Draw DRAW_COUNT / 3 instances
+  drawCommands[0].instanceCount = DRAW_COUNT / 3; // Draw (DRAW_COUNT / 3) instances
   drawCommands[0].firstIndex = 0; // Offset into the index buffer object to begin reading data
   drawCommands[0].baseVertex = 0; // Value added to each index before pulling from the vertex data
   drawCommands[0].baseInstance = 0; // Base instance
 
   drawCommands[1].vertexCount = triangleIndices.size(); // Amount of indices to use for each instance
-  drawCommands[1].instanceCount = DRAW_COUNT / 3; // Draw DRAW_COUNT / 3 instances
+  drawCommands[1].instanceCount = DRAW_COUNT / 3; // Draw (DRAW_COUNT / 3) instances
   drawCommands[1].firstIndex = quadIndices.size(); // Offset into the index buffer object to begin reading data
   drawCommands[1].baseVertex = quadVerticesFlat.size(); // Value added to each index before pulling from the vertex data
   drawCommands[1].baseInstance = 0; // Base instance
 
   drawCommands[2].vertexCount = rectangleIndices.size(); // Amount of indices to use for each instance
-  drawCommands[2].instanceCount = DRAW_COUNT / 3; // Draw DRAW_COUNT / 3 instances
+  drawCommands[2].instanceCount = DRAW_COUNT / 3; // Draw (DRAW_COUNT / 3) instances
   drawCommands[2].firstIndex = quadIndices.size() + triangleIndices.size(); // Offset into the index buffer object to begin reading data
   drawCommands[2].baseVertex = quadVerticesFlat.size() + triangleVerticesFlat.size(); // Value added to each index before pulling from the vertex data
   drawCommands[2].baseInstance = 0; // Base instance
@@ -229,7 +229,7 @@ int main()
         GL_TRIANGLES, // Primitive type
         GL_UNSIGNED_INT, // Type of the indices
         (GLvoid*) 0, // Offset into the indirect buffer object to begin reading commands
-        3, // Make 3 draws of DRAW_COUNT / 3 instances
+        3, // Make 3 draws of (DRAW_COUNT / 3) instances
         0); // No stride, the draw commands are tightly packed
 #else
     glMultiDrawElementsIndirect(

@@ -19,11 +19,10 @@ set(THIRD_PARTY_INCLUDE_DIRECTORIES
 set(THIRD_PARTY_LIBRARIES glfw glad ${OPENGL_LIBRARIES} assimp stb)
 
 # Header generated automatically by CMake
+configure_file(CMakeConfigFiles/path_manager_renderer.h.in ${CMAKE_CURRENT_SOURCE_DIR}/source/path_manager.h)
 configure_file(CMakeConfigFiles/path_manager_gl_tests.h.in ${CMAKE_CURRENT_SOURCE_DIR}/gl_tests/path_manager.h)
-configure_file(CMakeConfigFiles/path_manager_renderer.h.in ${CMAKE_CURRENT_SOURCE_DIR}/renderer/path_manager.h)
 
-
-add_subdirectory(third_party)
+add_subdirectory(source)
 add_subdirectory(gl_tests)
 add_subdirectory(tests)
-add_subdirectory(renderer)
+add_subdirectory(third_party)
