@@ -4,10 +4,8 @@ set(UTIL_HEADERS
 
 set(SCENE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/transform.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/scene/new_camera.h
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/camera.h)
 
-set(SCENE_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/scene/camera.cpp)
+set(SCENE_SOURCES )
 
 add_subdirectory(traditional)

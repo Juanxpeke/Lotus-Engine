@@ -1,55 +1,46 @@
 #pragma once
 
-#include<glad/glad.h>
-#include<GLFW/glfw3.h>
-#include<glm/glm.hpp>
-#include<glm/gtc/matrix_transform.hpp>
-#include<glm/gtc/type_ptr.hpp>
-#include<glm/gtx/rotate_vector.hpp>
-#include<glm/gtx/vector_angle.hpp>
+#include "transform.h"
 
 class Camera
 {
 public:
-	// View variables
-	glm::vec3 position = glm::vec3(0.0f, 0.0f, 1.0f);
-	glm::vec3 targetOffset = glm::vec3(0.0f, 0.0f, -1.0f);;
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::mat4 view = glm::mat4(1.0f);
 
-	// Projection variables
-	int width;
-	int height;
-	float FOV = 60.0f;
-	float near = 0.0001f;
-	float far = 100.0f;
-	glm::mat4 projection = glm::mat4(1.0f);
+  Camera(
+      float fov = 50.0f, 
+      float ratio = 16.0f / 9.0f,
+      float nearPlane = 0.1f,
+      float farPlane = 100.0f) :
+    fieldOfView(fov),
+    aspectRatio(ratio),
+    zNearPlane(nearPlane),
+    zFarPlane(farPlane)
+  {}
 
-	// Movement
-	float speed = 12.0f;
-	float sensitivity = 0.01f;
+  Transform& getTransform()
+  {
+    return transform;
+  }
 
-  Camera(GLFWwindow* window, int width, int height, glm::vec3 position, glm::vec3 target);
-	Camera(GLFWwindow* window, int width, int heigth);
-	void update(float dt);
+  glm::mat4 getProjectionMatrix() const
+  {
+    return glm::perspective(glm::radians(fieldOfView), aspectRatio, zNearPlane, zFarPlane);
+  }
 
-	// Input callbacks
-	void handleMouseMove(double xPos, double yPos);
-	void handleMouseClick(int button, int action, int mods);
+  float getFieldOfView() const { return fieldOfView;}
+  float getZNearPlane() const { return zNearPlane;}
+  float getZFarPlane() const { return zFarPlane;}
+  float getAspectRatio() const { return aspectRatio;}
+  void setFieldOfView(float value) { fieldOfView = value; }
+  void setZNearPlane(float value) { zNearPlane = value; }
+  void setZFarPlane(float value) { zFarPlane = value; }
+  void setAspectRatio(float value) { aspectRatio = value; }
 
-private:
-	// Window
-	GLFWwindow* window;
+private:					
+  Transform transform;
 
-	// Input variables
-	double mouseX = 0.0;
-	double mouseY = 0.0;
-
-	float targetTheta = -3.1415f / 2;
-	float targetPhi = 0.0f;
-
-	bool isLeftButtonClicked = false;
-	
-	// Update variables from keyboard inputs
-	void updateFromInputs(float dt);
+  float fieldOfView = 50.0f;
+  float zNearPlane = 0.1f;
+  float zFarPlane = 100.0f;
+  float aspectRatio = 16.0f / 9.0f;
 };

@@ -8,7 +8,6 @@
 #include "mesh_manager.h"
 #include "diffuse_flat_material.h"
 #include "diffuse_textured_material.h"
-#include "../scene/new_camera.h"
 #include "../scene/camera.h"
 #include "../path_manager.h"
 
@@ -17,8 +16,6 @@ int height = 720;
 char title[256];
 
 unsigned int m_lightDataUBO;
-
-Camera* camera;
 
 struct DirectionalLight
 {
@@ -41,16 +38,25 @@ struct Lights
 	int directionalLightsCount; 
 };
 
-// Function to handle mouse movement
-void handleMouseMove(GLFWwindow* window, double xPos, double yPos)
+void updateFromInputs(GLFWwindow* window, float dt, Camera* nptr)
 {
-  camera->handleMouseMove(xPos, yPos);
-}
-
-// Function to handle mouse button events
-void handleMouseClick(GLFWwindow* window, int button, int action, int mods)
-{
-  camera->handleMouseClick(button, action, mods);
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    nptr->getTransform().translate(nptr->getTransform().getFrontVector() * dt * 8.f);
+  }
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+  }
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    nptr->getTransform().translate(nptr->getTransform().getFrontVector() * dt * -8.f);
+  }
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+	}
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+  }
+  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+  }
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    glfwSetWindowShouldClose(window, true);
+  }
 }
 
 void lightSetup()
@@ -105,12 +111,6 @@ int main()
 
 	glViewport(0, 0, width, height);
 
-	camera = new Camera(window, width, height);
-
-  // Set GLFW callbacks
-  glfwSetCursorPosCallback(window, handleMouseMove);
-  glfwSetMouseButtonCallback(window, handleMouseClick);
-
 	ShaderProgram mvpShaderProgram(shaderPath("diffuse_flat.vert"), shaderPath("diffuse_flat.frag"));
 	DiffuseFlatMaterial dfm(mvpShaderProgram);
 	
@@ -137,7 +137,7 @@ int main()
 
 	float lastTime = -1.0f;
 
-  NCamera n;
+  Camera n;
 
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
@@ -148,19 +148,24 @@ int main()
 
 		if (lastTime >= 0.0f) {
 			float dt = currentTime - lastTime;
-			camera->update(dt);
+			// camera->update(dt);
+      updateFromInputs(window, dt, &n);
 		}
 
 		lastTime = currentTime;
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  
+    std::cout << n.getTransform().getLocalTranslation().x << ", ";
+    std::cout << n.getTransform().getLocalTranslation().y << ", ";
+    std::cout << n.getTransform().getLocalTranslation().z << std::endl;
 
 		renderLights();
 
 		// dfm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
     // dtm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
-		dtm.setUniforms(n.getProjectionMatrix(), n.getTransform().getViewMatrix(), glm::mat4(1.0), camera->position);
+		dtm.setUniforms(n.getProjectionMatrix(), n.getTransform().getViewMatrix(), glm::mat4(1.0), n.getTransform().getLocalTranslation());
     glBindVertexArray(amesh->getVertexArrayID());
 		glDrawElements(GL_TRIANGLES, amesh->getIndexBufferCount(), GL_UNSIGNED_INT, nullptr);
 
