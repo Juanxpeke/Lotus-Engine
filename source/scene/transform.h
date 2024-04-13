@@ -3,11 +3,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-class Transform {
+class Transform
+{
 public:
   Transform(
       const glm::vec3& translation = glm::vec3(0.0f),
-      const glm::fquat& rotation = glm::fquat(1.0f, 0.0f, 0.0f, 0.0f),
+      const glm::fquat& rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
       const glm::vec3& scale = glm::vec3(1.0f)) :
     localTranslation(translation),
     localRotation(rotation),
@@ -69,7 +70,7 @@ public:
   }
 
   glm::vec3 getUpVector() const {
-    return glm::rotate(localRotation, glm::vec3(0.0f, 0.0f, 1.0f));
+    return glm::rotate(localRotation, glm::vec3(0.0f, 1.0f, 0.0f));
   }
   
   glm::vec3 getRightVector() const {
@@ -77,7 +78,7 @@ public:
   }
 
   glm::vec3 getFrontVector() const {
-    return glm::rotate(localRotation, glm::vec3(0.0f, 1.0f, 0.0f));
+    return glm::rotate(localRotation, glm::vec3(0.0f, 0.0f, -1.0f));
   }
 
 private:

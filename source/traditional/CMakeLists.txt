@@ -9,6 +9,7 @@ set(RENDERER_HEADERS
     material.h
     diffuse_flat_material.h
     diffuse_textured_material.h
+    mesh_instance.h
     renderer.h)
 
 set(RENDERER_SOURCES

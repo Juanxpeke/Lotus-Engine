@@ -4,12 +4,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "shader_program.h"
-#include "mesh_manager.h"
-#include "diffuse_flat_material.h"
-#include "diffuse_textured_material.h"
 #include "../scene/camera.h"
 #include "../path_manager.h"
+#include "shader_program.h"
+#include "diffuse_flat_material.h"
+#include "diffuse_textured_material.h"
+#include "mesh_manager.h"
+#include "mesh_instance.h"
 
 int width = 720;
 int height = 720;
@@ -44,15 +45,19 @@ void updateFromInputs(GLFWwindow* window, float dt, Camera* nptr)
     nptr->getTransform().translate(nptr->getTransform().getFrontVector() * dt * 8.f);
   }
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    nptr->getTransform().translate(nptr->getTransform().getRightVector() * dt * -8.f);
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     nptr->getTransform().translate(nptr->getTransform().getFrontVector() * dt * -8.f);
   }
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    nptr->getTransform().translate(nptr->getTransform().getRightVector() * dt * 8.f);
 	}
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+    nptr->getTransform().translate(glm::vec3(0.0f, 1.0f, 0.0f) * dt * 8.f);
   }
   if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+    nptr->getTransform().translate(glm::vec3(0.0f, 1.0f, 0.0f) * dt * -8.f);
   }
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
@@ -110,18 +115,15 @@ int main()
 	gladLoadGL();
 
 	glViewport(0, 0, width, height);
-
-	ShaderProgram mvpShaderProgram(shaderPath("diffuse_flat.vert"), shaderPath("diffuse_flat.frag"));
-	DiffuseFlatMaterial dfm(mvpShaderProgram);
 	
+	lightSetup();
+
 	ShaderProgram mvpSPT(shaderPath("diffuse_textured.vert"), shaderPath("diffuse_textured.frag"));
 	DiffuseTexturedMaterial dtm(mvpSPT);
 
-	lightSetup();
-
 	auto& meshManager = MeshManager::getInstance();
-	std::shared_ptr<Mesh> mesh = meshManager.loadMesh(Mesh::PrimitiveType::Sphere);
-	std::shared_ptr<Mesh> amesh= meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
+
+	std::shared_ptr<Mesh> mesh= meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
 	
 	
 	Texture* texturePtr = new Texture(assetPath("models/air_conditioner/Albedo.png").string());
@@ -129,6 +131,9 @@ int main()
 	
 	dtm.setMaterialTint(glm::vec3(1.0f));
 	dtm.setDiffuseTexture(textureSharedPtr);
+
+  std::shared_ptr<DiffuseTexturedMaterial> ptr = std::make_shared<DiffuseTexturedMaterial>(dtm);
+  MeshInstance vent(mesh, ptr);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -156,18 +161,12 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  
-    std::cout << n.getTransform().getLocalTranslation().x << ", ";
-    std::cout << n.getTransform().getLocalTranslation().y << ", ";
-    std::cout << n.getTransform().getLocalTranslation().z << std::endl;
-
 		renderLights();
 
-		// dfm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
     // dtm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
-		dtm.setUniforms(n.getProjectionMatrix(), n.getTransform().getViewMatrix(), glm::mat4(1.0), n.getTransform().getLocalTranslation());
-    glBindVertexArray(amesh->getVertexArrayID());
-		glDrawElements(GL_TRIANGLES, amesh->getIndexBufferCount(), GL_UNSIGNED_INT, nullptr);
+		vent.getMaterial()->setUniforms(n.getProjectionMatrix(), n.getTransform().getViewMatrix(), glm::mat4(1.0), n.getTransform().getLocalTranslation());
+    glBindVertexArray(vent.getMeshVAO());
+		glDrawElements(GL_TRIANGLES, vent.getMeshIndexCount(), GL_UNSIGNED_INT, nullptr);
 
     glfwSwapBuffers(window);
 	}
