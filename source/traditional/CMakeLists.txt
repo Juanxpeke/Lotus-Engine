@@ -2,13 +2,14 @@ set(RENDERER_NAME
     traditional_renderer)
 
 set(RENDERER_HEADERS
-    diffuse_flat_material.h
-    diffuse_textured_material.h
-    material.h
     mesh.h
     mesh_manager.h
+    texture.h
     shader_program.h
-    texture.h)
+    material.h
+    diffuse_flat_material.h
+    diffuse_textured_material.h
+    renderer.h)
 
 set(RENDERER_SOURCES
     material.cpp
@@ -16,7 +17,9 @@ set(RENDERER_SOURCES
     mesh_manager.cpp
     renderer.cpp
     shader_program.cpp
-    texture.cpp)
+    texture.cpp
+    renderer.cpp
+    sample.cpp)
 
 add_executable(${RENDERER_NAME} ${RENDERER_SOURCES} ${RENDERER_HEADERS} ${SCENE_SOURCES} ${SCENE_HEADERS} ${UTIL_HEADERS})
 
