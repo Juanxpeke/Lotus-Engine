@@ -12,12 +12,11 @@ set(RENDERER_HEADERS
     renderer.h)
 
 set(RENDERER_SOURCES
-    material.cpp
     mesh.cpp
     mesh_manager.cpp
-    renderer.cpp
-    shader_program.cpp
     texture.cpp
+    shader_program.cpp
+    material.cpp
     renderer.cpp
     sample.cpp)
 

@@ -8,6 +8,7 @@
 #include "mesh_manager.h"
 #include "diffuse_flat_material.h"
 #include "diffuse_textured_material.h"
+#include "../scene/new_camera.h"
 #include "../scene/camera.h"
 #include "../path_manager.h"
 
@@ -136,6 +137,8 @@ int main()
 
 	float lastTime = -1.0f;
 
+  NCamera n;
+
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -156,8 +159,9 @@ int main()
 		renderLights();
 
 		// dfm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
-    dtm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
-		glBindVertexArray(amesh->getVertexArrayID());
+    // dtm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
+		dtm.setUniforms(n.getProjectionMatrix(), n.getTransform().getViewMatrix(), glm::mat4(1.0), camera->position);
+    glBindVertexArray(amesh->getVertexArrayID());
 		glDrawElements(GL_TRIANGLES, amesh->getIndexBufferCount(), GL_UNSIGNED_INT, nullptr);
 
     glfwSwapBuffers(window);
