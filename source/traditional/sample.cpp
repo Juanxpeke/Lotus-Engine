@@ -11,6 +11,7 @@
 #include "diffuse_textured_material.h"
 #include "mesh_manager.h"
 #include "mesh_instance.h"
+#include "renderer.h"
 
 int width = 720;
 int height = 720;
@@ -121,6 +122,9 @@ int main()
 	ShaderProgram mvpSPT(shaderPath("diffuse_textured.vert"), shaderPath("diffuse_textured.frag"));
 	DiffuseTexturedMaterial dtm(mvpSPT);
 
+  Renderer renderer;
+	std::shared_ptr<DiffuseTexturedMaterial> ventMaterial = std::static_pointer_cast<DiffuseTexturedMaterial>(renderer.createMaterial(MaterialType::DiffuseTextured));
+
 	auto& meshManager = MeshManager::getInstance();
 
 	std::shared_ptr<Mesh> mesh= meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
@@ -133,7 +137,6 @@ int main()
 	dtm.setDiffuseTexture(textureSharedPtr);
 
   std::shared_ptr<DiffuseTexturedMaterial> ptr = std::make_shared<DiffuseTexturedMaterial>(dtm);
-  MeshInstance vent(mesh, ptr);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -141,8 +144,10 @@ int main()
 	glfwSwapBuffers(window);
 
 	float lastTime = -1.0f;
+  
+  Camera camera;
 
-  Camera n;
+	renderer.createMeshInstance(mesh, ptr);
 
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
@@ -153,20 +158,14 @@ int main()
 
 		if (lastTime >= 0.0f) {
 			float dt = currentTime - lastTime;
-			// camera->update(dt);
-      updateFromInputs(window, dt, &n);
+      updateFromInputs(window, dt, &camera);
 		}
 
 		lastTime = currentTime;
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		renderLights();
 
-    // dtm.setUniforms(camera->projection, camera->view, glm::mat4(1.0), camera->position);
-		vent.getMaterial()->setUniforms(n.getProjectionMatrix(), n.getTransform().getViewMatrix(), glm::mat4(1.0), n.getTransform().getLocalTranslation());
-    glBindVertexArray(vent.getMeshVAO());
-		glDrawElements(GL_TRIANGLES, vent.getMeshIndexCount(), GL_UNSIGNED_INT, nullptr);
+		renderer.render(camera);
 
     glfwSwapBuffers(window);
 	}

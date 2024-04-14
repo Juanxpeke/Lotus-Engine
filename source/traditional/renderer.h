@@ -4,8 +4,10 @@
 #include <array>
 #include <glm/glm.hpp>
 #include "../scene/transform.h"
+#include "../scene/camera.h"
 #include "shader_program.h"
 #include "material.h"
+#include "mesh_instance.h"
 
 class Renderer
 {
@@ -21,10 +23,14 @@ public:
 
   void shutDown() noexcept;
 
-  void render() noexcept;
+  void render(Camera& camera) noexcept;
+
+  MeshInstance* createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
 
   std::shared_ptr<Material> createMaterial(MaterialType type);
 
+
+  std::vector<MeshInstance> meshInstances;
 private:
   struct DirectionalLight
   {
@@ -60,7 +66,8 @@ private:
     int directionalLightsCount; 
   };
 
-  std::array<ShaderProgram, 2 * static_cast<unsigned int>(MaterialType::MaterialTypeCount)> shaders;
+  std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount)> shaders;
+
   
   unsigned int lightDataUBO = 0;
 
