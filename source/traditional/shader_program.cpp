@@ -29,16 +29,22 @@ ShaderProgram::ShaderProgram(const std::filesystem::path& vertexShaderPath, cons
   {
     programID = linkProgram(vertexShader, fragmentShader);
   }
+  else
+  {
+    // TODO: Exception throwing
+  }
 }
 
-ShaderProgram::ShaderProgram(ShaderProgram&& program) noexcept : programID(program.programID)
+ShaderProgram::ShaderProgram(ShaderProgram&& program) noexcept
 {
+  programID = program.programID;
   program.programID = 0;
 }
 
 ShaderProgram::~ShaderProgram()
 {
-  if (programID) glDeleteProgram(programID);
+  if (programID)
+    glDeleteProgram(programID);
 }
 
 ShaderProgram&  ShaderProgram::operator=(ShaderProgram&& program) noexcept

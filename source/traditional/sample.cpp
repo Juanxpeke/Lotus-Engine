@@ -119,24 +119,21 @@ int main()
 	
 	lightSetup();
 
-	ShaderProgram mvpSPT(shaderPath("diffuse_textured.vert"), shaderPath("diffuse_textured.frag"));
-	DiffuseTexturedMaterial dtm(mvpSPT);
-
   Renderer renderer;
-	std::shared_ptr<DiffuseTexturedMaterial> ventMaterial = std::static_pointer_cast<DiffuseTexturedMaterial>(renderer.createMaterial(MaterialType::DiffuseTextured));
-
+	renderer.startUp();
+	
 	auto& meshManager = MeshManager::getInstance();
 
-	std::shared_ptr<Mesh> mesh= meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
+	std::shared_ptr<Mesh> mesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
 	
 	
 	Texture* texturePtr = new Texture(assetPath("models/air_conditioner/Albedo.png").string());
 	std::shared_ptr<Texture> textureSharedPtr = std::shared_ptr<Texture>(texturePtr);
-	
-	dtm.setMaterialTint(glm::vec3(1.0f));
-	dtm.setDiffuseTexture(textureSharedPtr);
 
-  std::shared_ptr<DiffuseTexturedMaterial> ptr = std::make_shared<DiffuseTexturedMaterial>(dtm);
+	std::shared_ptr<DiffuseTexturedMaterial> ventMaterial = std::static_pointer_cast<DiffuseTexturedMaterial>(renderer.createMaterial(MaterialType::DiffuseTextured));
+
+	ventMaterial->setMaterialTint(glm::vec3(1.0f));
+	ventMaterial->setDiffuseTexture(textureSharedPtr);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -147,7 +144,7 @@ int main()
   
   Camera camera;
 
-	renderer.createMeshInstance(mesh, ptr);
+	renderer.createMeshInstance(mesh, ventMaterial);
 
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
@@ -172,8 +169,6 @@ int main()
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
-
-	// TODO: See bug called when GL classes auto deleted after glfwTerminate (beacuse end of scope is after it)
 
   return 0;
 }

@@ -11,8 +11,8 @@
 
 void Renderer::startUp() noexcept
 {
-  shaders[static_cast<unsigned int >(MaterialType::DiffuseFlat)] = ShaderProgram(shaderPath("diffuse_flat.vert"), shaderPath("diffuse_flat.frag"));
-  shaders[static_cast<unsigned int >(MaterialType::DiffuseTextured)] = ShaderProgram(shaderPath("diffuse_textured.vert"), shaderPath("diffuse_textured.frag"));
+  shaders[static_cast<unsigned int>(MaterialType::DiffuseFlat)] = ShaderProgram(shaderPath("diffuse_flat.vert"), shaderPath("diffuse_flat.frag"));
+  shaders[static_cast<unsigned int>(MaterialType::DiffuseTextured)] = ShaderProgram(shaderPath("diffuse_textured.vert"), shaderPath("diffuse_textured.frag"));
 
   glEnable(GL_DEPTH_TEST);
 
@@ -20,7 +20,7 @@ void Renderer::startUp() noexcept
   glBindBuffer(GL_UNIFORM_BUFFER, lightDataUBO);
   glBufferData(GL_UNIFORM_BUFFER, sizeof(Lights), NULL, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
-  glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightDataUBO);
+  //glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightDataUBO);
 }
 
 void Renderer::shutDown() noexcept
@@ -65,6 +65,7 @@ std::shared_ptr<Material> Renderer::createMaterial(MaterialType type)
     return std::make_shared<DiffuseFlatMaterial>(shaders[offset]);
     break;
   case MaterialType::DiffuseTextured:
+    std::cout << "textured" << std::endl;
     return std::make_shared<DiffuseTexturedMaterial>(shaders[offset]);
     break;
   case MaterialType::MaterialTypeCount:
