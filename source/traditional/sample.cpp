@@ -18,46 +18,25 @@ int width = 720;
 int height = 720;
 char title[256];
 
-struct DirectionalLight
-{
-	// Paddings (https://learnopengl.com/Advanced-OpenGL/Advanced-GLSL):
-	// 12
-	// 16
-	// 28
-	// 32
-	glm::vec3 color;
-	float padding04;
-	glm::vec3 direction;
-	float padding08;
-};
-
-struct Lights
-{ 
-	DirectionalLight directionalLights[2]; 
-	glm::vec3 ambientLight;
-	// PADDING?
-	int directionalLightsCount; 
-};
-
-void updateFromInputs(GLFWwindow* window, float dt, Camera* nptr)
+void updateFromInputs(GLFWwindow* window, float dt, Camera* cameraPtr)
 {
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    nptr->getTransform().translate(nptr->getTransform().getFrontVector() * dt * 8.f);
+    cameraPtr->translate(cameraPtr->getFrontVector() * dt * 8.f);
   }
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    nptr->getTransform().translate(nptr->getTransform().getRightVector() * dt * -8.f);
+    cameraPtr->translate(cameraPtr->getRightVector() * dt * -8.f);
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    nptr->getTransform().translate(nptr->getTransform().getFrontVector() * dt * -8.f);
+    cameraPtr->translate(cameraPtr->getFrontVector() * dt * -8.f);
   }
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    nptr->getTransform().translate(nptr->getTransform().getRightVector() * dt * 8.f);
+    cameraPtr->translate(cameraPtr->getRightVector() * dt * 8.f);
 	}
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-    nptr->getTransform().translate(glm::vec3(0.0f, 1.0f, 0.0f) * dt * 8.f);
+    cameraPtr->translate(glm::vec3(0.0f, 1.0f, 0.0f) * dt * 8.f);
   }
   if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-    nptr->getTransform().translate(glm::vec3(0.0f, 1.0f, 0.0f) * dt * -8.f);
+    cameraPtr->translate(glm::vec3(0.0f, 1.0f, 0.0f) * dt * -8.f);
   }
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);

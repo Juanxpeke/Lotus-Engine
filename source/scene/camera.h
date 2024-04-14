@@ -1,8 +1,8 @@
 #pragma once
 
-#include "transform.h"
+#include "node_3d.h"
 
-class Camera
+class Camera : public Node3D
 {
 public:
 
@@ -16,11 +16,6 @@ public:
     zNearPlane(nearPlane),
     zFarPlane(farPlane)
   {}
-
-  Transform& getTransform()
-  {
-    return transform;
-  }
 
   glm::mat4 getProjectionMatrix() const
   {
@@ -37,8 +32,6 @@ public:
   void setAspectRatio(float value) { aspectRatio = value; }
 
 private:					
-  Transform transform;
-
   float fieldOfView = 50.0f;
   float zNearPlane = 0.1f;
   float zFarPlane = 100.0f;

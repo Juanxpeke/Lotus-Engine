@@ -4,6 +4,7 @@ set(UTIL_HEADERS
 
 set(SCENE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/transform.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/scene/node_3d.h
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/camera.h)
 
 set(SCENE_SOURCES )

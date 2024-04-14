@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../scene/transform.h"
+#include <iostream>
+#include "../scene/node_3d.h"
 #include "mesh.h"
 #include "material.h"
 
-class MeshInstance
+class MeshInstance : public Node3D
 {
 public:
 
@@ -12,11 +13,6 @@ public:
   {
     // ASSERT(mesh != nullptr, "StaticMeshComponent Error: Mesh pointer cannot be null.");
     // ASSERT(material != nullptr, "StaticMeshComponent Error: Material cannot be null.");
-  }
-
-  Transform& getTransform()
-  {
-    return transform;
   }
 
   uint32_t getMeshIndexCount() const noexcept
@@ -44,7 +40,6 @@ public:
   
 
 private:
-  Transform transform;
   std::shared_ptr<Mesh> meshPtr;
   std::shared_ptr<Material> materialPtr;
 };

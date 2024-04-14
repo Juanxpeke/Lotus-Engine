@@ -16,16 +16,16 @@ void Renderer::startUp() noexcept
 
   glEnable(GL_DEPTH_TEST);
 
-  glGenBuffers(1, &lightDataUBO);
-  glBindBuffer(GL_UNIFORM_BUFFER, lightDataUBO);
-  glBufferData(GL_UNIFORM_BUFFER, sizeof(Lights), NULL, GL_DYNAMIC_DRAW);
+  glGenBuffers(1, &lightsDataUBO);
+  glBindBuffer(GL_UNIFORM_BUFFER, lightsDataUBO);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(LightsData), NULL, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
-  glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightDataUBO);
+  glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightsDataUBO);
 }
 
 void Renderer::shutDown() noexcept
 {
-  glDeleteBuffers(1, &lightDataUBO);
+  glDeleteBuffers(1, &lightsDataUBO);
 }
 
 void Renderer::render(Camera& camera) noexcept
@@ -36,31 +36,31 @@ void Renderer::render(Camera& camera) noexcept
   glm::mat4 projectionMatrix;
   glm::vec3 cameraPosition = glm::vec3(0.0f);
 
-  Lights lights;
-	lights.ambientLight = { 0.4, 0.4, 0.4 };
+  LightsData lightsData;
 
-	uint32_t directionalLightsCount = 2;
-	lights.directionalLightsCount = static_cast<int>(directionalLightsCount);
-	for (uint32_t i = 0; i < directionalLightsCount; i++) {
-		lights.directionalLights[i].color = { 0.4, 0.0, 0.4 };
-		lights.directionalLights[i].direction = { 0.0, -1.0, 1.0 };
-	}
+	lightsData.ambientLight = { 0.4, 0.4, 0.4 };
 
-	glBindBuffer(GL_UNIFORM_BUFFER, lightDataUBO);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Lights), &lights);
+  uint32_t directionalLightsCount = std::min(static_cast<uint32_t>(NUM_HALF_MAX_DIRECTIONAL_LIGHTS * 2), static_cast<uint32_t>(directionalLights.size()));
+  lightsData.directionalLightsCount = static_cast<int>(directionalLightsCount);
+
+  for (uint32_t i = 0; i < directionalLightsCount; i++)
+  {
+    const DirectionalLight& dirLight = directionalLights[i];
+    lightsData.directionalLights[i].color = dirLight.getLightColor();
+    lightsData.directionalLights[i].direction = glm::rotate(dirLight.getLightDirection(), dirLight.getFrontVector());
+  }
+
+	glBindBuffer(GL_UNIFORM_BUFFER, lightsDataUBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightsData), &lightsData);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-  for (auto it = meshInstances.begin(); it < meshInstances.end(); it++)
+  for (int i = 0; i < meshInstances.size(); i++)
   {
-    MeshInstance meshInstance = *it;
-    meshInstance.getMaterial()->setUniforms(camera.getProjectionMatrix(), camera.getTransform().getViewMatrix(), glm::mat4(1.0), camera.getTransform().getLocalTranslation());
+    const MeshInstance& meshInstance = meshInstances[i];
+    meshInstance.getMaterial()->setUniforms(camera.getProjectionMatrix(), camera.getViewMatrix(), meshInstance.getModelMatrix(), camera.getLocalTranslation());
     glBindVertexArray(meshInstance.getMeshVAO());
 		glDrawElements(GL_TRIANGLES, meshInstance.getMeshIndexCount(), GL_UNSIGNED_INT, nullptr);
   }
-
-  // glBindBuffer(GL_UNIFORM_BUFFER, lightDataUBO);
-  // glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Lights), nullptr);
-  // glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 MeshInstance* Renderer::createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
@@ -88,4 +88,9 @@ std::shared_ptr<Material> Renderer::createMaterial(MaterialType type)
     return nullptr;
     break;
   }
+}
+
+void Renderer::setAmbientLight(glm::vec3 color)
+{
+  ambientLight = color;
 }

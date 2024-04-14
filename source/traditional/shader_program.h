@@ -19,11 +19,11 @@ public:
   
   ShaderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath) noexcept;
   ShaderProgram() : programID(0) {}
-  ShaderProgram(ShaderProgram const& program) = delete;
+  ShaderProgram(const ShaderProgram& program) = delete;
   ShaderProgram(ShaderProgram&& program) noexcept;
   ~ShaderProgram();
 
-  ShaderProgram& operator=(ShaderProgram const &program) = delete;
+  ShaderProgram& operator=(const ShaderProgram& program) = delete;
   ShaderProgram& operator=(ShaderProgram&& program) noexcept;
 
   
