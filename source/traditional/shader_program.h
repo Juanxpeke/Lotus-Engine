@@ -18,7 +18,14 @@ public:
   static constexpr int DiffuseTextureUnit = 0;
   
   ShaderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath) noexcept;
+  ShaderProgram() : programID(0) {}
+  ShaderProgram(ShaderProgram const& program) = delete;
+  ShaderProgram(ShaderProgram&& program) noexcept;
   ~ShaderProgram();
+
+  ShaderProgram& operator=(ShaderProgram const &program) = delete;
+  ShaderProgram& operator=(ShaderProgram&& program) noexcept;
+
   
   void bind();
   void unbind();

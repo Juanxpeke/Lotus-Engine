@@ -31,9 +31,28 @@ ShaderProgram::ShaderProgram(const std::filesystem::path& vertexShaderPath, cons
   }
 }
 
+ShaderProgram::ShaderProgram(ShaderProgram&& program) noexcept : programID(program.programID)
+{
+  program.programID = 0;
+}
+
 ShaderProgram::~ShaderProgram()
 {
   if (programID) glDeleteProgram(programID);
+}
+
+ShaderProgram&  ShaderProgram::operator=(ShaderProgram&& program) noexcept
+{
+  if (&program == this)
+    return *this;
+
+  if (programID)
+    glDeleteProgram(programID);
+
+  programID = program.programID;
+  program.programID = 0;
+  
+  return *this;
 }
 
 std::string ShaderProgram::readShaderFile(const std::filesystem::path& shaderPath) const noexcept
