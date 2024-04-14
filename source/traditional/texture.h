@@ -28,8 +28,9 @@ enum class WrapMode
 
 class Texture
 {
+friend class TextureManager;
+
 public:
-  // friend class TextureManager;
   Texture(const std::string& stringFilePath,
       TextureMagnificationFilter magFilter = TextureMagnificationFilter::Linear,
       TextureMinificationFilter minFilter = TextureMinificationFilter::LinearMipmapLinear,

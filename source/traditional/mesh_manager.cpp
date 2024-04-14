@@ -45,9 +45,8 @@ std::shared_ptr<Mesh> MeshManager::loadMesh(const std::filesystem::path& filePat
   // In case there already existed a loaded mesh with the given path referenced by the meshes map
   // it is returned immediately
   auto it = meshMap.find(stringPath);
-  if (it != meshMap.end()) {
+  if (it != meshMap.end())
     return it->second;
-  }
   
   Mesh* meshPtr = new Mesh(stringPath, flipUVs);
   std::shared_ptr<Mesh> sharedPtr = std::shared_ptr<Mesh>(meshPtr);

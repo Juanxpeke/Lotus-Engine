@@ -6,10 +6,11 @@
 
 #include "../scene/camera.h"
 #include "../path_manager.h"
+#include "mesh_manager.h"
+#include "texture_manager.h"
 #include "shader_program.h"
 #include "diffuse_flat_material.h"
 #include "diffuse_textured_material.h"
-#include "mesh_manager.h"
 #include "mesh_instance.h"
 #include "renderer.h"
 
@@ -123,17 +124,15 @@ int main()
 	renderer.startUp();
 	
 	auto& meshManager = MeshManager::getInstance();
-
-	std::shared_ptr<Mesh> mesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
+	std::shared_ptr<Mesh> ventMesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
 	
-	
-	Texture* texturePtr = new Texture(assetPath("models/air_conditioner/Albedo.png").string());
-	std::shared_ptr<Texture> textureSharedPtr = std::shared_ptr<Texture>(texturePtr);
+	auto& textureManager = TextureManager::getInstance();
+	std::shared_ptr<Texture> ventTexture =  textureManager.loadTexture(assetPath("models/air_conditioner/Albedo.png").string());
 
 	std::shared_ptr<DiffuseTexturedMaterial> ventMaterial = std::static_pointer_cast<DiffuseTexturedMaterial>(renderer.createMaterial(MaterialType::DiffuseTextured));
 
 	ventMaterial->setMaterialTint(glm::vec3(1.0f));
-	ventMaterial->setDiffuseTexture(textureSharedPtr);
+	ventMaterial->setDiffuseTexture(ventTexture);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -144,7 +143,7 @@ int main()
   
   Camera camera;
 
-	renderer.createMeshInstance(mesh, ventMaterial);
+	renderer.createMeshInstance(ventMesh, ventMaterial);
 
 	// Main while loop
 	while (!glfwWindowShouldClose(window))

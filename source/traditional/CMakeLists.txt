@@ -5,6 +5,7 @@ set(RENDERER_HEADERS
     mesh.h
     mesh_manager.h
     texture.h
+    texture_manager.h
     shader_program.h
     material.h
     diffuse_flat_material.h
@@ -16,6 +17,7 @@ set(RENDERER_SOURCES
     mesh.cpp
     mesh_manager.cpp
     texture.cpp
+    texture_manager.cpp
     shader_program.cpp
     material.cpp
     renderer.cpp

@@ -65,7 +65,6 @@ std::shared_ptr<Material> Renderer::createMaterial(MaterialType type)
     return std::make_shared<DiffuseFlatMaterial>(shaders[offset]);
     break;
   case MaterialType::DiffuseTextured:
-    std::cout << "textured" << std::endl;
     return std::make_shared<DiffuseTexturedMaterial>(shaders[offset]);
     break;
   case MaterialType::MaterialTypeCount:
