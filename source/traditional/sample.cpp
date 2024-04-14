@@ -43,6 +43,22 @@ void updateFromInputs(GLFWwindow* window, float dt, Camera* cameraPtr)
   }
 }
 
+void createVent(Renderer& renderer)
+{
+	auto& meshManager = MeshManager::getInstance();
+	std::shared_ptr<Mesh> ventMesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
+	
+	auto& textureManager = TextureManager::getInstance();
+	std::shared_ptr<Texture> ventTexture =  textureManager.loadTexture(assetPath("models/air_conditioner/Albedo.png").string());
+
+	std::shared_ptr<DiffuseTexturedMaterial> ventMaterial = std::static_pointer_cast<DiffuseTexturedMaterial>(renderer.createMaterial(MaterialType::DiffuseTextured));
+
+	ventMaterial->setMaterialTint(glm::vec3(1.0f));
+	ventMaterial->setDiffuseTexture(ventTexture);
+
+	renderer.createMeshInstance(ventMesh, ventMaterial);
+}
+
 int main()
 {
 	glfwInit();
@@ -65,30 +81,14 @@ int main()
 
 	glViewport(0, 0, width, height);
 
-  Renderer renderer;
-	renderer.startUp();
-	
-	auto& meshManager = MeshManager::getInstance();
-	std::shared_ptr<Mesh> ventMesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
-	
-	auto& textureManager = TextureManager::getInstance();
-	std::shared_ptr<Texture> ventTexture =  textureManager.loadTexture(assetPath("models/air_conditioner/Albedo.png").string());
-
-	std::shared_ptr<DiffuseTexturedMaterial> ventMaterial = std::static_pointer_cast<DiffuseTexturedMaterial>(renderer.createMaterial(MaterialType::DiffuseTextured));
-
-	ventMaterial->setMaterialTint(glm::vec3(1.0f));
-	ventMaterial->setDiffuseTexture(ventTexture);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-	glfwSwapBuffers(window);
-
-	float lastTime = -1.0f;
-  
   Camera camera;
 
-	renderer.createMeshInstance(ventMesh, ventMaterial);
+  Renderer renderer;
+	renderer.startUp();
+
+	createVent(renderer);
+	
+	float lastTime = -1.0f;
 
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
@@ -99,6 +99,7 @@ int main()
 
 		if (lastTime >= 0.0f) {
 			float dt = currentTime - lastTime;
+			std::cout << "FPS: " << 1.0f / dt << std::endl;
       updateFromInputs(window, dt, &camera);
 		}
 
