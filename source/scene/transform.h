@@ -55,6 +55,11 @@ public:
     localTranslation = translation;
   }
 
+  void scale(float scale)
+  {
+    localScale *= scale;
+  }
+
   void scale(glm::vec3 scale)
   {
     localScale *= scale;

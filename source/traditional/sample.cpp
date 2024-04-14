@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -56,7 +57,16 @@ void createVent(Renderer& renderer)
 	ventMaterial->setMaterialTint(glm::vec3(1.0f));
 	ventMaterial->setDiffuseTexture(ventTexture);
 
-	renderer.createMeshInstance(ventMesh, ventMaterial);
+	MeshInstance* ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
+
+	ventInstance->scale(0.04f);
+
+	float side = 50.f;
+	float x = side * ((float)(rand()) / (float)(RAND_MAX)) - side / 2.0f;
+	float y = side * ((float)(rand()) / (float)(RAND_MAX)) - side / 2.0f;
+	float z = side * ((float)(rand()) / (float)(RAND_MAX)) - side / 2.0f;
+	
+	ventInstance->setTranslation(glm::vec3(x, y, z));
 }
 
 int main()
@@ -86,7 +96,12 @@ int main()
   Renderer renderer;
 	renderer.startUp();
 
-	createVent(renderer);
+	const int objectCount = 5000; 
+
+	for (int i = 0; i < objectCount; i++)
+	{
+		createVent(renderer);
+	}
 	
 	float lastTime = -1.0f;
 

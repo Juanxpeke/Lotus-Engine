@@ -48,11 +48,18 @@ public:
     transform.translate(translation);
   }
 
-  void setTranslation(const glm::vec3 translation) {
+  void setTranslation(const glm::vec3 translation)
+  {
     transform.setTranslation(translation);
   }
 
-  void scale(glm::vec3 scale){
+  void scale(float scale)
+  {
+    transform.scale(scale);
+  }
+
+  void scale(glm::vec3 scale)
+  {
     transform.scale(scale);
   }
 
