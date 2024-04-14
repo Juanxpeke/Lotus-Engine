@@ -18,8 +18,6 @@ int width = 720;
 int height = 720;
 char title[256];
 
-unsigned int m_lightDataUBO;
-
 struct DirectionalLight
 {
 	// Paddings (https://learnopengl.com/Advanced-OpenGL/Advanced-GLSL):
@@ -66,36 +64,6 @@ void updateFromInputs(GLFWwindow* window, float dt, Camera* nptr)
   }
 }
 
-void lightSetup()
-{
-	glGenBuffers(1, &m_lightDataUBO);
-	glBindBuffer(GL_UNIFORM_BUFFER, m_lightDataUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(Lights), NULL, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_lightDataUBO);
-}
-
-void renderLights()
-{
-	//Comienza carga en CPU de la informaci�n lum�nica de la escena
-	Lights lights;
-	lights.ambientLight = { 0.4, 0.4, 0.4 };
-
-	//Se pasa la informacion de a lo mas las primeras NUM_HALF_MAX_DIRECTIONAL_LIGHTS * 2 componentes de luz direccional
-	//A una instancia de Lights (informacion de la escena en CPU)
-	uint32_t directionalLightsCount = 2;
-	lights.directionalLightsCount = static_cast<int>(directionalLightsCount);
-	for (uint32_t i = 0; i < directionalLightsCount; i++) {
-		lights.directionalLights[i].color = { 0.4, 0.0, 0.4 };
-		lights.directionalLights[i].direction = { 0.0, -1.0, 1.0 };
-	}
-
-	//Pasamos la informacion lum�nica a GPU con un unico llamado a OpenGL fuera de los loops de las primitivas.
-	glBindBuffer(GL_UNIFORM_BUFFER, m_lightDataUBO);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Lights), &lights);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-}
-
 int main()
 {
 	glfwInit();
@@ -117,8 +85,6 @@ int main()
 	gladLoadGL();
 
 	glViewport(0, 0, width, height);
-	
-	lightSetup();
 
   Renderer renderer;
 	renderer.startUp();
@@ -158,8 +124,6 @@ int main()
 		}
 
 		lastTime = currentTime;
-
-		renderLights();
 
 		renderer.render(camera);
 

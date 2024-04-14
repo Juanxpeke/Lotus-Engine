@@ -34,7 +34,7 @@ public:
 private:
   struct DirectionalLight
   {
-    glm::vec3 colorIntensity; //12
+    glm::vec3 color; //12
     float padding04; //16
     glm::vec3 direction; //28
     float padding08; //32
@@ -57,13 +57,9 @@ private:
   };
 
   struct Lights {
-    SpotLight spotLights[2 * NUM_HALF_MAX_SPOT_LIGHTS];
-    PointLight pointLights[2 * NUM_HALF_MAX_POINT_LIGHTS]; 
     DirectionalLight directionalLights[2 * NUM_HALF_MAX_DIRECTIONAL_LIGHTS]; 
-    glm::vec3 ambientLight; 
-    int spotLightsCount; 
-    int pointLightsCount; 
-    int directionalLightsCount; 
+    glm::vec3 ambientLight;
+    int directionalLightsCount;
   };
 
   std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount)> shaders;

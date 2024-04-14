@@ -20,7 +20,7 @@ void Renderer::startUp() noexcept
   glBindBuffer(GL_UNIFORM_BUFFER, lightDataUBO);
   glBufferData(GL_UNIFORM_BUFFER, sizeof(Lights), NULL, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
-  //glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightDataUBO);
+  glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightDataUBO);
 }
 
 void Renderer::shutDown() noexcept
@@ -35,6 +35,20 @@ void Renderer::render(Camera& camera) noexcept
   glm::mat4 viewMatrix;
   glm::mat4 projectionMatrix;
   glm::vec3 cameraPosition = glm::vec3(0.0f);
+
+  Lights lights;
+	lights.ambientLight = { 0.4, 0.4, 0.4 };
+
+	uint32_t directionalLightsCount = 2;
+	lights.directionalLightsCount = static_cast<int>(directionalLightsCount);
+	for (uint32_t i = 0; i < directionalLightsCount; i++) {
+		lights.directionalLights[i].color = { 0.4, 0.0, 0.4 };
+		lights.directionalLights[i].direction = { 0.0, -1.0, 1.0 };
+	}
+
+	glBindBuffer(GL_UNIFORM_BUFFER, lightDataUBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Lights), &lights);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
   for (auto it = meshInstances.begin(); it < meshInstances.end(); it++)
   {
