@@ -1,5 +1,5 @@
 set(RENDERER_NAME
-    traditional_renderer)
+    LotusEngine)
 
 set(RENDERER_HEADERS
     mesh.h
@@ -20,13 +20,25 @@ set(RENDERER_SOURCES
     texture_manager.cpp
     shader_program.cpp
     material.cpp
-    renderer.cpp
-    sample.cpp)
+    renderer.cpp)
 
-add_executable(${RENDERER_NAME} ${RENDERER_SOURCES} ${RENDERER_HEADERS} ${SCENE_SOURCES} ${SCENE_HEADERS} ${UTIL_HEADERS})
+
+add_library(${RENDERER_NAME} STATIC ${RENDERER_SOURCES} ${RENDERER_HEADERS} ${SCENE_SOURCES} ${SCENE_HEADERS} ${UTIL_HEADERS})
 
 target_include_directories(${RENDERER_NAME} PRIVATE ${THIRD_PARTY_INCLUDE_DIRECTORIES})
 target_link_libraries(${RENDERER_NAME} PRIVATE ${THIRD_PARTY_LIBRARIES})
 
 set_property(TARGET ${RENDERER_NAME} PROPERTY CXX_STANDARD 20)
 set_target_properties(${RENDERER_NAME} PROPERTIES FOLDER "renderers")
+
+
+set(SAMPLE_NAME
+    sample)
+
+add_executable(${SAMPLE_NAME} sample.cpp ${RENDERER_SOURCES} ${RENDERER_HEADERS} ${SCENE_SOURCES} ${SCENE_HEADERS} ${UTIL_HEADERS})
+
+target_include_directories(${SAMPLE_NAME} PRIVATE ${THIRD_PARTY_INCLUDE_DIRECTORIES})
+target_link_libraries(${SAMPLE_NAME} PRIVATE ${THIRD_PARTY_LIBRARIES})
+
+set_property(TARGET ${SAMPLE_NAME} PROPERTY CXX_STANDARD 20)
+set_target_properties(${SAMPLE_NAME} PROPERTIES FOLDER "samples")
