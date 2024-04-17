@@ -8,10 +8,8 @@
 #include "./scene/camera.h"
 #include "./path_manager.h"
 #include "traditional/mesh_manager.h"
-#include "traditional/texture_manager.h"
 #include "traditional/shader_program.h"
 #include "traditional/diffuse_flat_material.h"
-#include "traditional/diffuse_textured_material.h"
 #include "traditional/mesh_instance.h"
 #include "traditional/renderer.h"
 
@@ -48,14 +46,10 @@ void createVent(Renderer& renderer)
 {
 	auto& meshManager = MeshManager::getInstance();
 	std::shared_ptr<Mesh> ventMesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
-	
-	auto& textureManager = TextureManager::getInstance();
-	std::shared_ptr<Texture> ventTexture =  textureManager.loadTexture(assetPath("models/air_conditioner/Albedo.png").string());
 
-	std::shared_ptr<DiffuseTexturedMaterial> ventMaterial = std::static_pointer_cast<DiffuseTexturedMaterial>(renderer.createMaterial(MaterialType::DiffuseTextured));
+	std::shared_ptr<DiffuseFlatMaterial> ventMaterial = std::static_pointer_cast<DiffuseFlatMaterial>(renderer.createMaterial(MaterialType::DiffuseFlat));
 
-	ventMaterial->setMaterialTint(glm::vec3(1.0f));
-	ventMaterial->setDiffuseTexture(ventTexture);
+	ventMaterial->setDiffuseColor(glm::vec3(1.0f));
 
 	MeshInstance* ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
 

@@ -32,8 +32,8 @@ void Renderer::render(Camera& camera) noexcept
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
-  glm::mat4 viewMatrix = camera.getViewMatrix();
-  glm::mat4 projectionMatrix = camera.getProjectionMatrix();
+  glm::mat4 viewMatrix;
+  glm::mat4 projectionMatrix;
   glm::vec3 cameraPosition = glm::vec3(0.0f);
 
   LightsData lightsData;
@@ -62,8 +62,7 @@ void Renderer::render(Camera& camera) noexcept
 
     glUseProgram(graphicsBatch.getShaderID());
 
-    // glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-    // glUniformMatrix4fv(2, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+    // glUniformMatrix4fv(ShaderProgram::MvpMatrixShaderLocation, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
     // glUniformMatrix4fv(ShaderProgram::ModelMatrixShaderLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
     // glUniformMatrix4fv(ShaderProgram::ModelInverseTransposeMatrixShaderLocation, 1, GL_FALSE, glm::value_ptr(modelInverseTransposeMatrix));
     glm::vec3 diffuseColor = { 1.0, 1.0, 1.0 };
