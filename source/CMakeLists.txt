@@ -10,3 +10,4 @@ set(SCENE_HEADERS
 set(SCENE_SOURCES )
 
 add_subdirectory(traditional)
+add_subdirectory(instanced)

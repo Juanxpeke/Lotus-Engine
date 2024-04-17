@@ -1,0 +1,19 @@
+#version 460 core
+
+layout(location = 0) uniform mat4 model;
+layout(location = 1) uniform mat4 view;
+layout(location = 2) uniform mat4 projection;
+layout(location = 3) uniform mat4 modelInverseTranspose;
+
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+
+out vec3 fragNormal;
+out vec3 fragPosition;
+
+void main()
+{
+	fragPosition = vec3(mat4(1.0) * vec4(position, 1.0));
+	fragNormal = normalize(mat3(mat4(1.0)) * normal);
+	gl_Position = vec4(position, 1.0);
+}

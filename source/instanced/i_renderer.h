@@ -2,13 +2,14 @@
 
 #include <vector>
 #include <array>
+#include <unordered_map>
 #include <glm/glm.hpp>
 #include "../scene/transform.h"
 #include "../scene/camera.h"
-#include "directional_light.h"
-#include "shader_program.h"
-#include "material.h"
-#include "mesh_instance.h"
+#include "i_directional_light.h"
+#include "i_shader_program.h"
+#include "i_material.h"
+#include "graphics_batch.h"
 
 class Renderer
 {
@@ -67,7 +68,7 @@ private:
 
   std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount)> shaders;
 
-  std::vector<MeshInstance> meshInstances;
+  std::unordered_map<std::shared_ptr<Mesh>, std::shared_ptr<GraphicsBatch>> graphicsBatchMap;
   std::vector<DirectionalLight> directionalLights;
   
   glm::vec3 ambientLight;
