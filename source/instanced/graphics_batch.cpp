@@ -20,21 +20,24 @@ GraphicsBatch::GraphicsBatch(std::shared_ptr<Mesh> mesh, uint32_t shader) : mesh
   
   glGenBuffers(1, &IBO);
   glGenBuffers(1, &modelSSBO);
-  glGenBuffers(1, &materialSSBO);
+  // glGenBuffers(1, &materialSSBO);
 
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, IBO);
   glBufferData(GL_DRAW_INDIRECT_BUFFER, 1 * sizeof(DrawElementsIndirectCommand), nullptr, GL_DYNAMIC_DRAW);
 
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, modelSSBO);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, INITIAL_INSTANCES_COUNT * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, INITIAL_INSTANCES_COUNT * 16 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialSSBO);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, INITIAL_INSTANCES_COUNT * sizeof(Material), nullptr, GL_DYNAMIC_DRAW);
+  // glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialSSBO);
+  // glBufferData(GL_SHADER_STORAGE_BUFFER, INITIAL_INSTANCES_COUNT * sizeof(Material), nullptr, GL_DYNAMIC_DRAW);
 
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
+  materialSSBO = 0;
+
   indirectBufferID = IBO;
+  // std::cout << "MODEL SSBO: " << modelSSBO << std::endl;
   modelBufferID = modelSSBO;
   materialBufferID = materialSSBO;
 }
@@ -57,7 +60,7 @@ uint32_t GraphicsBatch::getShaderID() const noexcept
 void GraphicsBatch::updateBuffers() const
 {
   updateIndirectBuffer();
-  updateModelBuffer();
+  updateModelBuffer(); // TODO, URGENT: THIS LEADS TO A BOTTLENECK
 }
 
 void GraphicsBatch::updateIndirectBuffer() const
@@ -76,16 +79,20 @@ void GraphicsBatch::updateIndirectBuffer() const
 
 void GraphicsBatch::updateModelBuffer() const
 {
-  std::vector<glm::mat4> modelMatrices;
+  std::vector<float> modelMatrices;
 
   for (int i = 0; i < meshInstances.size(); i++)
   {
     const MeshInstance& meshInstance = meshInstances[i];
-    modelMatrices.push_back(meshInstance.getModelMatrix());
+    glm::mat4 model = meshInstance.getModelMatrix();
+    for (int x = 0; x < 4; x++){
+      for (int y = 0; y < 4; y++) {
+        modelMatrices.push_back(model[x][y]);
+      }
+    }
   }
 
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, modelBufferID);
-  glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, modelMatrices.size() * sizeof(glm::mat4), modelMatrices.data());
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+  glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, modelMatrices.size() * sizeof(float), modelMatrices.data());
 }
 

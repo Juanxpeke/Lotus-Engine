@@ -9,6 +9,7 @@
 #include "i_diffuse_flat_material.h"
 #include "i_diffuse_textured_material.h"
 
+
 void Renderer::startUp() noexcept
 {
   shaders[static_cast<unsigned int>(MaterialType::DiffuseFlat)] = ShaderProgram(shaderPath("i_diffuse_flat.vert"), shaderPath("i_diffuse_flat.frag"));
@@ -21,6 +22,8 @@ void Renderer::startUp() noexcept
   glBufferData(GL_UNIFORM_BUFFER, sizeof(LightsData), NULL, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightsDataUBO);
+
+  glfwSwapInterval(0);
 }
 
 void Renderer::shutDown() noexcept
@@ -32,8 +35,8 @@ void Renderer::render(Camera& camera) noexcept
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
-  glm::mat4 viewMatrix;
-  glm::mat4 projectionMatrix;
+  glm::mat4 viewMatrix = camera.getViewMatrix();
+  glm::mat4 projectionMatrix = camera.getProjectionMatrix();
   glm::vec3 cameraPosition = glm::vec3(0.0f);
 
   LightsData lightsData;
@@ -58,20 +61,23 @@ void Renderer::render(Camera& camera) noexcept
   {
     const GraphicsBatch& graphicsBatch = *pair.second;
 
-    graphicsBatch.updateBuffers();
 
     glUseProgram(graphicsBatch.getShaderID());
 
-    // glUniformMatrix4fv(ShaderProgram::MvpMatrixShaderLocation, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
-    // glUniformMatrix4fv(ShaderProgram::ModelMatrixShaderLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-    // glUniformMatrix4fv(ShaderProgram::ModelInverseTransposeMatrixShaderLocation, 1, GL_FALSE, glm::value_ptr(modelInverseTransposeMatrix));
+    graphicsBatch.updateBuffers();
+
+    glUniformMatrix4fv(5, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+    glUniformMatrix4fv(6, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
     glm::vec3 diffuseColor = { 1.0, 1.0, 1.0 };
     glUniform3fv(ShaderProgram::DiffuseColorShaderLocation, 1, glm::value_ptr(diffuseColor));
 
     glBindVertexArray(graphicsBatch.getMeshVAO());
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, graphicsBatch.getIndirectBufferID());
+
+    // std::cout << "MODEL BATCH SSBO: " << graphicsBatch.getModelBufferID() << std::endl;
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, GraphicsBatch::MODELS_BINDING_POINT, graphicsBatch.getModelBufferID());
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, GraphicsBatch::MATERIAL_BINDING_POINT, graphicsBatch.getMaterialBufferID());
+    // glBindBufferBase(GL_SHADER_STORAGE_BUFFER, GraphicsBatch::MATERIAL_BINDING_POINT, graphicsBatch.getMaterialBufferID());
 
     glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (GLvoid*) 0, 1, 0);
   }

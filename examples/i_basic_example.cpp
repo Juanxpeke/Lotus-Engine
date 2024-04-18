@@ -90,7 +90,7 @@ int main()
   Renderer renderer;
 	renderer.startUp();
 
-	const int objectCount = 5000; 
+	const int objectCount = 2000; 
 
 	for (int i = 0; i < objectCount; i++)
 	{
