@@ -13,7 +13,6 @@ public:
   {
     // ASSERT(mesh != nullptr, "StaticMeshComponent Error: Mesh pointer cannot be null.");
     // ASSERT(material != nullptr, "StaticMeshComponent Error: Material cannot be null.");
-    // updateGraphicsBatch();
   }
 
   uint32_t getMeshIndexCount() const noexcept
@@ -41,8 +40,6 @@ public:
   
 
 private:
-  void updateGraphicsBatch();
-
   std::shared_ptr<Mesh> meshPtr;
   std::shared_ptr<Material> materialPtr;
 };
