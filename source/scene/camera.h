@@ -8,7 +8,7 @@ public:
 
   Camera(
       float fov = 50.0f, 
-      float ratio = 16.0f / 9.0f,
+      float ratio = 9.0f / 9.0f,
       float nearPlane = 0.1f,
       float farPlane = 100.0f) :
     fieldOfView(fov),

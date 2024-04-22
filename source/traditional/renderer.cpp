@@ -38,7 +38,7 @@ void Renderer::render(Camera& camera) noexcept
 
   LightsData lightsData;
 
-	lightsData.ambientLight = { 0.4, 0.4, 0.4 };
+	lightsData.ambientLight = ambientLight;
 
   uint32_t directionalLightsCount = std::min(static_cast<uint32_t>(NUM_HALF_MAX_DIRECTIONAL_LIGHTS * 2), static_cast<uint32_t>(directionalLights.size()));
   lightsData.directionalLightsCount = static_cast<int>(directionalLightsCount);
@@ -48,6 +48,17 @@ void Renderer::render(Camera& camera) noexcept
     const DirectionalLight& dirLight = directionalLights[i];
     lightsData.directionalLights[i].color = dirLight.getLightColor();
     lightsData.directionalLights[i].direction = glm::rotate(dirLight.getLightDirection(), dirLight.getFrontVector());
+  }
+
+  uint32_t pointLightsCount = std::min(static_cast<uint32_t>(NUM_HALF_MAX_POINT_LIGHTS * 2), static_cast<uint32_t>(pointLights.size()));
+  lightsData.pointLightsCount = static_cast<int>(pointLightsCount);
+
+  for (uint32_t i = 0; i < pointLightsCount; i++)
+  {
+    const PointLight& pointLight = pointLights[i];
+    lightsData.pointLights[i].color = pointLight.getLightColor();
+    lightsData.pointLights[i].position = pointLight.getLocalTranslation();
+    lightsData.pointLights[i].maxRadius = pointLight.getMaxRadius();
   }
 
 	glBindBuffer(GL_UNIFORM_BUFFER, lightsDataUBO);
@@ -61,6 +72,18 @@ void Renderer::render(Camera& camera) noexcept
     glBindVertexArray(meshInstance.getMeshVAO());
 		glDrawElements(GL_TRIANGLES, meshInstance.getMeshIndexCount(), GL_UNSIGNED_INT, nullptr);
   }
+}
+
+DirectionalLight* Renderer::createDirectionalLight()
+{
+  directionalLights.emplace_back();
+  return &directionalLights.back();
+}
+
+PointLight* Renderer::createPointLight()
+{
+  pointLights.emplace_back();
+  return &pointLights.back();
 }
 
 MeshInstance* Renderer::createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)

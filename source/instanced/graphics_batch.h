@@ -11,7 +11,7 @@ class GraphicsBatch
 friend class Renderer;
 
 public:
-  static constexpr int INITIAL_INSTANCES_COUNT = 2000;
+  static constexpr int INITIAL_INSTANCES_COUNT = 4000;
 
   static constexpr int MODELS_BINDING_POINT = 2;
   static constexpr int MATERIAL_BINDING_POINT = 3; 
@@ -32,6 +32,7 @@ private:
   void updateBuffers() const;
   void updateIndirectBuffer() const;
   void updateModelBuffer() const;
+  void updateMaterialBuffer() const;
 
   std::shared_ptr<Mesh> meshPtr;
   uint32_t shaderID;

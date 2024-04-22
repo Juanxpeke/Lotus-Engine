@@ -1,30 +1,17 @@
 # Learning
   - Study Cell engine
   - Study Vulkan guide
-  - Understand frame buffers
 
 # Renderer
+  - Improve path managers to remove .string() and support multiple renderers
+
+# Debugging
+  - Solve useless pointer returned by Renderer create methods (std::vector modification causes change of pointers)
+  - Solve rotation logic (Ex: Camera rotation should be around global Y axis but its around local one)
+
+# Misc
   - Remove repeated assimp in CMakeLists
   - See "casual" way of setting sampler2D uniform without glUniform1i
-  - Add texture manager
-  - Add mesh manager
-  - See CMake add_subdirectory logic
-  - Study GetInstance() method in some clases
-  - Improve camera class / see components logic
-  - Why rotation uses quaternions
-  - Add shader programs manager
-  - Add material creators
-  - Add static mesh
-  - Add transformations handlers (?)
-  - Add textures
-  - Add textures diffuse flat shaders
-  - Use CMake instruction for project organization (in specific separate glad from there)
-  - Add namespace
+  - Use CMake instruction for project organization (in specific separate glad from the solution main projects)
+  - Add Lotus namespace
   - Add ImGUI for changing values in runtime
-
-
-+ Study PLIMP idiom
-+ Study unique_ptr
-+ Study shared_ptr
-+ Import meshes with assimp
-+ Use textures with stb

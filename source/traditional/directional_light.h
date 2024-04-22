@@ -14,8 +14,9 @@ public:
     color(lightColor), direction(lightDirection) {};
 
   const glm::vec3& getLightColor() const { return color; }
-  void setLightColor(const glm::vec3& lightColor) { color = lightColor; }
   const glm::fquat& getLightDirection() const { return direction; }
+  
+  void setLightColor(const glm::vec3& lightColor) { color = lightColor; }
   void setLightDirection(const glm::fquat& lightDirection) { direction = lightDirection; }
 
 private:

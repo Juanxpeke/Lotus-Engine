@@ -6,6 +6,7 @@
 #include "../scene/transform.h"
 #include "../scene/camera.h"
 #include "directional_light.h"
+#include "point_light.h"
 #include "shader_program.h"
 #include "material.h"
 #include "mesh_instance.h"
@@ -14,22 +15,25 @@ class Renderer
 {
 public:
   static constexpr int NUM_HALF_MAX_DIRECTIONAL_LIGHTS = 1;
-  static constexpr int NUM_HALF_MAX_POINT_LIGHTS = 3;
-  static constexpr int NUM_HALF_MAX_SPOT_LIGHTS = 3;
+  static constexpr int NUM_HALF_MAX_POINT_LIGHTS = 1;
+  static constexpr int NUM_HALF_MAX_SPOT_LIGHTS = 1;
 
   Renderer() = default;
 
   void startUp() noexcept;
-
   void shutDown() noexcept;
 
   void render(Camera& camera) noexcept;
+
+  void setAmbientLight(glm::vec3 color);
+  DirectionalLight* createDirectionalLight();
+  PointLight* createPointLight();
 
   MeshInstance* createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
 
   std::shared_ptr<Material> createMaterial(MaterialType type);
 
-  void setAmbientLight(glm::vec3 color);
+  
 
 private:
   struct DirectionalLightData
@@ -60,17 +64,22 @@ private:
 
   struct LightsData
   {
-    DirectionalLightData directionalLights[2 * NUM_HALF_MAX_DIRECTIONAL_LIGHTS]; 
+    DirectionalLightData directionalLights[2 * NUM_HALF_MAX_DIRECTIONAL_LIGHTS];
+    PointLightData pointLights[2 * NUM_HALF_MAX_POINT_LIGHTS];
     glm::vec3 ambientLight;
     int directionalLightsCount;
+    int pointLightsCount;
   };
 
   std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount)> shaders;
 
-  std::vector<MeshInstance> meshInstances;
-  std::vector<DirectionalLight> directionalLights;
-  
   glm::vec3 ambientLight;
+  std::vector<DirectionalLight> directionalLights;
+  std::vector<PointLight> pointLights;
+
+  std::vector<MeshInstance> meshInstances;
+  
+  
 
   unsigned int lightsDataUBO = 0;
 };

@@ -2,6 +2,8 @@ set(RENDERER_NAME
     LotusEngine)
 
 set(RENDERER_HEADERS
+    directional_light.h
+    point_light.h
     mesh.h
     mesh_manager.h
     texture.h

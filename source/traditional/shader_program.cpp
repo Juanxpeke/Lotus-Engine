@@ -5,6 +5,7 @@
 #include <fstream>
 #include <array>
 #include <glad/glad.h>
+#include "renderer.h"
 
 ShaderProgram::ShaderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath) noexcept
 {
@@ -85,11 +86,11 @@ void ShaderProgram::preProcessShader(std::string& shaderCode) const noexcept
   };
 
   std::array<ShaderConstant,4> shaderConstants = 
-  { // TODO: Define constants in renderer class
+  {
     {
-    {"${MAX_DIRECTIONAL_LIGHTS}", std::to_string(2)},
-    {"${MAX_SPOT_LIGHTS}", std::to_string(2)} ,
-    {"${MAX_POINT_LIGHTS}", std::to_string(2)},
+    {"${MAX_DIRECTIONAL_LIGHTS}", std::to_string(Renderer::NUM_HALF_MAX_DIRECTIONAL_LIGHTS * 2)},
+    {"${MAX_POINT_LIGHTS}", std::to_string(Renderer::NUM_HALF_MAX_POINT_LIGHTS * 2)},
+    {"${MAX_SPOT_LIGHTS}", std::to_string(Renderer::NUM_HALF_MAX_SPOT_LIGHTS * 2)} ,
     {"${MAX_BONES}", std::to_string(2)}
     }
   };

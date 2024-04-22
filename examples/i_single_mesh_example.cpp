@@ -53,14 +53,7 @@ void createVent(Renderer& renderer)
 
 	MeshInstance* ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
 
-	ventInstance->scale(0.04f);
-
-	float side = 50.f;
-	float x = side * ((float)(rand()) / (float)(RAND_MAX)) - side / 2.0f;
-	float y = side * ((float)(rand()) / (float)(RAND_MAX)) - side / 2.0f;
-	float z = side * ((float)(rand()) / (float)(RAND_MAX)) - side / 2.0f;
-	
-	ventInstance->setTranslation(glm::vec3(x, y, z));
+	ventInstance->scale(0.6f);
 }
 
 int main()
@@ -90,12 +83,7 @@ int main()
   Renderer renderer;
 	renderer.startUp();
 
-	const int objectCount = 4000; 
-
-	for (int i = 0; i < objectCount; i++)
-	{
-		createVent(renderer);
-	}
+	createVent(renderer);
 	
 	float lastTime = -1.0f;
 

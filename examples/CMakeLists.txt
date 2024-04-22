@@ -21,4 +21,6 @@ function(add_instanced_example TARGETNAME FILENAME)
 endfunction(add_instanced_example)
 
 add_example(basic_example basic_example.cpp)
+add_example(single_mesh_example single_mesh_example.cpp)
 add_instanced_example(i_basic_example i_basic_example.cpp)
+add_instanced_example(i_single_mesh_example i_single_mesh_example.cpp)

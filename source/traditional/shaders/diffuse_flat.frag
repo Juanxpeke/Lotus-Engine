@@ -1,4 +1,4 @@
-// All expressions of the form ${SOME_NAME} are replaced before runtime compile this shader
+// All expressions of the form ${SOME_NAME} are replaced before runtime to compile this shader
 
 #version 460 core
 
@@ -8,7 +8,7 @@ struct DirectionalLight
 	vec3 direction;
 };
 
-// Light information uniform
+// Lights information uniform
 layout(std140, binding = 0) uniform Lights
 {
 	DirectionalLight[${MAX_DIRECTIONAL_LIGHTS}] directionalLights;
@@ -27,7 +27,7 @@ void main()
 {
 	vec3 ambient = ambientLight;
 
-	// Light contribution accumulated value from all light source
+	// Light contribution accumulated value from all light sources
 	vec3 Lo = vec3(0.0f, 0.0f, 0.0f);
 
 	// Directional lights iteration
@@ -36,7 +36,8 @@ void main()
 		Lo += directionalLights[i].color * max(dot(fragNormal, -directionalLights[i].direction), 0.0);
 	}
 
-	vec3 result = (ambient + Lo) * diffuseColor; 
+	vec3 result = (ambient + Lo) * diffuseColor;
+
 	outColor = vec4(result, 1.0);
 }
 
