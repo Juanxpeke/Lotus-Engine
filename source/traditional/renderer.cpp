@@ -58,7 +58,7 @@ void Renderer::render(Camera& camera) noexcept
     const PointLight& pointLight = pointLights[i];
     lightsData.pointLights[i].colorIntensity = pointLight.getLightColor() * pointLight.getLightIntensity();
     lightsData.pointLights[i].position = pointLight.getLocalTranslation();
-    lightsData.pointLights[i].maxRadius = pointLight.getMaxRadius();
+    lightsData.pointLights[i].radius = pointLight.getMaxRadius();
   }
 
 	glBindBuffer(GL_UNIFORM_BUFFER, lightsDataUBO);

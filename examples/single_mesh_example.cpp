@@ -44,13 +44,13 @@ void updateFromInputs(GLFWwindow* window, float dt, Camera* cameraPtr)
   }
   // Rotation
   if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-    cameraPtr->rotate(glm::vec3(1.0f, 0.0f, 0.0f), dt * cameraAngularSpeed);
+    cameraPtr->rotate(cameraPtr->getRightVector(), dt * cameraAngularSpeed);
   }
   if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
     cameraPtr->rotate(glm::vec3(0.0f, 1.0f, 0.0f), dt * cameraAngularSpeed);
   }
   if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-    cameraPtr->rotate(glm::vec3(1.0f, 0.0f, 0.0f), dt * -cameraAngularSpeed);
+    cameraPtr->rotate(cameraPtr->getRightVector(), dt * -cameraAngularSpeed);
   }
   if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
     cameraPtr->rotate(glm::vec3(0.0f, 1.0f, 0.0f), dt * -cameraAngularSpeed);
@@ -65,7 +65,8 @@ void createDirectionalLight(Renderer& renderer)
 {
   DirectionalLight* directionalLight = renderer.createDirectionalLight();
 
-  directionalLight->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::pi<float>());
+  directionalLight->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::pi<float>() * 0.5f);
+  directionalLight->rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::pi<float>() * 0.25f);
   directionalLight->setLightColor(glm::vec3(0.1f, 0.04f, 0.0f));
 }
 
@@ -73,8 +74,10 @@ void createPointLights(Renderer& renderer)
 {
   PointLight* pointLight = renderer.createPointLight();
 
-  pointLight->translate(glm::vec3(0.0f, 4.0f, 24.f));
-  pointLight->setMaxRadius(10.f);
+  pointLight->translate(glm::vec3(0.0f, 5.0f, 0.0f));
+  pointLight->setLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
+  pointLight->setLightIntensity(25.f);
+  pointLight->setLightRadius(400.f);
 }
 
 void createPlane(Renderer& renderer)
@@ -83,7 +86,7 @@ void createPlane(Renderer& renderer)
 	std::shared_ptr<Mesh> planeMesh = meshManager.loadMesh(Mesh::PrimitiveType::Plane);
 
   auto& textureManager = TextureManager::getInstance();
-  std::shared_ptr<Texture> planeDiffuseTexture = textureManager.loadTexture(assetPath("textures/wood.png").string());
+  std::shared_ptr<Texture> planeDiffuseTexture = textureManager.loadTexture(assetPath("textures/wood.png"));
 
 	std::shared_ptr<DiffuseTexturedMaterial> planeMaterial = std::static_pointer_cast<DiffuseTexturedMaterial>(renderer.createMaterial(MaterialType::DiffuseTextured));
 
@@ -92,16 +95,16 @@ void createPlane(Renderer& renderer)
 	MeshInstance* planeInstance = renderer.createMeshInstance(planeMesh, planeMaterial);
 
   planeInstance->rotate(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(-90.0f));
-	planeInstance->scale(30.f);
+	planeInstance->scale(20.f);
 }
 
 void createVent(Renderer& renderer)
 {
 	auto& meshManager = MeshManager::getInstance();
-	std::shared_ptr<Mesh> ventMesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj").string(), true);
+	std::shared_ptr<Mesh> ventMesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj"), true);
 
   auto& textureManager = TextureManager::getInstance();
-  std::shared_ptr<Texture> ventDiffuseTexture = textureManager.loadTexture(assetPath("models/air_conditioner/Albedo.png").string());
+  std::shared_ptr<Texture> ventDiffuseTexture = textureManager.loadTexture(assetPath("models/air_conditioner/Albedo.png"));
 
 	std::shared_ptr<DiffuseTexturedMaterial> ventMaterial = std::static_pointer_cast<DiffuseTexturedMaterial>(renderer.createMaterial(MaterialType::DiffuseTextured));
 
@@ -109,8 +112,8 @@ void createVent(Renderer& renderer)
 
 	MeshInstance* ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
 
-  ventInstance->translate(glm::vec3(0.0f, 21.0f, 0.0f));
-	ventInstance->scale(0.6f);
+  ventInstance->translate(glm::vec3(0.0f, 10.0f, -18.0f));
+	ventInstance->scale(0.3f);
 }
 
 int main()

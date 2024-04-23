@@ -5,8 +5,8 @@
 #include <glm/glm.hpp>
 #include "../scene/transform.h"
 #include "../scene/camera.h"
-#include "directional_light.h"
-#include "point_light.h"
+#include "../lighting/directional_light.h"
+#include "../lighting/point_light.h"
 #include "shader_program.h"
 #include "material.h"
 #include "mesh_instance.h"
@@ -49,13 +49,13 @@ private:
     glm::vec3 colorIntensity; // 12
     float padding04;          // 16
     glm::vec3 position;       // 28
-    float maxRadius;          // 32
+    float radius;             // 32
   };
 
   struct SpotLightData
   {
     glm::vec3 colorIntensity; // 12
-    float maxRadius;          // 16
+    float radius;             // 16
     glm::vec3 position;       // 28
     float cosPenumbraAngle;   // 32
     glm::vec3 direction;      // 44
@@ -73,13 +73,11 @@ private:
 
   std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount)> shaders;
 
+  unsigned int lightsDataUBO = 0;
   glm::vec3 ambientLight;
   std::vector<DirectionalLight> directionalLights;
   std::vector<PointLight> pointLights;
 
   std::vector<MeshInstance> meshInstances;
-  
-  
 
-  unsigned int lightsDataUBO = 0;
 };

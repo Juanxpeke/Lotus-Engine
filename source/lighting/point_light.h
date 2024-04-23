@@ -11,18 +11,18 @@ public:
   PointLight(
       const glm::vec3& lightColor = glm::vec3(1.0f),
       float radius = 10.0f) :
-    maxRadius(radius), color(lightColor) {};
+    radius(radius), color(lightColor) {};
 
   float getLightIntensity() const { return intensity; }
   const glm::vec3& getLightColor() const { return color; }
-  float getMaxRadius() const { return maxRadius; }
+  float getMaxRadius() const { return radius; }
 
   void setLightIntensity(const float& lightIntensity) { intensity = lightIntensity; }
   void setLightColor(const glm::vec3& lightColor) { color = lightColor; }
-  void setMaxRadius(float radius) { maxRadius = radius; }
+  void setLightRadius(float lightRadius) { radius = lightRadius; }
 
 private:
   float intensity;
   glm::vec3 color;
-  float maxRadius;
+  float radius;
 };

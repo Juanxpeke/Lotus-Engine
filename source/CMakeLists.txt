@@ -7,7 +7,9 @@ set(SCENE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/node_3d.h
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/camera.h)
 
-set(SCENE_SOURCES )
+set(LIGHTING_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/lighting/directional_light.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/lighting/point_light.h)
 
 add_subdirectory(traditional)
 add_subdirectory(instanced)

@@ -2,8 +2,6 @@ set(RENDERER_NAME
     LotusEngine)
 
 set(RENDERER_HEADERS
-    directional_light.h
-    point_light.h
     mesh.h
     mesh_manager.h
     texture.h
@@ -25,7 +23,7 @@ set(RENDERER_SOURCES
     renderer.cpp)
 
 
-add_library(${RENDERER_NAME} STATIC ${RENDERER_SOURCES} ${RENDERER_HEADERS} ${SCENE_SOURCES} ${SCENE_HEADERS} ${UTIL_HEADERS})
+add_library(${RENDERER_NAME} STATIC ${RENDERER_SOURCES} ${RENDERER_HEADERS} ${SCENE_HEADERS} ${LIGHTING_HEADERS} ${UTIL_HEADERS})
 
 target_include_directories(${RENDERER_NAME} PRIVATE ${THIRD_PARTY_INCLUDE_DIRECTORIES})
 target_link_libraries(${RENDERER_NAME} PRIVATE ${THIRD_PARTY_LIBRARIES})
