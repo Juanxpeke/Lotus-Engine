@@ -69,6 +69,16 @@ void createDirectionalLight(Renderer& renderer)
   directionalLight->setLightColor(glm::vec3(0.1f, 0.04f, 0.0f));
 }
 
+void createPointLights(Renderer& renderer)
+{
+  PointLight* pointLight = renderer.createPointLight();
+
+  pointLight->translate(glm::vec3(0.0f, 5.0f, 0.0f));
+  pointLight->setLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
+  pointLight->setLightIntensity(25.f);
+  pointLight->setLightRadius(400.f);
+}
+
 void createVent(Renderer& renderer)
 {
 	auto& meshManager = MeshManager::getInstance();

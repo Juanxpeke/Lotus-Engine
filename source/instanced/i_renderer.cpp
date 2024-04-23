@@ -53,6 +53,17 @@ void Renderer::render(Camera& camera) noexcept
     lightsData.directionalLights[i].direction = glm::rotate(dirLight.getLightDirection(), dirLight.getFrontVector());
   }
 
+  uint32_t pointLightsCount = std::min(static_cast<uint32_t>(NUM_HALF_MAX_POINT_LIGHTS * 2), static_cast<uint32_t>(pointLights.size()));
+  lightsData.pointLightsCount = static_cast<int>(pointLightsCount);
+
+  for (uint32_t i = 0; i < pointLightsCount; i++)
+  {
+    const PointLight& pointLight = pointLights[i];
+    lightsData.pointLights[i].colorIntensity = pointLight.getLightColor() * pointLight.getLightIntensity();
+    lightsData.pointLights[i].position = pointLight.getLocalTranslation();
+    lightsData.pointLights[i].radius = pointLight.getMaxRadius();
+  }
+
 	glBindBuffer(GL_UNIFORM_BUFFER, lightsDataUBO);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightsData), &lightsData);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -87,6 +98,12 @@ DirectionalLight* Renderer::createDirectionalLight()
 {
   directionalLights.emplace_back();
   return &directionalLights.back();
+}
+
+PointLight* Renderer::createPointLight()
+{
+  pointLights.emplace_back();
+  return &pointLights.back();
 }
 
 MeshInstance* Renderer::createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)

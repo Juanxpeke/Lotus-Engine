@@ -7,6 +7,7 @@
 #include "../scene/transform.h"
 #include "../scene/camera.h"
 #include "../lighting/directional_light.h"
+#include "../lighting/point_light.h"
 #include "i_shader_program.h"
 #include "i_material.h"
 #include "graphics_batch.h"
@@ -15,8 +16,8 @@ class Renderer
 {
 public:
   static constexpr int NUM_HALF_MAX_DIRECTIONAL_LIGHTS = 1;
-  static constexpr int NUM_HALF_MAX_POINT_LIGHTS = 3;
-  static constexpr int NUM_HALF_MAX_SPOT_LIGHTS = 3;
+  static constexpr int NUM_HALF_MAX_POINT_LIGHTS = 1;
+  static constexpr int NUM_HALF_MAX_SPOT_LIGHTS = 1;
 
   Renderer() = default;
 
@@ -27,6 +28,7 @@ public:
 
   void setAmbientLight(glm::vec3 color);
   DirectionalLight* createDirectionalLight();
+  PointLight* createPointLight();
 
   MeshInstance* createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
 
@@ -62,7 +64,7 @@ private:
   struct LightsData
   {
     DirectionalLightData directionalLights[2 * NUM_HALF_MAX_DIRECTIONAL_LIGHTS];
-    // PointLightData pointLights[2 * NUM_HALF_MAX_POINT_LIGHTS];
+    PointLightData pointLights[2 * NUM_HALF_MAX_POINT_LIGHTS];
     glm::vec3 ambientLight;
     int directionalLightsCount;
     int pointLightsCount;
@@ -70,10 +72,10 @@ private:
 
   std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount)> shaders;
 
-  std::unordered_map<std::shared_ptr<Mesh>, std::shared_ptr<GraphicsBatch>> graphicsBatchMap;
-  std::vector<DirectionalLight> directionalLights;
-  
-  glm::vec3 ambientLight;
-
   unsigned int lightsDataUBO = 0;
+  glm::vec3 ambientLight;
+  std::vector<DirectionalLight> directionalLights;
+  std::vector<PointLight> pointLights;
+
+  std::unordered_map<std::shared_ptr<Mesh>, std::shared_ptr<GraphicsBatch>> graphicsBatchMap;
 };
