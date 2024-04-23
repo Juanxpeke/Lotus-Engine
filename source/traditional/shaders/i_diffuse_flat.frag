@@ -4,8 +4,25 @@
 
 struct DirectionalLight
 {
-	vec3 color;
+	vec3 colorIntensity;
 	vec3 direction;
+};
+
+struct PointLight
+{
+	vec3 colorIntensity;
+	vec3 position;
+	float radius;
+};
+
+struct SpotLight
+{
+	vec3 colorIntensity; 
+	float radius;
+	vec3 position; 
+	float cosPenumbraAngle;
+	vec3 direction;
+	float cosUmbraAngle;
 };
 
 // Light information uniform
@@ -33,7 +50,7 @@ void main()
 	// Directional lights iteration
 	for(int i = 0; i < directionalLightsCount; i++)
 	{
-		Lo += directionalLights[i].color * max(dot(fragNormal, -directionalLights[i].direction), 0.0);
+		Lo += directionalLights[i].colorIntensity * max(dot(fragNormal, -directionalLights[i].direction), 0.0);
 	}
 
 	vec3 result = (ambient + Lo) * diffuseColor; 

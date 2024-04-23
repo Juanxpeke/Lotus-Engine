@@ -41,7 +41,7 @@ void Renderer::render(Camera& camera) noexcept
 
   LightsData lightsData;
 
-	lightsData.ambientLight = { 0.4, 0.4, 0.4 };
+	lightsData.ambientLight = ambientLight;
 
   uint32_t directionalLightsCount = std::min(static_cast<uint32_t>(NUM_HALF_MAX_DIRECTIONAL_LIGHTS * 2), static_cast<uint32_t>(directionalLights.size()));
   lightsData.directionalLightsCount = static_cast<int>(directionalLightsCount);
@@ -49,7 +49,7 @@ void Renderer::render(Camera& camera) noexcept
   for (uint32_t i = 0; i < directionalLightsCount; i++)
   {
     const DirectionalLight& dirLight = directionalLights[i];
-    lightsData.directionalLights[i].color = dirLight.getLightColor();
+    lightsData.directionalLights[i].colorIntensity = dirLight.getLightColor() * dirLight.getLightIntensity();
     lightsData.directionalLights[i].direction = glm::rotate(dirLight.getLightDirection(), dirLight.getFrontVector());
   }
 
@@ -81,6 +81,12 @@ void Renderer::render(Camera& camera) noexcept
 
     glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (GLvoid*) 0, 1, 0);
   }
+}
+
+DirectionalLight* Renderer::createDirectionalLight()
+{
+  directionalLights.emplace_back();
+  return &directionalLights.back();
 }
 
 MeshInstance* Renderer::createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)

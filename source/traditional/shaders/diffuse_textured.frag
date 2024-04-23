@@ -12,13 +12,13 @@ struct PointLight
 {
 	vec3 colorIntensity;
 	vec3 position;
-	float maxRadius;
+	float radius;
 };
 
 struct SpotLight
 {
 	vec3 colorIntensity; 
-	float maxRadius;
+	float radius;
 	vec3 position; 
 	float cosPenumbraAngle;
 	vec3 direction;
@@ -95,7 +95,7 @@ void main()
 	{
 		vec3 lightVector = fragPosition - pointLights[i].position;
 		vec3 lightDirection = normalize(lightVector);
-		float distanceAttenuation = getDistanceAttenuation(lightVector, pointLights[i].maxRadius);
+		float distanceAttenuation = getDistanceAttenuation(lightVector, pointLights[i].radius);
 		Lo += distanceAttenuation * pointLights[i].colorIntensity * max(dot(normal, -lightDirection), 0.0);
 	}
 	
