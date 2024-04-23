@@ -29,6 +29,21 @@ public:
     return localScale;
   }
 
+  glm::vec3 getUpVector() const
+  {
+    return glm::rotate(localRotation, glm::vec3(0.0f, 1.0f, 0.0f));
+  }
+  
+  glm::vec3 getRightVector() const
+  {
+    return glm::rotate(localRotation, glm::vec3(1.0f, 0.0f, 0.0f));
+  }
+
+  glm::vec3 getFrontVector() const
+  {
+    return glm::rotate(localRotation, glm::vec3(0.0f, 0.0f, -1.0f));
+  }
+
   glm::mat4 getModelMatrix() const
   {
     const glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), localTranslation);
@@ -72,27 +87,17 @@ public:
   
   void rotate(glm::vec3 axis, float angle)
   {
+    localRotation = glm::angleAxis(angle, axis) * localRotation;
+  }
+
+  void innerRotate(glm::vec3 axis, float angle)
+  {
     localRotation = glm::rotate(localRotation, angle, axis);
   }
 
   void setRotation(const glm::fquat& rotation)
   {
     localRotation = rotation;
-  }
-
-  glm::vec3 getUpVector() const
-  {
-    return glm::rotate(localRotation, glm::vec3(0.0f, 1.0f, 0.0f));
-  }
-  
-  glm::vec3 getRightVector() const
-  {
-    return glm::rotate(localRotation, glm::vec3(1.0f, 0.0f, 0.0f));
-  }
-
-  glm::vec3 getFrontVector() const
-  {
-    return glm::rotate(localRotation, glm::vec3(0.0f, 0.0f, -1.0f));
   }
 
 private:

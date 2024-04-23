@@ -4,10 +4,10 @@
 
 # Renderer
   - Improve path managers to remove .string() and support multiple renderers
+  - Solve attenuation problem
 
 # Debugging
   - Solve useless pointer returned by Renderer create methods (std::vector modification causes change of pointers)
-  - Solve rotation logic (Ex: Camera rotation should be around global Y axis but its around local one)
 
 # Misc
   - Remove repeated assimp in CMakeLists
