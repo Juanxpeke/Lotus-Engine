@@ -13,14 +13,16 @@ public:
       float radius = 10.0f) :
     maxRadius(radius), color(lightColor) {};
 
-
+  float getLightIntensity() const { return intensity; }
   const glm::vec3& getLightColor() const { return color; }
   float getMaxRadius() const { return maxRadius; }
 
+  void setLightIntensity(const float& lightIntensity) { intensity = lightIntensity; }
   void setLightColor(const glm::vec3& lightColor) { color = lightColor; }
   void setMaxRadius(float radius) { maxRadius = radius; }
 
 private:
+  float intensity;
   glm::vec3 color;
   float maxRadius;
 };

@@ -46,7 +46,7 @@ void Renderer::render(Camera& camera) noexcept
   for (uint32_t i = 0; i < directionalLightsCount; i++)
   {
     const DirectionalLight& dirLight = directionalLights[i];
-    lightsData.directionalLights[i].color = dirLight.getLightColor();
+    lightsData.directionalLights[i].colorIntensity = dirLight.getLightColor() * dirLight.getLightIntensity();
     lightsData.directionalLights[i].direction = glm::rotate(dirLight.getLightDirection(), dirLight.getFrontVector());
   }
 
@@ -56,7 +56,7 @@ void Renderer::render(Camera& camera) noexcept
   for (uint32_t i = 0; i < pointLightsCount; i++)
   {
     const PointLight& pointLight = pointLights[i];
-    lightsData.pointLights[i].color = pointLight.getLightColor();
+    lightsData.pointLights[i].colorIntensity = pointLight.getLightColor() * pointLight.getLightIntensity();
     lightsData.pointLights[i].position = pointLight.getLocalTranslation();
     lightsData.pointLights[i].maxRadius = pointLight.getMaxRadius();
   }

@@ -3,8 +3,7 @@
   - Study Vulkan guide
 
 # Renderer
-  - Improve path managers to remove .string() and support multiple renderers
-  - Solve attenuation problem
+  - Improve path managers to support multiple renderers
 
 # Debugging
   - Solve useless pointer returned by Renderer create methods (std::vector modification causes change of pointers)

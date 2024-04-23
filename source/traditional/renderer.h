@@ -38,28 +38,28 @@ public:
 private:
   struct DirectionalLightData
   {
-    glm::vec3 color;      // 12
-    float padding04;      // 16
-    glm::vec3 direction;  // 28
-    float padding08;      // 32
+    glm::vec3 colorIntensity; // 12
+    float padding04;          // 16
+    glm::vec3 direction;      // 28
+    float padding08;          // 32
   };
 
   struct PointLightData
   {
-    glm::vec3 color;    // 12
-    float padding04;    // 16
-    glm::vec3 position; // 28
-    float maxRadius;    // 32
+    glm::vec3 colorIntensity; // 12
+    float padding04;          // 16
+    glm::vec3 position;       // 28
+    float maxRadius;          // 32
   };
 
   struct SpotLightData
   {
-    glm::vec3 color;        // 12
-    float maxRadius;        // 16
-    glm::vec3 position;     // 28
-    float cosPenumbraAngle; // 32
-    glm::vec3 direction;    // 44
-    float cosUmbraAngle;    // 48
+    glm::vec3 colorIntensity; // 12
+    float maxRadius;          // 16
+    glm::vec3 position;       // 28
+    float cosPenumbraAngle;   // 32
+    glm::vec3 direction;      // 44
+    float cosUmbraAngle;      // 48
   };
 
   struct LightsData
