@@ -21,6 +21,8 @@ void Renderer::startUp() noexcept
   glBufferData(GL_UNIFORM_BUFFER, sizeof(LightsData), NULL, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightsDataUBO);
+
+  glfwSwapInterval(0);
 }
 
 void Renderer::shutDown() noexcept
@@ -32,9 +34,9 @@ void Renderer::render(Camera& camera) noexcept
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
-  glm::mat4 viewMatrix;
-  glm::mat4 projectionMatrix;
-  glm::vec3 cameraPosition = glm::vec3(0.0f);
+  glm::mat4 viewMatrix = camera.getViewMatrix();
+  glm::mat4 projectionMatrix = camera.getProjectionMatrix();
+  glm::vec3 cameraPosition = camera.getLocalTranslation();
 
   LightsData lightsData;
 
@@ -68,7 +70,7 @@ void Renderer::render(Camera& camera) noexcept
   for (int i = 0; i < meshInstances.size(); i++)
   {
     const MeshInstance& meshInstance = meshInstances[i];
-    meshInstance.getMaterial()->setUniforms(camera.getProjectionMatrix(), camera.getViewMatrix(), meshInstance.getModelMatrix(), camera.getLocalTranslation());
+    meshInstance.getMaterial()->setUniforms(projectionMatrix, viewMatrix, meshInstance.getModelMatrix(), cameraPosition);
     glBindVertexArray(meshInstance.getMeshVAO());
 		glDrawElements(GL_TRIANGLES, meshInstance.getMeshIndexCount(), GL_UNSIGNED_INT, nullptr);
   }
