@@ -11,7 +11,7 @@ class GraphicsBatch
 friend class Renderer;
 
 public:
-  static constexpr int INITIAL_INSTANCES_COUNT = 4000;
+  static constexpr int INITIAL_INSTANCES_COUNT = 5000;
 
   static constexpr int MODELS_BINDING_POINT = 2;
   static constexpr int MATERIAL_BINDING_POINT = 3; 

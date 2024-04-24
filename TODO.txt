@@ -5,6 +5,7 @@
 # Renderer
   - Improve path managers to support multiple renderers
   - Sync shader program macros to instanced renderer
+  - Sync graphics batch number of instances to real number of instances
 
 # Debugging
   - Solve useless pointer returned by Renderer create methods (std::vector modification causes change of directions)
