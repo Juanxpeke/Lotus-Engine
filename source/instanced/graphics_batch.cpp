@@ -77,22 +77,22 @@ void GraphicsBatch::updateIndirectBuffer() const
 
 void GraphicsBatch::updateModelBuffer() const
 {
-  std::vector<float> modelMatrices;
+  float* models = new float[meshInstances.size() * 16];
 
   for (int i = 0; i < meshInstances.size(); i++)
   {
     const MeshInstance& meshInstance = meshInstances[i];
-    
+
     glm::mat4 model = meshInstance.getModelMatrix();
-    for (int x = 0; x < 4; x++){
-      for (int y = 0; y < 4; y++) {
-        modelMatrices.push_back(model[x][y]);
-      }
-    }
+    const float* modelPtr = glm::value_ptr(model);
+
+    std::copy(modelPtr, modelPtr + 16, models + i * 16);
   }
 
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, modelBufferID);
-  glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, modelMatrices.size() * sizeof(float), modelMatrices.data());
+  glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, meshInstances.size() * 16 * sizeof(float), models);
+
+  delete[] models;
 }
 
 void GraphicsBatch::updateMaterialBuffer() const
