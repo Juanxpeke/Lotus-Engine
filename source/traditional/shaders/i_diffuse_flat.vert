@@ -24,6 +24,6 @@ void main()
 	mat4 model = models[meshInstanceID];
 
 	fragPosition = vec3(mat4(1.0) * vec4(position, 1.0));
-	fragNormal = normalize(mat3(mat4(1.0)) * normal);
+	fragNormal = mat3(transpose(inverse(model))) * normal;
 	gl_Position = projection * view * model * vec4(position, 1.0);
 }
