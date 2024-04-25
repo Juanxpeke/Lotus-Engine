@@ -18,6 +18,7 @@ public:
 
   GraphicsBatch() = delete;
   GraphicsBatch(const GraphicsBatch& graphicsBatch) = delete;
+  ~GraphicsBatch();
 
   uint32_t getMeshIndexCount() const noexcept;
   uint32_t getMeshVAO() const noexcept;
@@ -39,6 +40,9 @@ private:
   uint32_t shaderID;
 
   std::vector<MeshInstance> meshInstances;
+
+  float* models;
+  Material::MaterialData* materials;
 
   uint32_t indirectBufferID;
   uint32_t modelBufferID;
