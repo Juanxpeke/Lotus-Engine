@@ -26,10 +26,10 @@ GraphicsBatch::GraphicsBatch(std::shared_ptr<Mesh> mesh, uint32_t shader) : mesh
   glBufferData(GL_DRAW_INDIRECT_BUFFER, 1 * sizeof(DrawElementsIndirectCommand), nullptr, GL_DYNAMIC_DRAW);
 
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, modelSSBO);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, INITIAL_INSTANCES_COUNT * 16 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, InitialInstancesCount * 16 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialSSBO);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, INITIAL_INSTANCES_COUNT * sizeof(Material), nullptr, GL_DYNAMIC_DRAW);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, InitialInstancesCount * sizeof(Material), nullptr, GL_DYNAMIC_DRAW);
 
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);

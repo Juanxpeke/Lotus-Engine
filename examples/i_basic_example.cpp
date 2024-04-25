@@ -20,7 +20,8 @@ char title[256];
 const float cameraSpeed = 14.4f;
 const float cameraAngularSpeed = 2.0f;
 
-const int objectCount = 5000;
+const int objectsCount = 1000;
+const float objectsAreaSide = 50.f;
 
 void updateFromInputs(GLFWwindow* window, float dt, Camera* cameraPtr)
 {
@@ -84,10 +85,9 @@ void createVent(Renderer& renderer)
 
 	ventInstance->scale(0.04f);
 
-	float side = 50.f;
-	float x = side * ((float)(rand()) / (float)(RAND_MAX)) - side / 2.0f;
-	float y = side * ((float)(rand()) / (float)(RAND_MAX)) - side / 2.0f;
-	float z = side * ((float)(rand()) / (float)(RAND_MAX)) - side / 2.0f;
+	float x = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
+	float y = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
+	float z = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
 	
 	ventInstance->setTranslation(glm::vec3(x, y, z));
 }
@@ -122,7 +122,7 @@ int main()
 	renderer.setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
 	createDirectionalLight(renderer);
 
-	for (int i = 0; i < objectCount; i++)
+	for (int i = 0; i < objectsCount; i++)
 	{
 		createVent(renderer);
 	}

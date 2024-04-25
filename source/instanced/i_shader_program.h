@@ -26,9 +26,9 @@ public:
   ShaderProgram& operator=(const ShaderProgram& program) = delete;
   ShaderProgram& operator=(ShaderProgram&& program) noexcept;
 
-  
   void bind();
   void unbind();
+  
   uint32_t getProgramID() const noexcept { return programID; }
 
 private:

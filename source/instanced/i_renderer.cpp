@@ -87,8 +87,8 @@ void Renderer::render(Camera& camera) noexcept
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, graphicsBatch.getIndirectBufferID());
 
     // std::cout << "MODEL BATCH SSBO: " << graphicsBatch.getModelBufferID() << std::endl;
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, GraphicsBatch::MODELS_BINDING_POINT, graphicsBatch.getModelBufferID());
-    // glBindBufferBase(GL_SHADER_STORAGE_BUFFER, GraphicsBatch::MATERIAL_BINDING_POINT, graphicsBatch.getMaterialBufferID());
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, GraphicsBatch::ModelsBindingPoint, graphicsBatch.getModelBufferID());
+    // glBindBufferBase(GL_SHADER_STORAGE_BUFFER, GraphicsBatch::MaterialsBindingPoint, graphicsBatch.getMaterialBufferID());
 
     glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (GLvoid*) 0, 1, 0);
   }

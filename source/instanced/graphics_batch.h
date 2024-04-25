@@ -11,10 +11,10 @@ class GraphicsBatch
 friend class Renderer;
 
 public:
-  static constexpr int INITIAL_INSTANCES_COUNT = 5000;
+  static constexpr int InitialInstancesCount = 1000;
 
-  static constexpr int MODELS_BINDING_POINT = 2;
-  static constexpr int MATERIAL_BINDING_POINT = 3; 
+  static constexpr int ModelsBindingPoint = 2;
+  static constexpr int MaterialsBindingPoint = 3; 
 
   GraphicsBatch() = delete;
 
