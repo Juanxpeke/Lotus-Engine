@@ -40,6 +40,7 @@ private:
   uint32_t shaderID;
 
   std::vector<MeshInstance> meshInstances;
+  unsigned int allocatedInstancesCount;
 
   float* models;
   Material::MaterialData* materials;
