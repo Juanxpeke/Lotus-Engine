@@ -79,17 +79,20 @@ void createVent(Renderer& renderer)
 	
 	std::shared_ptr<DiffuseFlatMaterial> ventMaterial = std::static_pointer_cast<DiffuseFlatMaterial>(renderer.createMaterial(MaterialType::DiffuseFlat));
 
-	ventMaterial->setDiffuseColor(glm::vec3(1.0f, 0.f, 0.f));
+	float r = ((float)(std::rand()) / (float)(RAND_MAX));
+	float g = ((float)(std::rand()) / (float)(RAND_MAX));
+	float b = ((float)(std::rand()) / (float)(RAND_MAX));
+
+	ventMaterial->setDiffuseColor(glm::vec3(r, g, b));
 
 	MeshInstance* ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
-
-	ventInstance->scale(0.04f);
 
 	float x = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
 	float y = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
 	float z = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
 	
 	ventInstance->setTranslation(glm::vec3(x, y, z));
+	ventInstance->scale(0.04f);
 }
 
 int main()

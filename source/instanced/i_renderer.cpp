@@ -70,25 +70,19 @@ void Renderer::render(Camera& camera) noexcept
 
   for (const auto& pair : graphicsBatchMap)
   {
-    const GraphicsBatch& graphicsBatch = *pair.second;
+    const std::shared_ptr<GraphicsBatch> graphicsBatch = pair.second;
 
+    glUseProgram(graphicsBatch->getShaderID());
 
-    glUseProgram(graphicsBatch.getShaderID());
-
-    graphicsBatch.updateBuffers();
+    graphicsBatch->updateBuffers();
 
     glUniformMatrix4fv(5, 1, GL_FALSE, glm::value_ptr(viewMatrix));
     glUniformMatrix4fv(6, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
-    glm::vec3 diffuseColor = { 1.0, 1.0, 1.0 };
-    glUniform3fv(ShaderProgram::DiffuseColorShaderLocation, 1, glm::value_ptr(diffuseColor));
-
-    glBindVertexArray(graphicsBatch.getMeshVAO());
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, graphicsBatch.getIndirectBufferID());
-
-    // std::cout << "MODEL BATCH SSBO: " << graphicsBatch.getModelBufferID() << std::endl;
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, GraphicsBatch::ModelsBindingPoint, graphicsBatch.getModelBufferID());
-    // glBindBufferBase(GL_SHADER_STORAGE_BUFFER, GraphicsBatch::MaterialsBindingPoint, graphicsBatch.getMaterialBufferID());
+    glBindVertexArray(graphicsBatch->getMeshVAO());
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, graphicsBatch->getIndirectBufferID());
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, GraphicsBatch::ModelsBindingPoint, graphicsBatch->getModelBufferID());
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, GraphicsBatch::MaterialsBindingPoint, graphicsBatch->getMaterialBufferID());
 
     glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (GLvoid*) 0, 1, 0);
   }

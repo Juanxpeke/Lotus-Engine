@@ -25,11 +25,9 @@ public:
   }
 
   std::shared_ptr<Texture> getDiffuseTexture() const { return diffuseTexture; }
-
-  void setDiffuseTexture(std::shared_ptr<Texture> texture) { diffuseTexture = texture; }
-
   const glm::vec3& getMaterialTint() const { return materialTint; }
-
+  
+  void setDiffuseTexture(std::shared_ptr<Texture> texture) { diffuseTexture = texture; }
   void setMaterialTint(const glm::vec3& tint) { materialTint = tint; }
 
 private:

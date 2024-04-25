@@ -1,6 +1,6 @@
 #version 460 core
 
-// Shader storage buffer with the models of each mesh
+// Shader storage buffer with the models of each mesh instance
 layout(std140, binding = 2) readonly buffer Models
 {
   // When using [], then the size of this array is determined at the time the shader
@@ -14,6 +14,7 @@ layout(location = 6) uniform mat4 projection;
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
 
+flat out uint fragInstanceID;
 out vec3 fragNormal;
 out vec3 fragPosition;
 
@@ -23,7 +24,9 @@ void main()
 
 	mat4 model = models[meshInstanceID];
 
+	fragInstanceID = meshInstanceID;
 	fragPosition = vec3(mat4(1.0) * vec4(position, 1.0));
 	fragNormal = mat3(transpose(inverse(model))) * normal;
+	
 	gl_Position = projection * view * model * vec4(position, 1.0);
 }

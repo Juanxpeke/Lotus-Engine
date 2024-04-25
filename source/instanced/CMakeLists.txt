@@ -20,7 +20,6 @@ set(INSTANCED_RENDERER_SOURCES
     ../traditional/texture.cpp
     ../traditional/texture_manager.cpp
     i_shader_program.cpp
-    i_material.cpp
     graphics_batch.cpp
     i_renderer.cpp)
 

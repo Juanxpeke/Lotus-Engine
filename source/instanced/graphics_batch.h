@@ -17,6 +17,7 @@ public:
   static constexpr int MaterialsBindingPoint = 3; 
 
   GraphicsBatch() = delete;
+  GraphicsBatch(const GraphicsBatch& graphicsBatch) = delete;
 
   uint32_t getMeshIndexCount() const noexcept;
   uint32_t getMeshVAO() const noexcept;

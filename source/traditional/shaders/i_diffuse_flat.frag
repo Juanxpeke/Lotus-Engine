@@ -2,6 +2,18 @@
 
 #version 460 core
 
+struct Material
+{
+	vec3 diffuseColor;
+	int placeholderA;
+	vec3 placeholderVecA;
+	int placeholderB;
+	int placeholderC;
+	int placeholderD;
+	int placeholderE;
+	int placeholderF;
+};
+
 struct DirectionalLight
 {
 	vec3 colorIntensity;
@@ -25,6 +37,14 @@ struct SpotLight
 	float cosUmbraAngle;
 };
 
+// Shader storage buffer with the materials of each mesh instance
+layout(std140, binding = 3) readonly buffer Materials
+{
+  // When using [], then the size of this array is determined at the time the shader
+  // is executed. The size is the rest of this buffer object range
+	Material[] materials;
+};
+
 // Lights information uniform
 layout(std140, binding = 0) uniform Lights
 {
@@ -37,6 +57,7 @@ layout(std140, binding = 0) uniform Lights
 
 layout (location = 3) uniform vec3 diffuseColor;
 
+flat in uint fragInstanceID;
 in vec3 fragNormal;
 in vec3 fragPosition;
 
@@ -75,6 +96,8 @@ float getAngularAttenuation(vec3 normalizedLightVector, vec3 lightDirection, flo
 
 void main()
 {
+	Material material = materials[fragInstanceID];
+
 	vec3 ambient = ambientLight;
 
 	vec3 normal = normalize(fragNormal);
@@ -97,7 +120,7 @@ void main()
 		Lo += distanceAttenuation * pointLights[i].colorIntensity * max(dot(normal, -lightDirection), 0.0);
 	}
 
-	vec3 result = (ambient + Lo) * diffuseColor; 
+	vec3 result = (ambient + Lo) * material.diffuseColor; 
 	
 	outColor = vec4(result, 1.0);
 }
