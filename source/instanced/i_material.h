@@ -19,21 +19,28 @@ enum class MaterialType
 
 class Material
 {
+friend class GraphicsBatch;
+
 public:
   Material(const ShaderProgram& shaderProgram) : shaderID(shaderProgram.getProgramID()) {}
   virtual ~Material() = default;
 
   uint32_t getShaderID() { return shaderID; }
 
-  void setUniforms(
-    const glm::mat4& perspectiveMatrix,
-    const glm::mat4& viewMatrix,
-    const glm::mat4& modelMatrix,
-    const glm::vec3& cameraPosition);
-
-  virtual void setMaterialUniforms(const glm::vec3& cameraPosition) = 0;
-
 protected:
-  uint32_t shaderID;
+  struct MaterialData
+  {
+    glm::vec3 vec3A;  // 12
+    int idA;          // 16
+    glm::vec3 vec3B;  // 28
+    int idB;          // 32
+    int idC;          // 36
+    int idD;          // 40
+    int idE;          // 44
+    int idF;          // 48
+  };
 
+  virtual void fillMaterialData(MaterialData& materialData) = 0;
+
+  uint32_t shaderID;
 };
