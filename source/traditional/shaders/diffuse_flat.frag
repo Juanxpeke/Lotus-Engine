@@ -37,8 +37,8 @@ layout(std140, binding = 0) uniform Lights
 
 layout (location = 3) uniform vec3 diffuseColor;
 
-in vec3 fragNormal;
 in vec3 fragPosition;
+in vec3 fragNormal;
 
 out vec4 outColor;
 

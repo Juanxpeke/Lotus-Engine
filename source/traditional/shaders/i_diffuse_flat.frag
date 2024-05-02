@@ -59,8 +59,8 @@ layout(std140, binding = 0) uniform Lights
 };
 
 flat in uint fragInstanceID;
-in vec3 fragNormal;
 in vec3 fragPosition;
+in vec3 fragNormal;
 
 out vec4 outColor;
 

@@ -38,8 +38,8 @@ layout(std140, binding = 0) uniform Lights
 layout (location = 3) uniform sampler2D diffuseTexture;
 layout (location = 4) uniform vec3 diffuseTextureTint;
 
-in vec3 fragNormal;
 in vec3 fragPosition;
+in vec3 fragNormal;
 in vec2 fragTexCoord;
 
 out vec4 outColor;
