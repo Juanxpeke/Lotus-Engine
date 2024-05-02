@@ -39,13 +39,16 @@ public:
       bool genMipmaps = false);
   ~Texture();
   
+  uint32_t getID() const { return ID; }
   uint32_t getWidth() const { return width; }
   uint32_t getHeight() const { return height; }
-  uint32_t getID() const { return ID; }
   void setSWrapMode(WrapMode wrapMode) noexcept;
   void setTWrapMode(WrapMode wrapMode) noexcept;
   void setMagnificationFilter(TextureMagnificationFilter magFilter) noexcept;
   void setMinificationFilter(TextureMinificationFilter minFilter) noexcept;
+
+  void increaseReferenceCount(); // TODO: Privacy concerns
+  void decreaseReferenceCount(); // TODO : ""
 
 private:
   void clearData() noexcept;
@@ -54,4 +57,7 @@ private:
   uint32_t width;
   uint32_t height;
   uint32_t channels;
+
+  uint64_t handle; // Bindless texture handle
+  uint32_t referenceCount;
 };

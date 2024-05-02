@@ -4,12 +4,12 @@ set(INSTANCED_RENDERER_NAME
 set(INSTANCED_RENDERER_HEADERS
     i_mesh.h
     i_mesh_manager.h
-    ../traditional/texture.h
-    ../traditional/texture_manager.h
+    i_texture.h
+    i_texture_manager.h
     i_shader_program.h
     i_material.h
     i_diffuse_flat_material.h
-    ../traditional/diffuse_textured_material.h
+    i_diffuse_textured_material.h
     graphics_batch.h
     i_mesh_instance.h
     i_renderer.h)
@@ -17,8 +17,8 @@ set(INSTANCED_RENDERER_HEADERS
 set(INSTANCED_RENDERER_SOURCES
     i_mesh.cpp
     i_mesh_manager.cpp
-    ../traditional/texture.cpp
-    ../traditional/texture_manager.cpp
+    i_texture.cpp
+    i_texture_manager.cpp
     i_shader_program.cpp
     graphics_batch.cpp
     i_renderer.cpp)

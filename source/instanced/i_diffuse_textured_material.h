@@ -3,7 +3,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#include "../traditional/texture.h"
+#include "i_texture.h"
 #include "i_material.h"
 
 class DiffuseTexturedMaterial : public Material
@@ -15,7 +15,17 @@ public:
   std::shared_ptr<Texture> getDiffuseTexture() const { return diffuseTexture; }
   const glm::vec3& getMaterialTint() const { return materialTint; }
 
-  void setDiffuseTexture(std::shared_ptr<Texture> texture) { diffuseTexture = texture; }
+  void setDiffuseTexture(std::shared_ptr<Texture> texture)
+  {
+    if (texture == diffuseTexture)
+      return;
+
+    texture->decreaseReferenceCount();
+    diffuseTexture->increaseReferenceCount();
+
+    diffuseTexture = texture;
+  }
+
   void setMaterialTint(const glm::vec3& tint) { materialTint = tint; }
 
 protected:

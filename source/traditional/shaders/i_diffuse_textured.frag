@@ -2,10 +2,13 @@
 
 #version 460 core
 
+// Enable bindless textures
+#extension GL_ARB_bindless_texture : require
+
 struct Material
 {
-	vec3 diffuseColor;
-	int placeholderA;
+	vec3 materialTint;
+	int diffuseTextureID;
 	vec3 placeholderVecA;
 	int placeholderB;
 	int placeholderC;
@@ -45,6 +48,12 @@ layout(std140, binding = 3) readonly buffer Materials
 	Material[] materials;
 };
 
+// Textures block
+layout (std140, binding = 1) uniform Textures
+{
+  sampler2D textures[512];
+};
+
 // Lights information uniform
 layout(std140, binding = 0) uniform Lights
 {
@@ -58,6 +67,7 @@ layout(std140, binding = 0) uniform Lights
 flat in uint fragInstanceID;
 in vec3 fragNormal;
 in vec3 fragPosition;
+in vec2 fragTexCoord;
 
 out vec4 outColor;
 
@@ -94,7 +104,7 @@ float getAngularAttenuation(vec3 normalizedLightVector, vec3 lightDirection, flo
 
 void main()
 {
-	Material material = materials[fragInstanceID];
+  Material material = materials[fragInstanceID];
 
 	vec3 ambient = ambientLight;
 
@@ -102,7 +112,7 @@ void main()
 
 	// Light contribution accumulated value from all light sources
 	vec3 Lo = vec3(0.0f, 0.0f, 0.0f);
-
+	
 	// Directional lights iteration
 	for(int i = 0; i < directionalLightsCount; i++)
 	{
@@ -117,10 +127,10 @@ void main()
 		float distanceAttenuation = getDistanceAttenuation(lightVector, pointLights[i].radius);
 		Lo += distanceAttenuation * pointLights[i].colorIntensity * max(dot(normal, -lightDirection), 0.0);
 	}
-
-	vec3 result = (ambient + Lo) * material.diffuseColor; 
 	
-	outColor = vec4(result, 1.0);
+	vec3 diffuseColor = texture(material.diffuseTextureID, fragTexCoord).xyz;
+
+	vec3 result = (ambient + Lo) * diffuseColor;
+
+	outColor = vec4(material.materialTint * result, 1.0);
 }
-
-

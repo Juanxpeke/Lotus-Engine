@@ -1,9 +1,10 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <unordered_map>
 #include <filesystem>
-#include "texture.h"
+#include "i_texture.h"
 
 class TextureManager
 {
@@ -20,7 +21,7 @@ public:
       TextureMinificationFilter minFilter = TextureMinificationFilter::LinearMipmapLinear,
       WrapMode sWrapMode = WrapMode::Repeat,
       WrapMode tWrapMode = WrapMode::Repeat,
-      bool genMipmaps = false) noexcept;
+      bool genMipmaps = false) noexcept; 
 
   void cleanUnusedTextures() noexcept;
   

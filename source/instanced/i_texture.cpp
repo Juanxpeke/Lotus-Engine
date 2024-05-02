@@ -1,4 +1,4 @@
-#include "texture.h"
+#include "i_texture.h"
 
 #include <glad/glad.h>
 #include <stb_image.h>
@@ -130,6 +130,7 @@ Texture::Texture(const std::string& stringFilePath,
   channels = stbChannels;
   width = stbWidth;
   height = stbHeight;
+  handle = glGetTextureHandleARB(ID);
   
   stbi_image_free(data);
 }
@@ -160,9 +161,29 @@ void Texture::setMinificationFilter(TextureMinificationFilter minFilter) noexcep
   glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, minificationFilterEnumToOpenGLEnum(minFilter));
 }
 
+void Texture::increaseReferenceCount()
+{
+  if (referenceCount == 0)
+  {
+    glMakeTextureHandleResidentARB(handle);
+  }
+
+  referenceCount++;
+}
+
+void Texture::decreaseReferenceCount()
+{
+  if (referenceCount == 1)
+  {
+    glMakeTextureHandleNonResidentARB(handle);
+  }
+
+  referenceCount--;
+}
+
 void Texture::clearData() noexcept
 {
-  //ASSERT(m_ID, "Texture Error: Trying to clear data from already freed texture.");
+  // ASSERT(m_ID, "Texture Error: Trying to clear data from already freed texture.");
   glDeleteTextures(1, &ID);
   ID = 0;
 }
