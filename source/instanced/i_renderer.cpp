@@ -13,7 +13,7 @@
 void Renderer::startUp() noexcept
 {
   shaders[static_cast<unsigned int>(MaterialType::DiffuseFlat)] = ShaderProgram(shaderPath("i_diffuse_flat.vert"), shaderPath("i_diffuse_flat.frag"));
-  shaders[static_cast<unsigned int>(MaterialType::DiffuseTextured)] = ShaderProgram(shaderPath("diffuse_textured.vert"), shaderPath("diffuse_textured.frag"));
+  shaders[static_cast<unsigned int>(MaterialType::DiffuseTextured)] = ShaderProgram(shaderPath("i_diffuse_textured.vert"), shaderPath("i_diffuse_textured.frag"));
 
   glEnable(GL_DEPTH_TEST);
 
@@ -61,7 +61,7 @@ void Renderer::render(Camera& camera) noexcept
     const PointLight& pointLight = pointLights[i];
     lightsData.pointLights[i].colorIntensity = pointLight.getLightColor() * pointLight.getLightIntensity();
     lightsData.pointLights[i].position = pointLight.getLocalTranslation();
-    lightsData.pointLights[i].radius = pointLight.getMaxRadius();
+    lightsData.pointLights[i].radius = pointLight.getLightRadius();
   }
 
 	glBindBuffer(GL_UNIFORM_BUFFER, lightsDataUBO);

@@ -10,6 +10,7 @@
 #include "instanced/i_mesh_manager.h"
 #include "instanced/i_texture_manager.h"
 #include "instanced/i_shader_program.h"
+#include "instanced/i_diffuse_flat_material.h"
 #include "instanced/i_diffuse_textured_material.h"
 #include "instanced/i_mesh_instance.h"
 #include "instanced/i_renderer.h"
@@ -35,7 +36,7 @@ void updateFromInputs(GLFWwindow* window, float dt, Camera* cameraPtr)
   }
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
     cameraPtr->translate(cameraPtr->getRightVector() * dt * cameraSpeed);
-  }
+	}
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
     cameraPtr->translate(glm::vec3(0.0f, 1.0f, 0.0f) * dt * cameraSpeed);
   }
@@ -98,7 +99,7 @@ void createPlane(Renderer& renderer)
 	planeInstance->scale(20.f);
 }
 
-void createVent(Renderer& renderer)
+void createVentType1(Renderer& renderer)
 {
 	auto& meshManager = MeshManager::getInstance();
 	std::shared_ptr<Mesh> ventMesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj"), true);
@@ -116,62 +117,79 @@ void createVent(Renderer& renderer)
 	ventInstance->scale(0.3f);
 }
 
+void createVentType2(Renderer& renderer)
+{
+	auto& meshManager = MeshManager::getInstance();
+	std::shared_ptr<Mesh> ventMesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj"), true);
+	
+  std::shared_ptr<DiffuseFlatMaterial> ventMaterial = std::static_pointer_cast<DiffuseFlatMaterial>(renderer.createMaterial(MaterialType::DiffuseFlat));
+
+	ventMaterial->setDiffuseColor(glm::vec3(1.0f, 1.0f, 1.0f));
+
+	MeshInstance* ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
+
+  ventInstance->translate(glm::vec3(0.0f, 10.0f, 18.0f));
+  ventInstance->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(180.0f));
+	ventInstance->scale(0.3f);
+}
+
 int main()
 {
-  glfwInit();
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   sprintf(title, "GPU-Driven Rendering Engine");
-  GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
 
-  if (window == NULL) {
-    std::cout << "Failed to create GLFW window" << std::endl;
-    glfwTerminate();
-    return -1;
-  }
+	if (window == NULL) {
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return -1;
+	}
 
-  glfwMakeContextCurrent(window);
+	glfwMakeContextCurrent(window);
 
-  gladLoadGL();
+	gladLoadGL();
 
-  glViewport(0, 0, width, height);
+	glViewport(0, 0, width, height);
 
   Camera camera;
 
   Renderer renderer;
-  renderer.startUp();
+	renderer.startUp();
 
   renderer.setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
   createDirectionalLight(renderer);
   createPointLights(renderer);
 
   createPlane(renderer);
-  createVent(renderer);
+	createVentType1(renderer);
+	createVentType2(renderer);
+	
+	float lastTime = glfwGetTime();
 
-  float lastTime = glfwGetTime();
-
-  // Main while loop
-  while (!glfwWindowShouldClose(window))
-  {
-    glfwPollEvents();
-    
-    float currentTime = glfwGetTime();
+	// Main while loop
+	while (!glfwWindowShouldClose(window))
+	{
+		glfwPollEvents();
+		
+		float currentTime = glfwGetTime();
     float dt = currentTime - lastTime;
     lastTime = currentTime;
 
     updateFromInputs(window, dt, &camera);
 
-    std::cout << "FPS: " << 1.0f / dt << std::endl;
+		std::cout << "FPS: " << 1.0f / dt << std::endl;
 
-    renderer.render(camera);
+		renderer.render(camera);
 
     glfwSwapBuffers(window);
-  }
+	}
 
-  glfwDestroyWindow(window);
-  glfwTerminate();
+	glfwDestroyWindow(window);
+	glfwTerminate();
 
   return 0;
 }
