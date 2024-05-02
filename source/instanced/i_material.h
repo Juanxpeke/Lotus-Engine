@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -30,14 +31,14 @@ public:
 protected:
   struct MaterialData
   {
-    glm::vec3 vec3A;  // 12
-    int idA;          // 16
-    glm::vec3 vec3B;  // 28
-    int idB;          // 32
-    int idC;          // 36
-    int idD;          // 40
-    int idE;          // 44
-    int idF;          // 48
+    glm::vec3 vec3_0;   // 12
+    int int_0;          // 16
+    glm::vec3 vec3_1;   // 28
+    int int_1;          // 32
+    uint64_t uint64_0;  // 40
+    uint64_t uint64_1;  // 48
+    uint64_t uint64_2;  // 56
+    uint64_t uint64_3;  // 64
   };
 
   virtual void fillMaterialData(MaterialData& materialData) = 0;

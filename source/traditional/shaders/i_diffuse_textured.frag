@@ -7,14 +7,14 @@
 
 struct Material
 {
-	vec3 materialTint;
-	int diffuseTextureID;
-	vec3 placeholderVecA;
-	int placeholderB;
-	int placeholderC;
-	int placeholderD;
-	int placeholderE;
-	int placeholderF;
+	vec3 diffuseTextureTint;
+	int int_0;
+	vec3 vec3_1;
+	int int_1;
+	sampler2D diffuseTexture;
+	sampler2D tex_1;
+	sampler2D tex_2;
+	sampler2D tex_3;
 };
 
 struct DirectionalLight
@@ -128,9 +128,9 @@ void main()
 		Lo += distanceAttenuation * pointLights[i].colorIntensity * max(dot(normal, -lightDirection), 0.0);
 	}
 	
-	vec3 diffuseColor = texture(material.diffuseTextureID, fragTexCoord).xyz;
+	vec3 diffuseColor = texture(material.diffuseTexture, fragTexCoord).xyz;
 
 	vec3 result = (ambient + Lo) * diffuseColor;
 
-	outColor = vec4(material.materialTint * result, 1.0);
+	outColor = vec4(material.diffuseTextureTint * result, 1.0);
 }

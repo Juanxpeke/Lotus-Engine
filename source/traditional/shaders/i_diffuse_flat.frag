@@ -2,16 +2,19 @@
 
 #version 460 core
 
+// Enable bindless textures
+#extension GL_ARB_bindless_texture : require
+
 struct Material
 {
 	vec3 diffuseColor;
-	int placeholderA;
-	vec3 placeholderVecA;
-	int placeholderB;
-	int placeholderC;
-	int placeholderD;
-	int placeholderE;
-	int placeholderF;
+	int int_0;
+	vec3 vec3_1;
+	int int_1;
+	sampler2D texture_0;
+	sampler2D texture_1;
+	sampler2D texture_2;
+	sampler2D texture_3;
 };
 
 struct DirectionalLight

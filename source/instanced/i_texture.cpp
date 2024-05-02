@@ -67,7 +67,8 @@ GLenum minificationFilterEnumToOpenGLEnum(TextureMinificationFilter filter)
   }
 }
 
-Texture::Texture(const std::string& stringFilePath,
+Texture::Texture(
+    const std::string& stringFilePath,
     TextureMagnificationFilter magFilter,
     TextureMinificationFilter minFilter,
     WrapMode sWrapMode,
@@ -76,7 +77,9 @@ Texture::Texture(const std::string& stringFilePath,
   ID(0),
   width(0),
   height(0),
-  channels(0)
+  channels(0),
+  handle(0),
+  referenceCount(0)
 {
   int stbWidth, stbHeight, stbChannels;
   stbi_uc* data = stbi_load(stringFilePath.c_str(), &stbWidth, &stbHeight, &stbChannels, 0);

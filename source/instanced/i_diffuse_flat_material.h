@@ -17,7 +17,7 @@ public:
 protected:
   virtual void fillMaterialData(MaterialData& materialData) override
   {
-    materialData.vec3A = diffuseColor;
+    materialData.vec3_0 = diffuseColor;
   }
   
 private:

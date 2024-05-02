@@ -42,6 +42,8 @@ public:
   uint32_t getID() const { return ID; }
   uint32_t getWidth() const { return width; }
   uint32_t getHeight() const { return height; }
+  uint64_t getHandle() const { return handle; }
+
   void setSWrapMode(WrapMode wrapMode) noexcept;
   void setTWrapMode(WrapMode wrapMode) noexcept;
   void setMagnificationFilter(TextureMagnificationFilter magFilter) noexcept;
