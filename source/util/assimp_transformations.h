@@ -6,7 +6,7 @@
 #include <assimp/matrix4x4.h>
 #include <assimp/vector3.h>
 
-inline glm::mat4 AssimpToGlmMatrix(const aiMatrix4x4& mat)
+inline glm::mat4 assimpToGlmMatrix(const aiMatrix4x4& mat)
 {
   glm::mat4 m;
   for (int y = 0; y < 4; y++)
@@ -19,12 +19,12 @@ inline glm::mat4 AssimpToGlmMatrix(const aiMatrix4x4& mat)
   return m;
 }
 
-inline glm::vec3 AssimpToGlmVec3(const aiVector3D& vec)
+inline glm::vec3 assimpToGlmVec3(const aiVector3D& vec)
 {
   return glm::vec3(vec.x, vec.y, vec.z);
 }
 
-inline glm::fquat AssimpToGlmQuat(const aiQuaternion& quat)
+inline glm::fquat assimpToGlmQuat(const aiQuaternion& quat)
 {
   glm::fquat q;
   q.x = quat.x;

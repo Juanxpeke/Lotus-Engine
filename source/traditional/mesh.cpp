@@ -87,10 +87,10 @@ Mesh::Mesh(const std::string& filePath, bool flipUVs) :
         bitangent.Normalize();
 
         MeshVertex vertex;
-        vertex.position = AssimpToGlmVec3(position);
-        vertex.normal = AssimpToGlmVec3(normal);
-        vertex.tangent = AssimpToGlmVec3(tangent);
-        vertex.bitangent = AssimpToGlmVec3(bitangent);
+        vertex.position = assimpToGlmVec3(position);
+        vertex.normal = assimpToGlmVec3(normal);
+        vertex.tangent = assimpToGlmVec3(tangent);
+        vertex.bitangent = assimpToGlmVec3(bitangent);
         if (meshOBJ->mTextureCoords[0])
         {
           vertex.uv.x = meshOBJ->mTextureCoords[0][i].x;

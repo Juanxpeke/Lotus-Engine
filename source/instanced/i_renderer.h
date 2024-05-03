@@ -1,7 +1,8 @@
 #pragma once
 
-#include <vector>
+#include <cstdint>
 #include <array>
+#include <vector>
 #include <unordered_map>
 #include <glm/glm.hpp>
 #include "../scene/transform.h"
@@ -77,5 +78,5 @@ private:
   std::vector<DirectionalLight> directionalLights;
   std::vector<PointLight> pointLights;
 
-  std::unordered_map<std::shared_ptr<Mesh>, std::shared_ptr<GraphicsBatch>> graphicsBatchMap;
+  std::unordered_map<uint64_t, std::shared_ptr<GraphicsBatch>> graphicsBatchMap;
 };

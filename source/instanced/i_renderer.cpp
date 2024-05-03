@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "../path_manager.h"
+#include "../util/pairing.h"
 #include "i_mesh.h"
 #include "i_diffuse_flat_material.h"
 #include "i_diffuse_textured_material.h"
@@ -103,8 +104,9 @@ PointLight* Renderer::createPointLight()
 MeshInstance* Renderer::createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
 {
   std::shared_ptr<GraphicsBatch> graphicsBatch;
+  uint64_t graphicsBatchID = szudzikPair(mesh->getVertexArrayID(), material->getShaderID());
 
-  auto it = graphicsBatchMap.find(mesh);
+  auto it = graphicsBatchMap.find(graphicsBatchID);
 
   if (it != graphicsBatchMap.end())
   {
@@ -112,10 +114,12 @@ MeshInstance* Renderer::createMeshInstance(std::shared_ptr<Mesh> mesh, std::shar
   }
   else
   {
-    std::cout << "Not found, creating new batch" << std::endl;
+    std::cout << "Not found, creating new batch" << std::endl; // TODO: BETTER LOG
+    
     GraphicsBatch* graphicsBatchPtr = new GraphicsBatch(mesh, material->getShaderID());
+
     graphicsBatch = std::shared_ptr<GraphicsBatch>(graphicsBatchPtr);
-    graphicsBatchMap.insert({ mesh, graphicsBatch });
+    graphicsBatchMap.insert({ graphicsBatchID, graphicsBatch });
   }
 
   graphicsBatch->meshInstances.emplace_back(mesh, material);
