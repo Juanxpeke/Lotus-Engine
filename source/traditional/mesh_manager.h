@@ -6,11 +6,11 @@
 
 #include "mesh.h"
 
-using MeshMap = std::unordered_map<std::string, std::shared_ptr<Mesh>>;
-
 class MeshManager
 {
 public:
+  using MeshMap = std::unordered_map<std::string, std::shared_ptr<Mesh>>;
+
   MeshManager(MeshManager const&) = delete;
   
   MeshManager& operator=(MeshManager const&) = delete;
