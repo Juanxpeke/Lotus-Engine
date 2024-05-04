@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "../path_manager.h"
-#include "../util/pairing.h"
+#include "../math/pairing.h"
 #include "i_mesh.h"
 #include "i_diffuse_flat_material.h"
 #include "i_diffuse_textured_material.h"
@@ -18,18 +18,18 @@ void Renderer::startUp() noexcept
 
   glEnable(GL_DEPTH_TEST);
 
-  glGenBuffers(1, &lightsDataUBO);
-  glBindBuffer(GL_UNIFORM_BUFFER, lightsDataUBO);
+  glGenBuffers(1, &lightsDataBufferID);
+  glBindBuffer(GL_UNIFORM_BUFFER, lightsDataBufferID);
   glBufferData(GL_UNIFORM_BUFFER, sizeof(LightsData), NULL, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
-  glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightsDataUBO);
+  glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightsDataBufferID);
 
   glfwSwapInterval(0);
 }
 
 void Renderer::shutDown() noexcept
 {
-  glDeleteBuffers(1, &lightsDataUBO);
+  glDeleteBuffers(1, &lightsDataBufferID);
 }
 
 void Renderer::render(Camera& camera) noexcept
@@ -65,7 +65,7 @@ void Renderer::render(Camera& camera) noexcept
     lightsData.pointLights[i].radius = pointLight.getLightRadius();
   }
 
-	glBindBuffer(GL_UNIFORM_BUFFER, lightsDataUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, lightsDataBufferID);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightsData), &lightsData);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -104,7 +104,7 @@ PointLight* Renderer::createPointLight()
 MeshInstance* Renderer::createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
 {
   std::shared_ptr<GraphicsBatch> graphicsBatch;
-  uint64_t graphicsBatchID = szudzikPair(mesh->getVertexArrayID(), material->getShaderID());
+  uint64_t graphicsBatchID = LotusMath::szudzikPair(mesh->getVertexArrayID(), material->getShaderID());
 
   auto it = graphicsBatchMap.find(graphicsBatchID);
 

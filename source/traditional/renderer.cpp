@@ -16,18 +16,18 @@ void Renderer::startUp() noexcept
 
   glEnable(GL_DEPTH_TEST);
 
-  glGenBuffers(1, &lightsDataUBO);
-  glBindBuffer(GL_UNIFORM_BUFFER, lightsDataUBO);
+  glGenBuffers(1, &lightsDataBufferID);
+  glBindBuffer(GL_UNIFORM_BUFFER, lightsDataBufferID);
   glBufferData(GL_UNIFORM_BUFFER, sizeof(LightsData), NULL, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
-  glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightsDataUBO);
+  glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightsDataBufferID);
 
   glfwSwapInterval(0);
 }
 
 void Renderer::shutDown() noexcept
 {
-  glDeleteBuffers(1, &lightsDataUBO);
+  glDeleteBuffers(1, &lightsDataBufferID);
 }
 
 void Renderer::render(Camera& camera) noexcept
@@ -63,7 +63,7 @@ void Renderer::render(Camera& camera) noexcept
     lightsData.pointLights[i].radius = pointLight.getLightRadius();
   }
 
-	glBindBuffer(GL_UNIFORM_BUFFER, lightsDataUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, lightsDataBufferID);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightsData), &lightsData);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 

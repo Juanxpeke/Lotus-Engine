@@ -9,13 +9,13 @@ struct DrawElementsIndirectCommand
   uint32_t firstIndex = 0;    // Index of the first element in the EBO
   uint32_t baseVertex = 0;    // Base vertex when reading from vertex buffer
   uint32_t baseInstance = 0;  // Base instance when using gl_InstanceID
-  uint32_t padding0 = 0;      // Padding due to GLSL layout std140 16B alignment rule
+  uint32_t padding0 = 0;      // Padding due to GLSL layout std140 16 bytes alignment rule
   uint32_t padding1 = 0;
   uint32_t padding2 = 0;
 };
 
 GraphicsBatch::GraphicsBatch(std::shared_ptr<Mesh> mesh, uint32_t shader) :
-  meshPtr(mesh), shaderID(shader), allocatedInstancesCount(InitialInstancesCount)
+  meshPtr(mesh), shaderID(shader), allocatedInstancesCount(InitialAllocationInstancesCount)
 {
   unsigned int IBO, modelSSBO, materialSSBO;
   

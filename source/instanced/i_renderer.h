@@ -73,7 +73,7 @@ private:
 
   std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount)> shaders;
 
-  unsigned int lightsDataUBO = 0;
+  unsigned int lightsDataBufferID = 0;
   glm::vec3 ambientLight;
   std::vector<DirectionalLight> directionalLights;
   std::vector<PointLight> pointLights;

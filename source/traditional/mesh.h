@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include "../math/primitives.h"
 
 class Mesh
 {
@@ -25,10 +26,8 @@ private:
   Mesh(const std::string& filePath, bool flipUVs = false);
   Mesh(PrimitiveType type);
 
-  void createPrimitive(std::vector<float>& vertices, std::vector<unsigned int>& indices) noexcept;
-  void createPlane() noexcept;
-  void createSphere() noexcept;
-  void createCube() noexcept;
+  void createMesh(std::vector<LotusMath::Vertex>& vertices, std::vector<unsigned int>& indices) noexcept;
+  
   void clearData() noexcept;
 
   uint32_t vertexArrayID;
