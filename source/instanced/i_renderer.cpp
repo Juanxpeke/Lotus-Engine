@@ -34,6 +34,8 @@ void Renderer::shutDown() noexcept
 
 void Renderer::render(Camera& camera) noexcept
 {
+  cleanMeshInstances();
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
   glm::mat4 viewMatrix = camera.getViewMatrix();
@@ -89,6 +91,11 @@ void Renderer::render(Camera& camera) noexcept
   }
 }
 
+void Renderer::setAmbientLight(glm::vec3 color)
+{
+  ambientLight = color;
+}
+
 DirectionalLight* Renderer::createDirectionalLight()
 {
   directionalLights.emplace_back();
@@ -101,30 +108,16 @@ PointLight* Renderer::createPointLight()
   return &pointLights.back();
 }
 
-MeshInstance* Renderer::createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
+std::shared_ptr<MeshInstance> Renderer::createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
 {
-  std::shared_ptr<GraphicsBatch> graphicsBatch;
-  uint64_t graphicsBatchID = LotusMath::szudzikPair(mesh->getVertexArrayID(), material->getShaderID());
+  std::shared_ptr<GraphicsBatch> graphicsBatch = getGraphicsBatch(mesh, material);
 
-  auto it = graphicsBatchMap.find(graphicsBatchID);
+  std::shared_ptr<MeshInstance> meshInstance = std::make_shared<MeshInstance>(mesh, material);
 
-  if (it != graphicsBatchMap.end())
-  {
-    graphicsBatch = it->second;
-  }
-  else
-  {
-    std::cout << "Not found, creating new batch" << std::endl; // TODO: BETTER LOG
-    
-    GraphicsBatch* graphicsBatchPtr = new GraphicsBatch(mesh, material->getShaderID());
+  meshInstances.push_back(meshInstance);
+  graphicsBatch->addMeshInstance(meshInstance);
 
-    graphicsBatch = std::shared_ptr<GraphicsBatch>(graphicsBatchPtr);
-    graphicsBatchMap.insert({ graphicsBatchID, graphicsBatch });
-  }
-
-  graphicsBatch->meshInstances.emplace_back(mesh, material);
-
-  return &graphicsBatch->meshInstances.back();
+  return meshInstance;
 }
 
 std::shared_ptr<Material> Renderer::createMaterial(MaterialType type)
@@ -148,7 +141,51 @@ std::shared_ptr<Material> Renderer::createMaterial(MaterialType type)
   }
 }
 
-void Renderer::setAmbientLight(glm::vec3 color)
+std::shared_ptr<GraphicsBatch> Renderer::getGraphicsBatch(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
 {
-  ambientLight = color;
+  std::shared_ptr<GraphicsBatch> graphicsBatch;
+  uint64_t graphicsBatchID = LotusMath::szudzikPair(mesh->getVertexArrayID(), material->getShaderID());
+
+  auto it = graphicsBatchMap.find(graphicsBatchID);
+
+  if (it != graphicsBatchMap.end())
+  {
+    graphicsBatch = it->second;
+  }
+  else
+  {
+    std::cout << "Not found, creating new batch" << std::endl; // TODO: BETTER LOG
+    
+    GraphicsBatch* graphicsBatchPtr = new GraphicsBatch(mesh, material->getShaderID());
+
+    graphicsBatch = std::shared_ptr<GraphicsBatch>(graphicsBatchPtr);
+    graphicsBatchMap.insert({ graphicsBatchID, graphicsBatch });
+  }
+
+  return graphicsBatch;
+}
+
+void Renderer::cleanMeshInstances()
+{
+  for (auto meshInstance : meshInstances)
+  {
+    if (!meshInstance->hasDirtyMeshPtr() && !meshInstance->hasDirtyMaterialPtr()) { continue; }
+
+    std::shared_ptr<Mesh> mesh = meshInstance->getMesh();
+    std::shared_ptr<Material> material = meshInstance->getMaterial();
+    std::shared_ptr<Mesh> oldMesh = meshInstance->getOldMesh();
+    std::shared_ptr<Material> oldMaterial = meshInstance->getOldMaterial();
+
+    std::shared_ptr<GraphicsBatch> graphicsBatch = getGraphicsBatch(mesh, material);
+    std::shared_ptr<GraphicsBatch> oldGraphicsBatch = getGraphicsBatch(oldMesh, oldMaterial);
+
+    // std::cout << "REMOVING FROM " << oldGraphicsBatch << std::endl;
+    // std::cout << "ADDING TO " << graphicsBatch << std::endl;
+
+    oldGraphicsBatch->removeMeshInstance(meshInstance);
+    graphicsBatch->addMeshInstance(meshInstance);
+
+    meshInstance->cleanDirtyMeshPtr();
+    meshInstance->cleanDirtyMaterialPtr();
+  }
 }

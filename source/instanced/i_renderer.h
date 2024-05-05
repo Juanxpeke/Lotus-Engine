@@ -31,11 +31,14 @@ public:
   DirectionalLight* createDirectionalLight();
   PointLight* createPointLight();
 
-  MeshInstance* createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+  std::shared_ptr<MeshInstance> createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
 
   std::shared_ptr<Material> createMaterial(MaterialType type);
 
 private:
+  std::shared_ptr<GraphicsBatch> getGraphicsBatch(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+  void cleanMeshInstances();
+
   struct DirectionalLightData
   {
     glm::vec3 colorIntensity; // 12
@@ -78,5 +81,6 @@ private:
   std::vector<DirectionalLight> directionalLights;
   std::vector<PointLight> pointLights;
 
+  std::vector<std::shared_ptr<MeshInstance>> meshInstances;
   std::unordered_map<uint64_t, std::shared_ptr<GraphicsBatch>> graphicsBatchMap;
 };

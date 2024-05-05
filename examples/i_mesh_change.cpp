@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cstdlib>
+#include <vector>
+#include <memory>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -22,6 +24,8 @@ const float cameraAngularSpeed = 2.0f;
 
 const int objectsCount = 1000;
 const float objectsAreaSide = 50.f;
+
+std::vector<std::shared_ptr<MeshInstance>> meshInstances;
 
 void updateFromInputs(GLFWwindow* window, float dt, Camera* cameraPtr)
 {
@@ -86,6 +90,7 @@ void createVent(Renderer& renderer)
 	ventMaterial->setDiffuseColor(glm::vec3(r, g, b));
 
 	std::shared_ptr<MeshInstance> ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
+	meshInstances.push_back(ventInstance);
 
 	float x = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
 	float y = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
@@ -119,6 +124,10 @@ int main()
 
   Camera camera;
 
+	auto& meshManager = MeshManager::getInstance();
+	std::shared_ptr<Mesh> sphereMesh = meshManager.loadMesh(Mesh::PrimitiveType::Sphere);
+	std::shared_ptr<Mesh> ventMesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj").string());
+
   Renderer renderer;
 	renderer.startUp();
 
@@ -130,13 +139,36 @@ int main()
 		createVent(renderer);
 	}
 	
-	float lastTime = glfwGetTime();
+	float initialTime = glfwGetTime();
+	float lastTime = initialTime;
+	bool toSphereMesh = true;
 
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
 		
+		if (lastTime - initialTime > 3.0 && toSphereMesh)
+		{
+			for (auto meshInstance : meshInstances)
+			{
+				meshInstance->setMesh(sphereMesh);
+			}
+
+			toSphereMesh = false;
+			initialTime = lastTime;
+		}
+		else if (lastTime - initialTime > 3.0 && !toSphereMesh)
+		{
+			for (auto meshInstance : meshInstances)
+			{
+				meshInstance->setMesh(ventMesh);
+			}
+
+			toSphereMesh = true;
+			initialTime = lastTime;
+		}
+
 		float currentTime = glfwGetTime();
 		float dt = currentTime - lastTime;
 		lastTime = currentTime;

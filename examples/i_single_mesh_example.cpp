@@ -92,7 +92,7 @@ void createPlane(Renderer& renderer)
 
 	planeMaterial->setDiffuseTexture(planeDiffuseTexture);
 
-	MeshInstance* planeInstance = renderer.createMeshInstance(planeMesh, planeMaterial);
+	std::shared_ptr<MeshInstance> planeInstance = renderer.createMeshInstance(planeMesh, planeMaterial);
 
   planeInstance->rotate(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(-90.0f));
 	planeInstance->scale(20.f);
@@ -110,7 +110,7 @@ void createVent(Renderer& renderer)
 
 	ventMaterial->setDiffuseTexture(ventDiffuseTexture);
 
-	MeshInstance* ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
+	std::shared_ptr<MeshInstance> ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
 
   ventInstance->translate(glm::vec3(0.0f, 10.0f, -18.0f));
 	ventInstance->scale(0.3f);

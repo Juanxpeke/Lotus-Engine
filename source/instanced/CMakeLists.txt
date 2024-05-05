@@ -20,6 +20,7 @@ set(INSTANCED_RENDERER_SOURCES
     i_texture.cpp
     i_texture_manager.cpp
     i_shader_program.cpp
+    i_mesh_instance.cpp
     graphics_batch.cpp
     i_renderer.cpp)
 

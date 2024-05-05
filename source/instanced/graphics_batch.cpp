@@ -63,6 +63,16 @@ uint32_t GraphicsBatch::getShaderID() const noexcept
   return shaderID;
 }
 
+void GraphicsBatch::addMeshInstance(std::shared_ptr<MeshInstance> meshInstance)
+{
+  meshInstances.push_back(meshInstance);
+}
+
+void GraphicsBatch::removeMeshInstance(std::shared_ptr<MeshInstance> meshInstance)
+{
+  std::erase(meshInstances, meshInstance);
+}
+
 void GraphicsBatch::updateBuffers() const
 {
   updateIndirectBuffer();
@@ -90,9 +100,9 @@ void GraphicsBatch::updateModelBuffer() const
 
   for (int i = 0; i < instancesCount; i++)
   {
-    const MeshInstance& meshInstance = meshInstances[i];
+    const std::shared_ptr<MeshInstance> meshInstance = meshInstances[i];
 
-    glm::mat4 model = meshInstance.getModelMatrix();
+    glm::mat4 model = meshInstance->getModelMatrix();
     const float* modelPtr = glm::value_ptr(model);
 
     std::copy(modelPtr, modelPtr + 16, models + i * 16);
@@ -108,8 +118,8 @@ void GraphicsBatch::updateMaterialBuffer() const
 
   for (int i = 0; i < instancesCount; i++)
   {
-    const MeshInstance& meshInstance = meshInstances[i];
-    meshInstance.getMaterial()->fillMaterialData(materials[i]);
+    const std::shared_ptr<MeshInstance> meshInstance = meshInstances[i];
+    meshInstance->getMaterial()->fillMaterialData(materials[i]);
   }
 
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialBufferID);

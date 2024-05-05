@@ -28,6 +28,9 @@ public:
   uint32_t getModelBufferID() const noexcept { return modelBufferID; }
   uint32_t getMaterialBufferID() const noexcept { return materialBufferID; }
 
+  void addMeshInstance(std::shared_ptr<MeshInstance>);
+  void removeMeshInstance(std::shared_ptr<MeshInstance>);
+
 private:
   GraphicsBatch(std::shared_ptr<Mesh> mesh, uint32_t shader);
 
@@ -39,7 +42,7 @@ private:
   std::shared_ptr<Mesh> meshPtr;
   uint32_t shaderID;
 
-  std::vector<MeshInstance> meshInstances;
+  std::vector<std::shared_ptr<MeshInstance>> meshInstances;
   unsigned int allocatedInstancesCount;
 
   float* models;
