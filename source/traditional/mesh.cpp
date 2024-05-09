@@ -13,11 +13,7 @@
 #include "../util/assimp_transformations.h"
 
 
-Mesh::Mesh(const std::string& filePath, bool flipUVs) :
-  vertexArrayID(0),
-  vertexBufferID(0),
-  indexBufferID(0),
-  indexBufferCount(0)
+Mesh::Mesh(const std::string& filePath, bool flipUVs)
 {
   Assimp::Importer importer;
   unsigned int postProcessFlags = flipUVs ? aiProcess_FlipUVs : 0;
@@ -30,8 +26,6 @@ Mesh::Mesh(const std::string& filePath, bool flipUVs) :
     return;
   }
 
-  std::vector<LotusMath::Vertex> vertices;
-  std::vector<unsigned int> faces;
   size_t numVertices = 0;
   size_t numFaces = 0;
 
@@ -43,7 +37,7 @@ Mesh::Mesh(const std::string& filePath, bool flipUVs) :
   }
 
   vertices.reserve(numVertices);
-  faces.reserve(numFaces);
+  indices.reserve(numFaces);
 
   // Scene graph is traversed using Depth-first Search, with two stacks
   std::stack<const aiNode*> sceneNodes;
@@ -106,9 +100,9 @@ Mesh::Mesh(const std::string& filePath, bool flipUVs) :
       {
         const aiFace& face = meshOBJ->mFaces[i];
         // TODO: ASSERT(face.mNumIndices == 3, "Mesh Error: Can load meshes with faces that have {0} vertices", face.mNumIndices);
-        faces.push_back(face.mIndices[0] + offset);
-        faces.push_back(face.mIndices[1] + offset);
-        faces.push_back(face.mIndices[2] + offset);
+        indices.push_back(face.mIndices[0] + offset);
+        indices.push_back(face.mIndices[1] + offset);
+        indices.push_back(face.mIndices[2] + offset);
       }
       
       offset += meshOBJ->mNumVertices;
@@ -121,40 +115,38 @@ Mesh::Mesh(const std::string& filePath, bool flipUVs) :
       sceneTransforms.push(currentNode->mChildren[j]->mTransformation * currentTransform);
     }
   }
-
-  createMesh(vertices, faces);
 }
 
-Mesh::Mesh(PrimitiveType type) :
-  vertexArrayID(0),
-  vertexBufferID(0),
-  indexBufferID(0),
-  indexBufferCount(0)
+Mesh::Mesh(PrimitiveType type)
 {
   switch (type)
   {
     case Mesh::PrimitiveType::Plane:
     {
       LotusMath::Plane plane;
-      createMesh(plane.vertices, plane.indices);
+      vertices = plane.vertices;
+      indices = plane.indices;
       break;
     }
     case Mesh::PrimitiveType::Cube:
     {
       LotusMath::Cube cube;
-      createMesh(cube.vertices, cube.indices);
+      vertices = cube.vertices;
+      indices = cube.indices;
       break;
     }
     case Mesh::PrimitiveType::Sphere:
     {
       LotusMath::Sphere sphere;
-      createMesh(sphere.vertices, sphere.indices);
+      vertices = sphere.vertices;
+      indices = sphere.indices;
       break;
     }
     default:
     {
       LotusMath::Sphere sphere;
-      createMesh(sphere.vertices, sphere.indices);
+      vertices = sphere.vertices;
+      indices = sphere.indices;
       break;
     }
   }
@@ -165,50 +157,6 @@ Mesh::~Mesh()
   clearData();
 }
 
-void Mesh::createMesh(std::vector<LotusMath::Vertex>& vertices, std::vector<unsigned int>& indices) noexcept
-{
-  unsigned int VAO, VBO, EBO;
-  
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-  glGenBuffers(1, &EBO);
-
-  glBindVertexArray(VAO);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(LotusMath::Vertex), vertices.data(), GL_STATIC_DRAW);
-
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LotusMath::Vertex), (void*) offsetof(LotusMath::Vertex, position));
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(LotusMath::Vertex), (void*) offsetof(LotusMath::Vertex, normal));
-  glEnableVertexAttribArray(2);
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(LotusMath::Vertex), (void*) offsetof(LotusMath::Vertex, uv));
-  glEnableVertexAttribArray(3);
-  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(LotusMath::Vertex), (void*) offsetof(LotusMath::Vertex, tangent));
-  glEnableVertexAttribArray(4);
-  glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(LotusMath::Vertex), (void*) offsetof(LotusMath::Vertex, bitangent));
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-
-  glBindVertexArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-  vertexArrayID = VAO;
-  vertexBufferID = VBO;
-  indexBufferID = EBO;
-  indexBufferCount = static_cast<uint32_t>(indices.size());
-}
-
 void Mesh::clearData() noexcept
 {
-  if (vertexArrayID)
-  { // TODO: Handle errors
-    glDeleteBuffers(1, &vertexBufferID);
-    glDeleteBuffers(1, &indexBufferID);
-    glDeleteVertexArrays(1, &vertexArrayID);
-    vertexArrayID = 0;
-  }
 }

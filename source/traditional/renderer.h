@@ -20,22 +20,19 @@ public:
 
   Renderer() = default;
 
-  void startUp() noexcept;
-  void shutDown() noexcept;
+  virtual void startUp() noexcept = 0;
+  virtual void shutDown() noexcept = 0;
 
-  void render(Camera& camera) noexcept;
+  virtual void render(Camera& camera) noexcept = 0;
+
+  virtual std::shared_ptr<MeshInstance> createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) = 0;
+  virtual std::shared_ptr<Material> createMaterial(MaterialType type) = 0;
 
   void setAmbientLight(glm::vec3 color);
   DirectionalLight* createDirectionalLight();
-  PointLight* createPointLight();
+  PointLight* createPointLight();  
 
-  MeshInstance* createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
-
-  std::shared_ptr<Material> createMaterial(MaterialType type);
-
-  
-
-private:
+protected:
   struct DirectionalLightData
   {
     glm::vec3 colorIntensity; // 12
@@ -78,6 +75,6 @@ private:
   std::vector<DirectionalLight> directionalLights;
   std::vector<PointLight> pointLights;
 
-  std::vector<MeshInstance> meshInstances;
+  std::vector<std::shared_ptr<MeshInstance>> meshInstances;
 
 };

@@ -11,7 +11,7 @@
 #include "traditional/shader_program.h"
 #include "traditional/diffuse_flat_material.h"
 #include "traditional/mesh_instance.h"
-#include "traditional/renderer.h"
+#include "traditional/trad/tra_renderer.h"
 
 int width = 720;
 int height = 720;
@@ -85,7 +85,7 @@ void createVent(Renderer& renderer)
 
 	ventMaterial->setDiffuseColor(glm::vec3(r, g, b));
 
-	MeshInstance* ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
+	std::shared_ptr<MeshInstance> ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
 
 	float x = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
 	float y = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
@@ -117,9 +117,9 @@ int main()
 
 	glViewport(0, 0, width, height);
 
-  Camera camera;
+	Camera camera;
 
-  Renderer renderer;
+	TraditionalRenderer renderer;
 	renderer.startUp();
 
 	renderer.setAmbientLight(glm::vec3(0.1, 0.1, 0.1));

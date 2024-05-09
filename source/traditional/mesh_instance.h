@@ -15,29 +15,11 @@ public:
     // ASSERT(material != nullptr, "StaticMeshComponent Error: Material cannot be null.");
   }
 
-  uint32_t getMeshIndexCount() const noexcept
-  {
-    return meshPtr->getIndexBufferCount();
-  }
+  const std::shared_ptr<Mesh>& getMesh() const noexcept { return meshPtr; }
+  const std::shared_ptr<Material>& getMaterial() const noexcept { return materialPtr; }
 
-  uint32_t getMeshVAO() const noexcept
-  {
-    return meshPtr->getVertexArrayID();
-  }
-
-  std::shared_ptr<Material> getMaterial() const noexcept
-  {
-    return materialPtr;
-  }
-
-  void setMaterial(std::shared_ptr<Material> material) noexcept
-  {
-    if (material != nullptr)
-    {
-      materialPtr = material;
-    }
-  }
-  
+  void setMesh(std::shared_ptr<Mesh> mesh) noexcept;
+  void setMaterial(std::shared_ptr<Material> material) noexcept;
 
 private:
   std::shared_ptr<Mesh> meshPtr;

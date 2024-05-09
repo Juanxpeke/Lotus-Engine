@@ -20,7 +20,9 @@ set(RENDERER_SOURCES
     texture_manager.cpp
     shader_program.cpp
     material.cpp
-    renderer.cpp)
+    renderer.cpp
+    trad/tra_mesh_gpu_link.cpp
+    trad/tra_renderer.cpp)
 
 
 add_library(${RENDERER_NAME} STATIC ${RENDERER_SOURCES} ${RENDERER_HEADERS} ${SCENE_HEADERS} ${LIGHTING_HEADERS} ${UTIL_HEADERS})

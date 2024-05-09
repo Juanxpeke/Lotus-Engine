@@ -13,7 +13,7 @@
 #include "traditional/diffuse_flat_material.h"
 #include "traditional/diffuse_textured_material.h"
 #include "traditional/mesh_instance.h"
-#include "traditional/renderer.h"
+#include "traditional/trad/tra_renderer.h"
 
 int width = 720;
 int height = 720;
@@ -93,9 +93,9 @@ void createPlane(Renderer& renderer)
 
 	planeMaterial->setDiffuseTexture(planeDiffuseTexture);
 
-	MeshInstance* planeInstance = renderer.createMeshInstance(planeMesh, planeMaterial);
+	std::shared_ptr<MeshInstance> planeInstance = renderer.createMeshInstance(planeMesh, planeMaterial);
 
-  planeInstance->rotate(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(-90.0f));
+	planeInstance->rotate(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(-90.0f));
 	planeInstance->scale(20.f);
 }
 
@@ -108,9 +108,9 @@ void createCube(Renderer& renderer)
 
 	cubeMaterial->setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
 
-	MeshInstance* cubeInstance = renderer.createMeshInstance(cubeMesh, cubeMaterial);
+	std::shared_ptr<MeshInstance> cubeInstance = renderer.createMeshInstance(cubeMesh, cubeMaterial);
 
-  cubeInstance->translate(glm::vec3(-10.0f, 10.0f, 0.0f));
+	cubeInstance->translate(glm::vec3(-10.0f, 10.0f, 0.0f));
 	cubeInstance->scale(4.0f);
 }
 
@@ -123,9 +123,9 @@ void createSphere(Renderer& renderer)
 
 	sphereMaterial->setDiffuseColor(glm::vec3(0.0f, 0.0f, 1.0f));
 
-	MeshInstance* sphereInstance = renderer.createMeshInstance(sphereMesh, sphereMaterial);
+	std::shared_ptr<MeshInstance> sphereInstance = renderer.createMeshInstance(sphereMesh, sphereMaterial);
 
-  sphereInstance->translate(glm::vec3(10.0f, 10.0f, 0.0f));
+	sphereInstance->translate(glm::vec3(10.0f, 10.0f, 0.0f));
 	sphereInstance->scale(4.0f);
 }
 
@@ -151,18 +151,18 @@ int main()
 
 	glViewport(0, 0, width, height);
 
-  Camera camera;
+	Camera camera;
 
-  Renderer renderer;
+	TraditionalRenderer renderer;
 	renderer.startUp();
 
-  renderer.setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
-  createDirectionalLight(renderer);
-  createPointLights(renderer);
+	renderer.setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
+	createDirectionalLight(renderer);
+	createPointLights(renderer);
 
-  createPlane(renderer);
+	createPlane(renderer);
 	createCube(renderer);
-  createSphere(renderer);
+	createSphere(renderer);
 	
 	float lastTime = glfwGetTime();
 
