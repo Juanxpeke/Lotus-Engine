@@ -15,37 +15,47 @@ struct DrawElementsIndirectCommand
 };
 
 GraphicsBatch::GraphicsBatch(std::shared_ptr<Mesh> mesh, uint32_t shader) :
-  meshPtr(mesh), shaderID(shader), allocatedInstancesCount(InitialAllocationInstancesCount)
+  meshPtr(mesh), 
+  shaderID(shader), 
+  allocatedInstancesCount(InitialAllocationInstancesCount),
+  allocatedMaterialsCount(InitialAllocationMaterialsCount)
 {
-  unsigned int IBO, modelSSBO, materialSSBO;
+  unsigned int IBO, modelSSBO, materialHandlerSSBO, materialSSBO;
   
   glGenBuffers(1, &IBO);
   glGenBuffers(1, &modelSSBO);
+  glGenBuffers(1, &materialHandlerSSBO);
   glGenBuffers(1, &materialSSBO);
 
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, IBO);
   glBufferData(GL_DRAW_INDIRECT_BUFFER, 1 * sizeof(DrawElementsIndirectCommand), nullptr, GL_DYNAMIC_DRAW);
 
-  models = new float[allocatedInstancesCount * 16];
+  modelsCPUBuffer = new float[allocatedInstancesCount * 16];
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, modelSSBO);
   glBufferData(GL_SHADER_STORAGE_BUFFER, allocatedInstancesCount * 16 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 
-  materials = new Material::MaterialData[allocatedInstancesCount];
+  materialsHandlersCPUBuffer = new uint32_t[allocatedInstancesCount];
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialHandlerSSBO);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, allocatedInstancesCount * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+
+  materialsCPUBuffer = new Material::MaterialData[allocatedMaterialsCount];
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialSSBO);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, allocatedInstancesCount * sizeof(Material::MaterialData), nullptr, GL_DYNAMIC_DRAW);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, allocatedMaterialsCount * sizeof(Material::MaterialData), nullptr, GL_DYNAMIC_DRAW);
 
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
   indirectBufferID = IBO;
   modelBufferID = modelSSBO;
+  materialHandlerBufferID = materialHandlerSSBO;
   materialBufferID = materialSSBO;
 }
 
 GraphicsBatch::~GraphicsBatch()
 {
-  delete[] models;
-  delete[] materials;
+  delete[] modelsCPUBuffer;
+  delete[] materialsHandlersCPUBuffer;
+  delete[] materialsCPUBuffer;
 }
 
 uint32_t GraphicsBatch::getMeshIndexCount() const noexcept
@@ -105,11 +115,11 @@ void GraphicsBatch::updateModelBuffer() const
     glm::mat4 model = meshInstance->getModelMatrix();
     const float* modelPtr = glm::value_ptr(model);
 
-    std::copy(modelPtr, modelPtr + 16, models + i * 16);
+    std::copy(modelPtr, modelPtr + 16, modelsCPUBuffer + i * 16);
   }
 
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, modelBufferID);
-  glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, instancesCount * 16 * sizeof(float), models);
+  glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, instancesCount * 16 * sizeof(float), modelsCPUBuffer);
 }
 
 void GraphicsBatch::updateMaterialBuffer() const
@@ -119,11 +129,11 @@ void GraphicsBatch::updateMaterialBuffer() const
   for (int i = 0; i < instancesCount; i++)
   {
     const std::shared_ptr<MeshInstance> meshInstance = meshInstances[i];
-    meshInstance->getMaterial()->fillMaterialData(materials[i]);
+    meshInstance->getMaterial()->fillMaterialData(materialsCPUBuffer[i]);
   }
 
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialBufferID);
-  glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, instancesCount * sizeof(Material::MaterialData), materials);
+  glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, instancesCount * sizeof(Material::MaterialData), materialsCPUBuffer);
 }
 
 

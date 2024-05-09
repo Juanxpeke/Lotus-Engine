@@ -12,7 +12,11 @@ public:
 
   const glm::vec3& getDiffuseColor() const { return diffuseColor; }
 
-  void setDiffuseColor(const glm::vec3& color) { diffuseColor = color; }
+  void setDiffuseColor(const glm::vec3& color)
+  {
+    diffuseColor = color;
+    dirty = true;
+  }
 
 protected:
   virtual void fillMaterialData(MaterialData& materialData) override

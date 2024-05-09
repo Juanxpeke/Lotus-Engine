@@ -27,9 +27,14 @@ public:
     }
   
     diffuseTexture = texture;
+    dirty = true;
   }
 
-  void setDiffuseTextureTint(const glm::vec3& tint) { diffuseTextureTint = tint; }
+  void setDiffuseTextureTint(const glm::vec3& tint)
+  {
+    diffuseTextureTint = tint;
+    dirty = true;
+  }
 
 protected:
   virtual void fillMaterialData(MaterialData& materialData) override

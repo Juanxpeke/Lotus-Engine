@@ -1,7 +1,7 @@
 #version 460 core
 
 // Shader storage buffer with the models of each mesh instance
-layout(std140, binding = 2) readonly buffer Models
+layout(std140, binding = 0) readonly buffer Models
 {
   // When using [], then the size of this array is determined at the time the shader
   // is executed. The size is the rest of this buffer object range

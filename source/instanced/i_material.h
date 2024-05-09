@@ -28,6 +28,10 @@ public:
 
   uint32_t getShaderID() { return shaderID; }
 
+  bool isDirty() { return dirty; }
+
+  void clean() { dirty = false; }
+
 protected:
   struct MaterialData
   {
@@ -44,4 +48,6 @@ protected:
   virtual void fillMaterialData(MaterialData& materialData) = 0;
 
   uint32_t shaderID;
+
+  bool dirty;
 };

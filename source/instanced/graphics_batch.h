@@ -11,10 +11,12 @@ class GraphicsBatch
 friend class Renderer;
 
 public:
-  static constexpr int InitialAllocationInstancesCount = 1000;
+  static constexpr int InitialAllocationInstancesCount = 1024;
+  static constexpr int InitialAllocationMaterialsCount = 1024;
 
-  static constexpr int ModelsBindingPoint = 2;
-  static constexpr int MaterialsBindingPoint = 3; 
+  static constexpr int ModelsBindingPoint = 0;
+  static constexpr int MaterialsHandlersBindingPoint = 1;
+  static constexpr int MaterialsBindingPoint = 2; 
 
   GraphicsBatch() = delete;
   GraphicsBatch(const GraphicsBatch& graphicsBatch) = delete;
@@ -45,10 +47,15 @@ private:
   std::vector<std::shared_ptr<MeshInstance>> meshInstances;
   unsigned int allocatedInstancesCount;
 
-  float* models;
-  Material::MaterialData* materials;
+  std::vector<std::shared_ptr<Material>> materials;
+  unsigned int allocatedMaterialsCount;
+
+  float* modelsCPUBuffer;
+  uint32_t* materialsHandlersCPUBuffer;
+  Material::MaterialData* materialsCPUBuffer;
 
   uint32_t indirectBufferID;
   uint32_t modelBufferID;
+  uint32_t materialHandlerBufferID;
   uint32_t materialBufferID;
 };

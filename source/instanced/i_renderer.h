@@ -32,6 +32,7 @@ public:
   PointLight* createPointLight();
 
   std::shared_ptr<MeshInstance> createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+  void removeMeshInstance(std::shared_ptr<MeshInstance> meshInstance);
 
   std::shared_ptr<Material> createMaterial(MaterialType type);
 
