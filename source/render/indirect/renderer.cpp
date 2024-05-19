@@ -35,7 +35,7 @@ namespace Lotus {
     glGenBuffers(1, &vertexBufferID);
     glGenBuffers(1, &indexBufferID);
     glGenBuffers(1, &indirectBufferID);
-    glGenBuffers(1, &lightsBufferID);
+    glGenBuffers(1, &lightBufferID);
     glGenBuffers(1, &objectBufferID);
     glGenBuffers(1, &materialBufferID);
     glGenBuffers(1, &objectHandleBufferID);
@@ -63,9 +63,9 @@ namespace Lotus {
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferID);
     glBufferData(GL_DRAW_INDIRECT_BUFFER, indirectBufferAllocatedSize * sizeof(DrawElementsIndirectCommand), nullptr, GL_DYNAMIC_DRAW);
 
-    glBindBuffer(GL_UNIFORM_BUFFER, lightsBufferID);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(LightsData), nullptr, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, LightUBOBindingPoint, lightsBufferID);
+    glBindBuffer(GL_UNIFORM_BUFFER, lightBufferID);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(GPULightsData), nullptr, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, LightUBOBindingPoint, lightBufferID);
 
     CPUObjectBuffer = new GPUObjectData[objectBufferAllocatedSize];
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, objectBufferID);
@@ -99,7 +99,7 @@ namespace Lotus {
       glDeleteBuffers(1, &vertexBufferID);
       glDeleteBuffers(1, &indexBufferID);
       glDeleteBuffers(1, &indirectBufferID);
-      glDeleteBuffers(1, &lightsBufferID);
+      glDeleteBuffers(1, &lightBufferID);
       glDeleteBuffers(1, &objectBufferID);
       glDeleteBuffers(1, &materialBufferID);
       glDeleteBuffers(1, &objectHandleBufferID);
@@ -213,34 +213,7 @@ namespace Lotus {
 
 
 
-    LightsData lightsData;
 
-    lightsData.ambientLight = ambientLight;
-
-    uint32_t directionalLightsCount = std::min(static_cast<uint32_t>(HalfMaxDirectionalLights * 2), static_cast<uint32_t>(directionalLights.size()));
-    lightsData.directionalLightsCount = static_cast<int>(directionalLightsCount);
-
-    for (uint32_t i = 0; i < directionalLightsCount; i++)
-    {
-      const std::shared_ptr<DirectionalLight>& dirLight = directionalLights[i];
-      lightsData.directionalLights[i].colorIntensity = dirLight->getLightColor() * dirLight->getLightIntensity();
-      lightsData.directionalLights[i].direction = glm::rotate(dirLight->getLightDirection(), dirLight->getFrontVector());
-    }
-
-    uint32_t pointLightsCount = std::min(static_cast<uint32_t>(HalfMaxPointLights * 2), static_cast<uint32_t>(pointLights.size()));
-    lightsData.pointLightsCount = static_cast<int>(pointLightsCount);
-
-    for (uint32_t i = 0; i < pointLightsCount; i++)
-    {
-      const std::shared_ptr<PointLight>& pointLight = pointLights[i];
-      lightsData.pointLights[i].colorIntensity = pointLight->getLightColor() * pointLight->getLightIntensity();
-      lightsData.pointLights[i].position = pointLight->getLocalTranslation();
-      lightsData.pointLights[i].radius = pointLight->getLightRadius();
-    }
-
-    glBindBuffer(GL_UNIFORM_BUFFER, lightsBufferID);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightsData), &lightsData);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     CPUIndirectBuffer[0].count = meshes[0].count;
     CPUIndirectBuffer[0].instanceCount = 1;
@@ -266,21 +239,21 @@ namespace Lotus {
     }
   }
 
-  void Renderer::refresh()
+  void Renderer::refreshBuffers()
   {
     refreshObjectBuffer();
 
-		if (indirectBufferAllocatedSize < drawBatches.size() * sizeof(DrawElementsIndirectCommand))
+		if (indirectBufferAllocatedSize < drawBatches.size())
 		{
 			// reallocateBuffer(CPUIndirectBuffer, drawBatches.size() * sizeof(DrawElementsIndirectCommand));
 		}
 
-		if (0 < renderBatches.size() * sizeof(GPUInstance))
+		if (0 < renderBatches.size())
 		{
 			// reallocateBuffer(CPU_GPUInstanceBuffer, renderBatches.size() * sizeof(GPUInstance));
 		}
 
-		if (objectHandleBufferAllocatedSize < renderBatches.size() * sizeof(uint32_t))
+		if (objectHandleBufferAllocatedSize < renderBatches.size())
 		{
 			//reallocateBuffer(CPUObjectHandleBuffer, renderBatches.size() * sizeof(uint32_t));
 		}
@@ -294,6 +267,38 @@ namespace Lotus {
     {
       // fillInstancesBuffer();
     }
+  }
+
+  void Renderer::refreshLightBuffer()
+  {
+    GPULightsData lightsData;
+
+    lightsData.ambientLight = ambientLight;
+
+    uint32_t directionalLightsCount = std::min(static_cast<uint32_t>(HalfMaxDirectionalLights * 2), static_cast<uint32_t>(directionalLights.size()));
+    lightsData.directionalLightsCount = static_cast<int>(directionalLightsCount);
+
+    for (uint32_t i = 0; i < directionalLightsCount; i++)
+    {
+      const std::shared_ptr<DirectionalLight>& dirLight = directionalLights[i];
+      lightsData.directionalLights[i].colorIntensity = dirLight->getLightColor() * dirLight->getLightIntensity();
+      lightsData.directionalLights[i].direction = glm::rotate(dirLight->getLightDirection(), dirLight->getFrontVector());
+    }
+
+    uint32_t pointLightsCount = std::min(static_cast<uint32_t>(HalfMaxPointLights * 2), static_cast<uint32_t>(pointLights.size()));
+    lightsData.pointLightsCount = static_cast<int>(pointLightsCount);
+
+    for (uint32_t i = 0; i < pointLightsCount; i++)
+    {
+      const std::shared_ptr<PointLight>& pointLight = pointLights[i];
+      lightsData.pointLights[i].colorIntensity = pointLight->getLightColor() * pointLight->getLightIntensity();
+      lightsData.pointLights[i].position = pointLight->getLocalTranslation();
+      lightsData.pointLights[i].radius = pointLight->getLightRadius();
+    }
+
+    glBindBuffer(GL_UNIFORM_BUFFER, lightBufferID);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GPULightsData), &lightsData);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
   }
 
   void Renderer::refreshObjectBuffer()
@@ -394,6 +399,9 @@ namespace Lotus {
       
       // Draw merge
       buildDrawBatches();
+
+      // Shader merge
+      buildShaderBatches();
     }
   }
 
@@ -429,6 +437,41 @@ namespace Lotus {
 
         drawBatches.push_back(newDrawBatch);
         backDrawBatch = &drawBatches.back();
+      }
+    }
+  }
+
+  void Renderer::buildShaderBatches()
+  {
+    shaderBatches.clear();
+
+    ShaderBatch newShaderBatch;
+
+    newShaderBatch.count = 1;
+    newShaderBatch.first = 0;
+
+    for (int i = 1; i < drawBatches.size(); i++)
+    {
+      DrawBatch* joinbatch = &drawBatches[newShaderBatch.first];
+      DrawBatch* batch = &drawBatches[i];
+
+      bool bSameShader = false;
+
+      /*
+      if (joinbatch->material.shaderID == batch->material.shaderID)
+      {
+        bSameShader = true;
+      }*/
+
+      if (!bSameShader)
+      {
+        shaderBatches.push_back(newShaderBatch);
+        newShaderBatch.count = 1;
+        newShaderBatch.first = i;
+      }
+      else
+      {
+        newShaderBatch.count++;
       }
     }
   }

@@ -56,9 +56,10 @@ namespace Lotus
 
     void buildBatches();
     void buildDrawBatches();
+    void buildShaderBatches();
 
-    void refresh();
-
+    void refreshBuffers();
+    void refreshLightBuffer();
     void refreshObjectBuffer();
 
     void fillObjectBuffer();
@@ -73,36 +74,10 @@ namespace Lotus
 
 
   private:
-    struct DirectionalLightData
+    struct GPULightsData
     {
-      glm::vec3 colorIntensity; // 12
-      float padding04;          // 16
-      glm::vec3 direction;      // 28
-      float padding08;          // 32
-    };
-
-    struct PointLightData
-    {
-      glm::vec3 colorIntensity; // 12
-      float padding04;          // 16
-      glm::vec3 position;       // 28
-      float radius;             // 32
-    };
-
-    struct SpotLightData
-    {
-      glm::vec3 colorIntensity; // 12
-      float radius;             // 16
-      glm::vec3 position;       // 28
-      float cosPenumbraAngle;   // 32
-      glm::vec3 direction;      // 44
-      float cosUmbraAngle;      // 48
-    };
-
-    struct LightsData
-    {
-      DirectionalLightData directionalLights[2 * HalfMaxDirectionalLights];
-      PointLightData pointLights[2 * HalfMaxPointLights];
+      GPUDirectionalLightData directionalLights[2 * HalfMaxDirectionalLights];
+      GPUPointLightData pointLights[2 * HalfMaxPointLights];
       glm::vec3 ambientLight;
       int directionalLightsCount;
       int pointLightsCount;
@@ -110,7 +85,7 @@ namespace Lotus
 
     std::array<ShaderProgram, static_cast<unsigned int>(1)> shaders;
 
-    uint32_t lightsBufferID = 0;
+    uint32_t lightBufferID;
     glm::vec3 ambientLight;
     std::vector<std::shared_ptr<DirectionalLight>> directionalLights;
     std::vector<std::shared_ptr<PointLight>> pointLights;
@@ -149,8 +124,7 @@ namespace Lotus
     // Pass Data
     std::vector<RenderBatch> renderBatches;
     std::vector<DrawBatch> drawBatches;
-
-
+    std::vector<ShaderBatch> shaderBatches;
 
     std::vector<Handler<RenderObject>> unbatchedObjectsHandlers;
 

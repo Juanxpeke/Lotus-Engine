@@ -2,6 +2,32 @@
 
 namespace Lotus
 {
+  struct GPUDirectionalLightData
+  {
+    glm::vec3 colorIntensity; // 12
+    float padding04;          // 16
+    glm::vec3 direction;      // 28
+    float padding08;          // 32
+  };
+
+  struct GPUPointLightData
+  {
+    glm::vec3 colorIntensity; // 12
+    float padding04;          // 16
+    glm::vec3 position;       // 28
+    float radius;             // 32
+  };
+
+  struct GPUSpotLightData
+  {
+    glm::vec3 colorIntensity; // 12
+    float radius;             // 16
+    glm::vec3 position;       // 28
+    float cosPenumbraAngle;   // 32
+    glm::vec3 direction;      // 44
+    float cosUmbraAngle;      // 48
+  };
+
   /*
     Abstract representation of an unsigned int ID related to an specific class
   */
@@ -65,6 +91,14 @@ namespace Lotus
     uint32_t drawBatchID;
   };
 
+  /*
+    Shader batch
+  */
+  struct ShaderBatch
+  {
+		uint32_t first;
+		uint32_t count;
+  };
 
   /*
     Batch for draw command
