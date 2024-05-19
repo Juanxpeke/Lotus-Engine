@@ -7,6 +7,7 @@
 #include <vector>
 #include <unordered_map>
 #include <glm/glm.hpp>
+#include "../../math/render_primitives.h"
 #include "../../math/gpu_primitives.h"
 #include "../../scene/transform.h"
 #include "../../scene/camera.h"
@@ -21,6 +22,9 @@ namespace Lotus
   class Renderer
   {
   public:
+    static constexpr unsigned int ViewMatrixLocation = 0;
+    static constexpr unsigned int ProjectionMatrixLocation = 1;
+
     static constexpr unsigned int HalfMaxDirectionalLights = 1;
     static constexpr unsigned int HalfMaxPointLights = 1;
     static constexpr unsigned int HalfMaxSpotLights = 1;
@@ -55,12 +59,15 @@ namespace Lotus
     void render(const Camera& camera);
 
     void buildBatches();
+    void buildRenderBatches();
     void buildDrawBatches();
     void buildShaderBatches();
 
     void refreshBuffers();
     void refreshLightBuffer();
     void refreshObjectBuffer();
+    void refreshIndirectBuffer();
+    void refreshObjectHandleBuffer();
 
     void fillObjectBuffer();
     void fillIndirectBuffer();

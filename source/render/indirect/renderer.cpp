@@ -209,11 +209,7 @@ namespace Lotus {
     
     // buildBatches();
 
-    // refresh();
-
-
-
-
+    refreshBuffers();
 
     CPUIndirectBuffer[0].count = meshes[0].count;
     CPUIndirectBuffer[0].instanceCount = 1;
@@ -227,21 +223,48 @@ namespace Lotus {
 
     glBindVertexArray(vertexArrayID);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferID);
-
-    glUseProgram(shaders[0].getProgramID());
-    glUniformMatrix4fv(5, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-    glUniformMatrix4fv(6, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-
     
-    for (int i = 0; i < 1; i++)
+    if (renderBatches.size() > 0)
     {
-      glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (GLvoid*) 0, 1, sizeof(DrawElementsIndirectCommand));
+      for (int i = 0; i < renderBatches.size(); i++)
+      {
+        std::cout << "rb " << i << "{" << renderBatches[i].objectHandler.get() << "} - ";
+        i++;
+      }
+      std::cout << std::endl;
+      for (int i = 0; i < drawBatches.size(); i++)
+      {
+        std::cout << "db " << i << "{" << drawBatches[i].instanceCount << "} - ";
+        i++;
+      }
+      std::cout << std::endl;
+      for (int i = 0; i < shaderBatches.size(); i++)
+      {
+        std::cout << "sb " << i << "{" << shaderBatches[i].first << ", " << shaderBatches[i].count << "} - ";
+        i++;
+      }
+      std::cout << std::endl;
+    }
+
+
+    for (int i = 0; i < 1; i++) // TODO
+    {
+      // const ShaderBatch& shaderBatch = shaderBatches[i];
+
+      glUseProgram(shaders[0].getProgramID()); // TODO
+      
+      glUniformMatrix4fv(ViewMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+      glUniformMatrix4fv(ProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+      glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (GLvoid*) 0, 1, sizeof(DrawElementsIndirectCommand)); // TODO
     }
   }
 
   void Renderer::refreshBuffers()
   {
-    refreshObjectBuffer();
+    refreshLightBuffer();
+
+    // refreshObjectBuffer();
 
 		if (indirectBufferAllocatedSize < drawBatches.size())
 		{
@@ -260,7 +283,7 @@ namespace Lotus {
 
     if (drawBatches.size() > 0)
     {
-      fillIndirectBuffer();
+      // fillIndirectBuffer();
     }
 
     if (renderBatches.size() > 0)
@@ -321,98 +344,68 @@ namespace Lotus {
 
   void Renderer::buildBatches()
   {
-    std::vector<uint32_t> newObjectsHandles;
+    // Render merge
+    buildRenderBatches();
+
+    // Draw merge
+    buildDrawBatches();
+
+    // Shader merge
+    buildShaderBatches();
+  }
+
+  void Renderer::buildRenderBatches()
+  {
+    std::vector<RenderBatch> newRenderBatches;
+    newRenderBatches.reserve(unbatchedObjectsHandlers.size());
+
     {
-      // Fill ObjectList
-      newObjectsHandles.reserve(unbatchedObjectsHandlers.size());
+      // Fill new render batches
       for (auto objectHandler : unbatchedObjectsHandlers)
       {
-        PassObject newObject;
+        const RenderObject& object = renderables[objectHandler.get()];
+        RenderBatch newCommand;
 
-        // newObject.original = objectHandler;
-        // newObject.meshID = &renderables[objectHandler]->meshID;
-        // newObject.customKey = &renderables[objectHandler]->customSortKey;
+        newCommand.objectHandler = objectHandler;		
+        newCommand.meshHandler = object.meshHandler;
+        newCommand.shaderHandler = object.shaderHandler;
 
-        uint32_t handle = -1;
-
-        // Reuse handle
-        if (reusableObjects.size() > 0)
-        {
-          handle = reusableObjects.back().get();
-          reusableObjects.pop_back();
-          objects[handle] = newObject;
-        }
-        else 
-        {
-          handle = objects.size();
-          objects.push_back(newObject);
-        }
-
-        newObjectsHandles.push_back(handle);
-        // &renderables[objectHandler]->index = static_cast<uint32_t>(handle);
+        newRenderBatches.push_back(newCommand);
       }
 
       unbatchedObjectsHandlers.clear();
     }
-
-    std::vector<RenderBatch> newRenderBatches;
-    newRenderBatches.reserve(newObjectsHandles.size());
-
     {
-      // Fill DrawList	
-
-      for (auto i : newObjectsHandles)
-      {
-        RenderBatch newCommand;
-
-        auto obj = objects[i];
-        newCommand.objectHandler.set(i);
-
-        // Pack mesh ID and material into 64 bits				
-        newCommand.sortKey = 0;
-
-        newRenderBatches.push_back(newCommand);
-      }
-    }
-    {
-      // Draw Sort
+      // New render batches sort
       std::sort(newRenderBatches.begin(), newRenderBatches.end(),
       [](const RenderBatch& bA, const RenderBatch& bB)
       {
-        if (bA.sortKey < bB.sortKey) { return true; }
-        else if (bA.sortKey == bB.sortKey) { return bA.objectHandler.get() < bB.objectHandler.get(); }
+        if (bA.shaderHandler < bB.shaderHandler) { return true; }
+        else if (bA.shaderHandler == bB.shaderHandler) { return bA.meshHandler < bB.meshHandler; }
         else { return false; }
       });
     }
     {
-      // Merge the new batches into the main render batch array
-      if (renderBatches.size() > 0 && newRenderBatches.size() > 0)
+      // Merge the new render batches into the main render batch array
+      if ( false && (renderBatches.size() > 0 && newRenderBatches.size() > 0))
       {
       }
-      else if (renderBatches.size() == 0)
+      else if (true || renderBatches.size() == 0)
       {
         renderBatches = std::move(newRenderBatches);
       }
-    }
-    {
-      if (renderBatches.size() == 0) return;
-      
-      // Draw merge
-      buildDrawBatches();
-
-      // Shader merge
-      buildShaderBatches();
     }
   }
 
   void Renderer::buildDrawBatches()
   {
     drawBatches.clear();
-
+    
+    if (renderBatches.size() == 0) { return; }
+    
     DrawBatch newDrawBatch;
-    newDrawBatch.prevInstancesCount = 0;
-    newDrawBatch.instancesCount = 0;
-
+    newDrawBatch.prevInstanceCount = 0;
+    newDrawBatch.instanceCount = 0;
     newDrawBatch.meshHandler = (&objects[renderBatches[0].objectHandler.get()])->meshHandler;
 
     drawBatches.push_back(newDrawBatch);
@@ -420,20 +413,21 @@ namespace Lotus {
 
     for (int i = 0; i < renderBatches.size(); i++)
     {
-      PassObject* obj = &objects[renderBatches[i].objectHandler.get()];
+      PassObject* object = &objects[renderBatches[i].objectHandler.get()];
 
-      bool bSameMesh = obj->meshHandler.get() == backDrawBatch->meshHandler.get();
+      bool bSameMesh = object->meshHandler.get() == backDrawBatch->meshHandler.get();
+      bool bSameShader = backDrawBatch->shaderHandler.get();
 
-      if (bSameMesh)
+      if (bSameMesh && bSameShader)
       {
-        backDrawBatch->instancesCount++;
+        backDrawBatch->instanceCount++;
       }
       else
       {
         DrawBatch newDrawBatch;
-        newDrawBatch.prevInstancesCount = i;
-        newDrawBatch.instancesCount = 1;
-        newDrawBatch.meshHandler = obj->meshHandler;
+        newDrawBatch.prevInstanceCount = i;
+        newDrawBatch.instanceCount = 1;
+        newDrawBatch.meshHandler = object->meshHandler;
 
         drawBatches.push_back(newDrawBatch);
         backDrawBatch = &drawBatches.back();
@@ -445,33 +439,35 @@ namespace Lotus {
   {
     shaderBatches.clear();
 
+    if (drawBatches.size() == 0) { return; }
+
     ShaderBatch newShaderBatch;
-
-    newShaderBatch.count = 1;
     newShaderBatch.first = 0;
+    newShaderBatch.count = 0;
+    newShaderBatch.shaderHandler = drawBatches[0].shaderHandler;
 
-    for (int i = 1; i < drawBatches.size(); i++)
+    shaderBatches.push_back(newShaderBatch);
+    ShaderBatch* backShaderBatch = &shaderBatches.back();
+
+    for (int i = 0; i < drawBatches.size(); i++)
     {
-      DrawBatch* joinbatch = &drawBatches[newShaderBatch.first];
-      DrawBatch* batch = &drawBatches[i];
+      DrawBatch* drawBatch = &drawBatches[i];
 
-      bool bSameShader = false;
+      bool bSameShader = drawBatch->shaderHandler.get() == backShaderBatch->shaderHandler.get();
 
-      /*
-      if (joinbatch->material.shaderID == batch->material.shaderID)
+      if (bSameShader)
       {
-        bSameShader = true;
-      }*/
-
-      if (!bSameShader)
-      {
-        shaderBatches.push_back(newShaderBatch);
-        newShaderBatch.count = 1;
-        newShaderBatch.first = i;
+        backShaderBatch->count++;
       }
       else
       {
-        newShaderBatch.count++;
+        ShaderBatch newShaderBatch;
+        newShaderBatch.first = i;
+        newShaderBatch.count = 1;
+        newShaderBatch.shaderHandler = drawBatch->shaderHandler;
+
+        shaderBatches.push_back(newShaderBatch);
+        backShaderBatch = &shaderBatches.back();
       }
     }
   }
@@ -501,10 +497,10 @@ namespace Lotus {
       const DrawMesh& mesh = meshes[drawBatch.meshHandler.get()];
 
       CPUIndirectBuffer[i].count = mesh.count;
-      CPUIndirectBuffer[i].instanceCount = drawBatch.instancesCount;
+      CPUIndirectBuffer[i].instanceCount = drawBatch.instanceCount;
       CPUIndirectBuffer[i].firstIndex = mesh.firstIndex;
       CPUIndirectBuffer[i].baseVertex = mesh.baseVertex;
-      CPUIndirectBuffer[i].baseInstance = drawBatch.prevInstancesCount;
+      CPUIndirectBuffer[i].baseInstance = drawBatch.prevInstanceCount;
     }
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferID);
@@ -519,7 +515,7 @@ namespace Lotus {
     {
       auto drawBatch = drawBatches[dI];
 
-      for (int iI = 0; iI < drawBatch.instancesCount; iI++)
+      for (int iI = 0; iI < drawBatch.instanceCount; iI++)
       {
         data[dataIndex].objectID = 0; //(&objects[renderBatches[drawBatch.prevInstancesCount + iI].objectHandler.get()])->objectHandler.get();
         data[dataIndex].drawBatchID = dI;

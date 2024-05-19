@@ -18,10 +18,7 @@ namespace Lotus {
       glBindBuffer(bufferType, 0);
 
       allocatedSize = initialAllocationSize;
-    }
-
-    
-    
+    }    
 
     uint32_t ID;
     uint64_t size;
