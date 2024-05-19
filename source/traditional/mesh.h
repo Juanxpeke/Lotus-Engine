@@ -24,26 +24,19 @@ public:
 
   ~Mesh();
 
-  const std::vector<LotusMath::Vertex>& getVertices() const { return vertices; }
-  const std::vector<unsigned int>& getIndices() const { return indices; }
-
-  uint32_t getIndicesCount() { return indices.size(); }
-
-  bool isGPULinked() const
-  {
-    return GPULinked;
-  }
-
   void setGPULink(std::shared_ptr<MeshGPULink> meshGPULink)
   {
     GPULink = meshGPULink;
     GPULinked = true;
   }
+  
+  const std::vector<Lotus::Vertex>& getVertices() const { return vertices; }
+  const std::vector<unsigned int>& getIndices() const { return indices; }
 
-  const std::shared_ptr<MeshGPULink>& getGPULink()
-  {
-    return GPULink;
-  }
+  uint32_t getIndicesCount() { return indices.size(); }
+
+  const std::shared_ptr<MeshGPULink>& getGPULink() { return GPULink; }
+  bool isGPULinked() const { return GPULinked; }
 
 private:
   Mesh(const std::string& filePath, bool flipUVs = false);
@@ -51,7 +44,7 @@ private:
   
   void clearData() noexcept;
 
-  std::vector<LotusMath::Vertex> vertices;
+  std::vector<Lotus::Vertex> vertices;
   std::vector<unsigned int> indices;
 
   std::shared_ptr<MeshGPULink> GPULink;

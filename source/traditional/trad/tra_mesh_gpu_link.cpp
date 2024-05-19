@@ -5,7 +5,7 @@
 
 TraditionalMeshGPULink::TraditionalMeshGPULink(std::shared_ptr<Mesh> mesh)
 {
-  const std::vector<LotusMath::Vertex> vertices = mesh->getVertices();
+  const std::vector<Lotus::Vertex> vertices = mesh->getVertices();
   const std::vector<unsigned int> indices = mesh->getIndices();
 
   unsigned int VAO, VBO, EBO;
@@ -17,18 +17,18 @@ TraditionalMeshGPULink::TraditionalMeshGPULink(std::shared_ptr<Mesh> mesh)
   glBindVertexArray(VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(LotusMath::Vertex), vertices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Lotus::Vertex), vertices.data(), GL_STATIC_DRAW);
 
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LotusMath::Vertex), (void*) offsetof(LotusMath::Vertex, position));
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Lotus::Vertex), (void*) offsetof(Lotus::Vertex, position));
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(LotusMath::Vertex), (void*) offsetof(LotusMath::Vertex, normal));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Lotus::Vertex), (void*) offsetof(Lotus::Vertex, normal));
   glEnableVertexAttribArray(2);
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(LotusMath::Vertex), (void*) offsetof(LotusMath::Vertex, uv));
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Lotus::Vertex), (void*) offsetof(Lotus::Vertex, uv));
   glEnableVertexAttribArray(3);
-  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(LotusMath::Vertex), (void*) offsetof(LotusMath::Vertex, tangent));
+  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Lotus::Vertex), (void*) offsetof(Lotus::Vertex, tangent));
   glEnableVertexAttribArray(4);
-  glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(LotusMath::Vertex), (void*) offsetof(LotusMath::Vertex, bitangent));
+  glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Lotus::Vertex), (void*) offsetof(Lotus::Vertex, bitangent));
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);

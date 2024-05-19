@@ -11,7 +11,7 @@ class GraphicsBatch
 friend class Renderer;
 
 public:
-  static constexpr int InitialAllocationInstancesCount = 1024;
+  static constexpr int InitialAllocationObjectsCount = 1024;
   static constexpr int InitialAllocationMaterialsCount = 1024;
 
   static constexpr int ModelsBindingPoint = 0;

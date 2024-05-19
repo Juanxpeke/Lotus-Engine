@@ -64,7 +64,7 @@ void updateFromInputs(GLFWwindow* window, float dt, Camera* cameraPtr)
 
 void createDirectionalLight(Renderer& renderer)
 {
-  DirectionalLight* directionalLight = renderer.createDirectionalLight();
+  std::shared_ptr<DirectionalLight> directionalLight = renderer.createDirectionalLight();
 
   directionalLight->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::pi<float>() * 0.5f);
   directionalLight->rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::pi<float>() * 0.25f);
@@ -73,7 +73,7 @@ void createDirectionalLight(Renderer& renderer)
 
 void createPointLights(Renderer& renderer)
 {
-  PointLight* pointLight = renderer.createPointLight();
+  std::shared_ptr<PointLight> pointLight = renderer.createPointLight();
 
   pointLight->translate(glm::vec3(0.0f, 5.0f, 0.0f));
   pointLight->setLightColor(glm::vec3(1.0f, 1.0f, 1.0f));

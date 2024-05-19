@@ -17,7 +17,7 @@ struct DrawElementsIndirectCommand
 GraphicsBatch::GraphicsBatch(std::shared_ptr<Mesh> mesh, uint32_t shader) :
   meshPtr(mesh), 
   shaderID(shader), 
-  allocatedInstancesCount(InitialAllocationInstancesCount),
+  allocatedInstancesCount(InitialAllocationObjectsCount),
   allocatedMaterialsCount(InitialAllocationMaterialsCount)
 {
   unsigned int IBO, modelSSBO, materialHandlerSSBO, materialSSBO;

@@ -1,5 +1,5 @@
 set(RENDERER_NAME
-    LotusEngine)
+    LotusRenderer)
 
 set(RENDERER_HEADERS
     mesh.h

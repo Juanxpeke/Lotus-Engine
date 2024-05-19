@@ -11,14 +11,18 @@ void Renderer::setAmbientLight(glm::vec3 color)
   ambientLight = color;
 }
 
-DirectionalLight* Renderer::createDirectionalLight()
+std::shared_ptr<DirectionalLight> Renderer::createDirectionalLight()
 {
-  directionalLights.emplace_back();
-  return &directionalLights.back();
+  std::shared_ptr<DirectionalLight> directionalLight = std::make_shared<DirectionalLight>();
+  directionalLights.push_back(directionalLight);
+
+  return directionalLight;
 }
 
-PointLight* Renderer::createPointLight()
+std::shared_ptr<PointLight> Renderer::createPointLight()
 {
-  pointLights.emplace_back();
-  return &pointLights.back();
+  std::shared_ptr<PointLight> pointLight = std::make_shared<PointLight>();
+  pointLights.push_back(pointLight);
+
+  return pointLight;
 }

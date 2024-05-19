@@ -48,9 +48,9 @@ void TraditionalRenderer::render(Camera& camera) noexcept
 
   for (uint32_t i = 0; i < directionalLightsCount; i++)
   {
-    const DirectionalLight& dirLight = directionalLights[i];
-    lightsData.directionalLights[i].colorIntensity = dirLight.getLightColor() * dirLight.getLightIntensity();
-    lightsData.directionalLights[i].direction = glm::rotate(dirLight.getLightDirection(), dirLight.getFrontVector());
+    const std::shared_ptr<DirectionalLight>& dirLight = directionalLights[i];
+    lightsData.directionalLights[i].colorIntensity = dirLight->getLightColor() * dirLight->getLightIntensity();
+    lightsData.directionalLights[i].direction = glm::rotate(dirLight->getLightDirection(), dirLight->getFrontVector());
   }
 
   uint32_t pointLightsCount = std::min(static_cast<uint32_t>(NUM_HALF_MAX_POINT_LIGHTS * 2), static_cast<uint32_t>(pointLights.size()));
@@ -58,10 +58,10 @@ void TraditionalRenderer::render(Camera& camera) noexcept
 
   for (uint32_t i = 0; i < pointLightsCount; i++)
   {
-    const PointLight& pointLight = pointLights[i];
-    lightsData.pointLights[i].colorIntensity = pointLight.getLightColor() * pointLight.getLightIntensity();
-    lightsData.pointLights[i].position = pointLight.getLocalTranslation();
-    lightsData.pointLights[i].radius = pointLight.getLightRadius();
+    const std::shared_ptr<PointLight>& pointLight = pointLights[i];
+    lightsData.pointLights[i].colorIntensity = pointLight->getLightColor() * pointLight->getLightIntensity();
+    lightsData.pointLights[i].position = pointLight->getLocalTranslation();
+    lightsData.pointLights[i].radius = pointLight->getLightRadius();
   }
 
 	glBindBuffer(GL_UNIFORM_BUFFER, lightsDataBufferID);

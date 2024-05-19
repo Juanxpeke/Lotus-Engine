@@ -1,5 +1,5 @@
 set(INSTANCED_RENDERER_NAME
-    LotusEngineInstanced)
+    LotusRendererInstanced)
 
 set(INSTANCED_RENDERER_HEADERS
     i_mesh.h

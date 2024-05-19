@@ -76,7 +76,7 @@ Mesh::Mesh(const std::string& filePath, bool flipUVs)
         aiVector3D bitangent = currentTransform * meshOBJ->mBitangents[i];
         bitangent.Normalize();
 
-        LotusMath::Vertex vertex;
+        Lotus::Vertex vertex;
 
         vertex.position = assimpToGlmVec3(position);
         vertex.normal = assimpToGlmVec3(normal);
@@ -123,28 +123,28 @@ Mesh::Mesh(PrimitiveType type)
   {
     case Mesh::PrimitiveType::Plane:
     {
-      LotusMath::Plane plane;
+      Lotus::Plane plane;
       vertices = plane.vertices;
       indices = plane.indices;
       break;
     }
     case Mesh::PrimitiveType::Cube:
     {
-      LotusMath::Cube cube;
+      Lotus::Cube cube;
       vertices = cube.vertices;
       indices = cube.indices;
       break;
     }
     case Mesh::PrimitiveType::Sphere:
     {
-      LotusMath::Sphere sphere;
+      Lotus::Sphere sphere;
       vertices = sphere.vertices;
       indices = sphere.indices;
       break;
     }
     default:
     {
-      LotusMath::Sphere sphere;
+      Lotus::Sphere sphere;
       vertices = sphere.vertices;
       indices = sphere.indices;
       break;

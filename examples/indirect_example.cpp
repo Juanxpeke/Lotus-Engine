@@ -5,13 +5,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "./scene/camera.h"
-#include "./path_manager.h"
-#include "traditional/mesh_manager.h"
-#include "traditional/shader_program.h"
-#include "traditional/diffuse_flat_material.h"
-#include "traditional/mesh_instance.h"
-#include "traditional/trad/tra_renderer.h"
+#include "scene/camera.h"
+#include "render/indirect/renderer.h"
+#include "render/indirect/mesh_manager.h"
 
 int width = 720;
 int height = 720;
@@ -63,38 +59,6 @@ void updateFromInputs(GLFWwindow* window, float dt, Camera* cameraPtr)
   }
 }
 
-void createDirectionalLight(Renderer& renderer)
-{
-  std::shared_ptr<DirectionalLight> directionalLight = renderer.createDirectionalLight();
-
-  directionalLight->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::pi<float>() * 0.5f);
-  directionalLight->rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::pi<float>() * 0.25f);
-  directionalLight->setLightColor(glm::vec3(0.1f, 0.04f, 0.0f));
-}
-
-void createVent(Renderer& renderer)
-{
-	auto& meshManager = MeshManager::getInstance();
-	std::shared_ptr<Mesh> ventMesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj"));
-
-	std::shared_ptr<DiffuseFlatMaterial> ventMaterial = std::static_pointer_cast<DiffuseFlatMaterial>(renderer.createMaterial(MaterialType::DiffuseFlat));
-
-	float r = ((float)(std::rand()) / (float)(RAND_MAX));
-	float g = ((float)(std::rand()) / (float)(RAND_MAX));
-	float b = ((float)(std::rand()) / (float)(RAND_MAX));
-
-	ventMaterial->setDiffuseColor(glm::vec3(r, g, b));
-
-	std::shared_ptr<MeshInstance> ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
-
-	float x = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
-	float y = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
-	float z = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
-	
-	ventInstance->setTranslation(glm::vec3(x, y, z));
-	ventInstance->scale(0.04f);
-}
-
 int main()
 {
 	glfwInit();
@@ -117,19 +81,17 @@ int main()
 
 	glViewport(0, 0, width, height);
 
-	Camera camera;
+  Camera camera;
 
-	TraditionalRenderer renderer;
-	renderer.startUp();
+  Lotus::Renderer renderer;
+  renderer.startUp();
 
-	renderer.setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
-	createDirectionalLight(renderer);
+  auto& meshManager = Lotus::MeshManager::getInstance();
+  std::shared_ptr<Lotus::Mesh> cube = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
 
-	for (int i = 0; i < objectsCount; i++)
-	{
-		createVent(renderer);
-	}
-	
+  renderer.createObject(cube);
+
+
 	float lastTime = glfwGetTime();
 
 	// Main while loop
@@ -140,11 +102,11 @@ int main()
 		float currentTime = glfwGetTime();
 		float dt = currentTime - lastTime;
 		lastTime = currentTime;
-
+		
 		updateFromInputs(window, dt, &camera);
 
 		std::cout << "FPS: " << 1.0f / dt << std::endl;
-		
+
 		renderer.render(camera);
 
     glfwSwapBuffers(window);

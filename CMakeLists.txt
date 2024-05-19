@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(gpu-driven-renderer C CXX)
+project(LotusEngine C CXX)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 

@@ -1,0 +1,23 @@
+set(ENGINE_NAME
+    LotusEngine)
+
+set(ENGINE_HEADERS
+    mesh.h
+    mesh_manager.h
+    shader_program.h
+    renderer.h)
+
+set(ENGINE_SOURCES
+    mesh.cpp
+    mesh_manager.cpp
+    shader_program.cpp
+    renderer.cpp)
+
+
+add_library(${ENGINE_NAME} STATIC ${ENGINE_SOURCES} ${ENGINE_HEADERS} ${SCENE_HEADERS} ${LIGHTING_HEADERS} ${UTIL_HEADERS})
+
+target_include_directories(${ENGINE_NAME} PRIVATE ${THIRD_PARTY_INCLUDE_DIRECTORIES})
+target_link_libraries(${ENGINE_NAME} PRIVATE ${THIRD_PARTY_LIBRARIES})
+
+set_property(TARGET ${ENGINE_NAME} PROPERTY CXX_STANDARD 20)
+set_target_properties(${ENGINE_NAME} PROPERTIES FOLDER "engine")
