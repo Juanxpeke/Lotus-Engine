@@ -207,19 +207,9 @@ namespace Lotus {
     glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     glm::vec3 cameraPosition = camera.getLocalTranslation();
     
-    // buildBatches();
+    buildBatches();
 
     refreshBuffers();
-
-    CPUIndirectBuffer[0].count = meshes[0].count;
-    CPUIndirectBuffer[0].instanceCount = 1;
-    CPUIndirectBuffer[0].firstIndex = 0;
-    CPUIndirectBuffer[0].baseVertex = 0;
-    CPUIndirectBuffer[0].baseInstance = 0;
-    
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferID);
-    glBufferSubData(GL_DRAW_INDIRECT_BUFFER, 0, 1 * sizeof(DrawElementsIndirectCommand), CPUIndirectBuffer);
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 
     glBindVertexArray(vertexArrayID);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferID);
@@ -228,48 +218,48 @@ namespace Lotus {
     {
       for (int i = 0; i < renderBatches.size(); i++)
       {
-        std::cout << "rb " << i << "{" << renderBatches[i].objectHandler.get() << "} - ";
-        i++;
+        std::cout << "rb[" << i << "]{oID=" << renderBatches[i].objectHandler.get() << "} - ";
       }
       std::cout << std::endl;
-      for (int i = 0; i < drawBatches.size(); i++)
+      if (drawBatches.size() > 0)
       {
-        std::cout << "db " << i << "{" << drawBatches[i].instanceCount << "} - ";
-        i++;
-      }
-      std::cout << std::endl;
-      for (int i = 0; i < shaderBatches.size(); i++)
-      {
-        std::cout << "sb " << i << "{" << shaderBatches[i].first << ", " << shaderBatches[i].count << "} - ";
-        i++;
+        for (int i = 0; i < drawBatches.size(); i++)
+        {
+          std::cout << "db " << i << "{iC=" << drawBatches[i].instanceCount << ", pIC=" << drawBatches[i].prevInstanceCount << "} - ";
+        }
+        std::cout << std::endl;
+        if (shaderBatches.size() > 0)
+        {
+          for (int i = 0; i < shaderBatches.size(); i++)
+          {
+            std::cout << "sb " << i << "{f=" << shaderBatches[i].first << ", c=" << shaderBatches[i].count << "} - ";
+          }
+          std::cout << std::endl;
+        }
       }
       std::cout << std::endl;
     }
 
 
-    for (int i = 0; i < 1; i++) // TODO
+    for (int i = 0; i < shaderBatches.size(); i++) // TODO
     {
-      // const ShaderBatch& shaderBatch = shaderBatches[i];
+      const ShaderBatch& shaderBatch = shaderBatches[i];
 
-      glUseProgram(shaders[0].getProgramID()); // TODO
+      glUseProgram(shaders[shaderBatch.shaderHandler.get()].getProgramID()); // TODO
       
       glUniformMatrix4fv(ViewMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix));
       glUniformMatrix4fv(ProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
-      glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (GLvoid*) 0, 1, sizeof(DrawElementsIndirectCommand)); // TODO
+      glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (GLvoid*) 0, shaderBatch.count, sizeof(DrawElementsIndirectCommand)); // TODO
     }
   }
 
   void Renderer::refreshBuffers()
   {
+    refreshIndirectBuffer();
     refreshLightBuffer();
 
     // refreshObjectBuffer();
-
-		if (indirectBufferAllocatedSize < drawBatches.size())
-		{
-			// reallocateBuffer(CPUIndirectBuffer, drawBatches.size() * sizeof(DrawElementsIndirectCommand));
-		}
 
 		if (0 < renderBatches.size())
 		{
@@ -281,14 +271,36 @@ namespace Lotus {
 			//reallocateBuffer(CPUObjectHandleBuffer, renderBatches.size() * sizeof(uint32_t));
 		}
 
-    if (drawBatches.size() > 0)
-    {
-      // fillIndirectBuffer();
-    }
-
     if (renderBatches.size() > 0)
     {
       // fillInstancesBuffer();
+    }
+  }
+
+  void Renderer::refreshIndirectBuffer()
+  {
+		if (indirectBufferAllocatedSize < drawBatches.size())
+		{
+			// reallocateBuffer(CPUIndirectBuffer, drawBatches.size() * sizeof(DrawElementsIndirectCommand));
+		}
+    if (drawBatches.size() > 0)
+    {
+      for (int i = 0; i < drawBatches.size(); i++)
+      {
+        auto drawBatch = drawBatches[i];
+
+        const DrawMesh& mesh = meshes[drawBatch.meshHandler.get()];
+
+        CPUIndirectBuffer[i].count = mesh.count;
+        CPUIndirectBuffer[i].instanceCount = drawBatch.instanceCount;
+        CPUIndirectBuffer[i].firstIndex = mesh.firstIndex;
+        CPUIndirectBuffer[i].baseVertex = mesh.baseVertex;
+        CPUIndirectBuffer[i].baseInstance = drawBatch.prevInstanceCount;
+      }
+
+      glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferID);
+      glBufferSubData(GL_DRAW_INDIRECT_BUFFER, 0, drawBatches.size() * sizeof(DrawElementsIndirectCommand), CPUIndirectBuffer);
+      glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
     }
   }
 
@@ -387,10 +399,10 @@ namespace Lotus {
     }
     {
       // Merge the new render batches into the main render batch array
-      if ( false && (renderBatches.size() > 0 && newRenderBatches.size() > 0))
+      if (renderBatches.size() > 0 && newRenderBatches.size() > 0)
       {
       }
-      else if (true || renderBatches.size() == 0)
+      else if (renderBatches.size() == 0)
       {
         renderBatches = std::move(newRenderBatches);
       }
@@ -406,17 +418,17 @@ namespace Lotus {
     DrawBatch newDrawBatch;
     newDrawBatch.prevInstanceCount = 0;
     newDrawBatch.instanceCount = 0;
-    newDrawBatch.meshHandler = (&objects[renderBatches[0].objectHandler.get()])->meshHandler;
+    newDrawBatch.meshHandler = renderBatches[0].meshHandler;
 
     drawBatches.push_back(newDrawBatch);
     DrawBatch* backDrawBatch = &drawBatches.back();
 
     for (int i = 0; i < renderBatches.size(); i++)
     {
-      PassObject* object = &objects[renderBatches[i].objectHandler.get()];
+      RenderBatch* renderBatch = &renderBatches[i];
 
-      bool bSameMesh = object->meshHandler.get() == backDrawBatch->meshHandler.get();
-      bool bSameShader = backDrawBatch->shaderHandler.get();
+      bool bSameMesh = renderBatch->meshHandler.get() == backDrawBatch->meshHandler.get();
+      bool bSameShader = renderBatch->shaderHandler.get() == backDrawBatch->shaderHandler.get();
 
       if (bSameMesh && bSameShader)
       {
@@ -427,7 +439,7 @@ namespace Lotus {
         DrawBatch newDrawBatch;
         newDrawBatch.prevInstanceCount = i;
         newDrawBatch.instanceCount = 1;
-        newDrawBatch.meshHandler = object->meshHandler;
+        newDrawBatch.meshHandler = renderBatch->meshHandler;
 
         drawBatches.push_back(newDrawBatch);
         backDrawBatch = &drawBatches.back();
@@ -486,26 +498,6 @@ namespace Lotus {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, objectBufferID);
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, renderables.size(), CPUObjectBuffer);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-  }
-
-  void Renderer::fillIndirectBuffer()
-  {
-    for (int i = 0; i < drawBatches.size(); i++)
-    {
-      auto drawBatch = drawBatches[i];
-
-      const DrawMesh& mesh = meshes[drawBatch.meshHandler.get()];
-
-      CPUIndirectBuffer[i].count = mesh.count;
-      CPUIndirectBuffer[i].instanceCount = drawBatch.instanceCount;
-      CPUIndirectBuffer[i].firstIndex = mesh.firstIndex;
-      CPUIndirectBuffer[i].baseVertex = mesh.baseVertex;
-      CPUIndirectBuffer[i].baseInstance = drawBatch.prevInstanceCount;
-    }
-
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferID);
-    glBufferSubData(GL_DRAW_INDIRECT_BUFFER, 0, drawBatches.size(), CPUIndirectBuffer);
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
   }
 
   void Renderer::fillInstancesBuffer(GPUInstance* data)

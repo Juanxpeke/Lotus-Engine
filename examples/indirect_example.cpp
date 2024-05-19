@@ -88,8 +88,10 @@ int main()
 
   auto& meshManager = Lotus::MeshManager::getInstance();
   std::shared_ptr<Lotus::Mesh> cube = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
+  std::shared_ptr<Lotus::Mesh> sphere = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
 
-  renderer.createObject(cube);
+  renderer.createObject(sphere);
+  renderer.createObject(sphere);
 
 
 	float lastTime = glfwGetTime();
@@ -105,7 +107,7 @@ int main()
 		
 		updateFromInputs(window, dt, &camera);
 
-		std::cout << "FPS: " << 1.0f / dt << std::endl;
+		// std::cout << "FPS: " << 1.0f / dt << std::endl;
 
 		renderer.render(camera);
 

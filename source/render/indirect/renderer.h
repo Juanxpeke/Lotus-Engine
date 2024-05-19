@@ -64,13 +64,12 @@ namespace Lotus
     void buildShaderBatches();
 
     void refreshBuffers();
+    void refreshIndirectBuffer();
     void refreshLightBuffer();
     void refreshObjectBuffer();
-    void refreshIndirectBuffer();
-    void refreshObjectHandleBuffer();
+    // void refreshObjectHandleBuffer();
 
     void fillObjectBuffer();
-    void fillIndirectBuffer();
     void fillInstancesBuffer(GPUInstance* data);
 
 
