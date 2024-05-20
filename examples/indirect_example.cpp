@@ -107,7 +107,7 @@ int main()
 		
 		updateFromInputs(window, dt, &camera);
 
-		// std::cout << "FPS: " << 1.0f / dt << std::endl;
+		std::cout << "FPS: " << 1.0f / dt << std::endl;
 
 		renderer.render(camera);
 

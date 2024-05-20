@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "../scene/node_3d.h"
+#include "../../scene/node_3d.h"
 #include "mesh.h"
 // #include "material.h"
 

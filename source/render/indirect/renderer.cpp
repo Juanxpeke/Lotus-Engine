@@ -116,6 +116,10 @@ namespace Lotus {
 
   Handler<RenderObject> Renderer::createObject(std::shared_ptr<Mesh> mesh)
   {
+    std::shared_ptr<MeshInstance> meshInstance = std::make_shared<MeshInstance>(mesh);
+
+    objects.push_back(meshInstance);
+
     RenderObject newObject;
     newObject.meshHandler = getMeshHandler(mesh);
     // newObj.model = object->model;	
@@ -208,33 +212,6 @@ namespace Lotus {
 
     glBindVertexArray(vertexArrayID);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferID);
-    
-    if (renderBatches.size() > 0)
-    {
-      for (int i = 0; i < renderBatches.size(); i++)
-      {
-        std::cout << "rb[" << i << "]{oID=" << renderBatches[i].objectHandler.get() << "} - ";
-      }
-      std::cout << std::endl;
-      if (drawBatches.size() > 0)
-      {
-        for (int i = 0; i < drawBatches.size(); i++)
-        {
-          std::cout << "db " << i << "{iC=" << drawBatches[i].instanceCount << ", pIC=" << drawBatches[i].prevInstanceCount << "} - ";
-        }
-        std::cout << std::endl;
-        if (shaderBatches.size() > 0)
-        {
-          for (int i = 0; i < shaderBatches.size(); i++)
-          {
-            std::cout << "sb " << i << "{f=" << shaderBatches[i].first << ", c=" << shaderBatches[i].count << "} - ";
-          }
-          std::cout << std::endl;
-        }
-      }
-      std::cout << std::endl;
-    }
-
 
     for (int i = 0; i < shaderBatches.size(); i++)
     {
@@ -393,46 +370,99 @@ namespace Lotus {
 
   void Renderer::buildRenderBatches()
   {
-    std::vector<RenderBatch> newRenderBatches;
-    newRenderBatches.reserve(unbatchedObjectsHandlers.size());
-
+    if (toUnbatchObjectsHandlers.size() > 0)
     {
-      // Fill new render batches
-      for (auto objectHandler : unbatchedObjectsHandlers)
+      std::vector<RenderBatch> deletionRenderBatches;
+      deletionRenderBatches.reserve(toUnbatchObjectsHandlers.size());
+      
+      for (auto objectHandler : toUnbatchObjectsHandlers)
       {
         const RenderObject& object = renderables[objectHandler.get()];
-        RenderBatch newCommand;
+        RenderBatch batch;
 
-        newCommand.objectHandler = objectHandler;		
-        newCommand.meshHandler = object.meshHandler;
-        newCommand.shaderHandler = object.shaderHandler;
+        batch.objectHandler = objectHandler;
+        batch.meshHandler = object.meshHandler;
+        batch.shaderHandler = object.shaderHandler;
 
-        newRenderBatches.push_back(newCommand);
+        deletionRenderBatches.push_back(batch);
       }
 
-      unbatchedObjectsHandlers.clear();
+      toUnbatchObjectsHandlers.clear();
+
+      std::sort(deletionRenderBatches.begin(), deletionRenderBatches.end(),
+      [](const RenderBatch& bA, const RenderBatch& bB) {
+        if (bA.shaderHandler < bB.shaderHandler) { return true; }
+        else if (bA.shaderHandler == bB.shaderHandler) { return bA.meshHandler < bB.meshHandler; }
+        else { return false; }
+      });
+
+      std::vector<RenderBatch> newRenderBatches;
+      newRenderBatches.reserve(renderBatches.size());
+
+      std::set_difference(renderBatches.begin(), renderBatches.end(), deletionRenderBatches.begin(), deletionRenderBatches.end(), std::back_inserter(newRenderBatches),
+      [](const RenderBatch& bA, const RenderBatch& bB) {
+        if (bA.shaderHandler< bB.shaderHandler) { return true; }
+        else if (bA.shaderHandler == bB.shaderHandler) { return bA.meshHandler < bB.meshHandler; }
+        else { return false; }
+      });
+
+      renderBatches = std::move(newRenderBatches);
     }
+
+    std::vector<RenderBatch> newRenderBatches;
+    newRenderBatches.reserve(unbatchedObjectsHandlers.size());
+    
+    // Fill new render batches
+    for (auto objectHandler : unbatchedObjectsHandlers)
     {
-      // New render batches sort
-      std::sort(newRenderBatches.begin(), newRenderBatches.end(),
-      [](const RenderBatch& bA, const RenderBatch& bB)
+      const RenderObject& object = renderables[objectHandler.get()];
+      RenderBatch batch;
+
+      batch.objectHandler = objectHandler;		
+      batch.meshHandler = object.meshHandler;
+      batch.shaderHandler = object.shaderHandler;
+
+      newRenderBatches.push_back(batch);
+    }
+
+    unbatchedObjectsHandlers.clear();
+  
+    // New render batches sort
+    std::sort(newRenderBatches.begin(), newRenderBatches.end(),
+    [](const RenderBatch& bA, const RenderBatch& bB)
+    {
+      if (bA.shaderHandler < bB.shaderHandler) { return true; }
+      else if (bA.shaderHandler == bB.shaderHandler) { return bA.meshHandler < bB.meshHandler; }
+      else { return false; }
+    });
+    
+    // Merge the new render batches into the main render batch array
+    if (renderBatches.size() > 0 && newRenderBatches.size() > 0)
+    {
+      int index = renderBatches.size();
+      renderBatches.reserve(renderBatches.size() + newRenderBatches.size());
+      
+      for (auto b : newRenderBatches)
       {
+        renderBatches.push_back(b);
+      }
+
+      RenderBatch* begin = renderBatches.data();
+      RenderBatch* mid = begin + index;
+      RenderBatch* end = begin + renderBatches.size();
+
+      std::inplace_merge(begin, mid, end,
+      [](const RenderBatch& bA, const RenderBatch& bB) {
         if (bA.shaderHandler < bB.shaderHandler) { return true; }
         else if (bA.shaderHandler == bB.shaderHandler) { return bA.meshHandler < bB.meshHandler; }
         else { return false; }
       });
     }
+    else if (renderBatches.size() == 0)
     {
-      // Merge the new render batches into the main render batch array
-      if (renderBatches.size() > 0 && newRenderBatches.size() > 0)
-      {
-        // TODO
-      }
-      else if (renderBatches.size() == 0)
-      {
-        renderBatches = std::move(newRenderBatches);
-      }
+      renderBatches = std::move(newRenderBatches);
     }
+    
   }
 
   void Renderer::buildDrawBatches()

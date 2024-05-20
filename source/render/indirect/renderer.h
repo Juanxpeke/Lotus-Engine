@@ -15,6 +15,7 @@
 #include "../../lighting/point_light.h"
 #include "mesh.h"
 #include "shader_program.h"
+#include "mesh_instance.h"
 
 
 namespace Lotus
@@ -89,6 +90,8 @@ namespace Lotus
     std::vector<std::shared_ptr<DirectionalLight>> directionalLights;
     std::vector<std::shared_ptr<PointLight>> pointLights;
 
+    std::vector<std::shared_ptr<MeshInstance>> objects;
+
     // Scene Data
     std::vector<RenderObject> renderables;
     std::vector<DrawMesh> meshes;
@@ -125,11 +128,11 @@ namespace Lotus
     std::vector<DrawBatch> drawBatches;
     std::vector<ShaderBatch> shaderBatches;
 
+    std::vector<Handler<RenderObject>> toUnbatchObjectsHandlers;
     std::vector<Handler<RenderObject>> unbatchedObjectsHandlers;
 
-    std::vector<PassObject> objects;
-    std::vector<Handler<PassObject>> reusableObjects;
-    std::vector<Handler<PassObject>> objectsToDelete;
+    std::vector<Handler<PassObject>> reusableObjects; // TODO
+    std::vector<Handler<PassObject>> objectsToDelete; // TODO
 
     DrawElementsIndirectCommand* CPUIndirectBuffer;
     size_t indirectBufferSize;
