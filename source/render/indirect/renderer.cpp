@@ -126,9 +126,9 @@ namespace Lotus {
     handler.set(static_cast<uint32_t>(renderables.size()));
 
     renderables.push_back(newObject);
-    unbatchedObjectsHandlers.push_back(handler);
 
-    updateObject(handler);
+    dirtyObjectsHandlers.push_back(handler);
+    unbatchedObjectsHandlers.push_back(handler);
 
     return handler;
   }
@@ -171,11 +171,6 @@ namespace Lotus {
       handler = (*it).second;
     }
     return handler;
-  }
-
-  void Renderer::updateObject(Handler<RenderObject> objectHandler)
-  {
-
   }
 
   void Renderer::setAmbientLight(glm::vec3 color)
@@ -241,16 +236,16 @@ namespace Lotus {
     }
 
 
-    for (int i = 0; i < shaderBatches.size(); i++) // TODO
+    for (int i = 0; i < shaderBatches.size(); i++)
     {
       const ShaderBatch& shaderBatch = shaderBatches[i];
 
-      glUseProgram(shaders[shaderBatch.shaderHandler.get()].getProgramID()); // TODO
+      glUseProgram(shaders[shaderBatch.shaderHandler.get()].getProgramID());
       
       glUniformMatrix4fv(ViewMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix));
       glUniformMatrix4fv(ProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
-      glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (GLvoid*) 0, shaderBatch.count, sizeof(DrawElementsIndirectCommand)); // TODO
+      glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (GLvoid*) 0, shaderBatch.count, sizeof(DrawElementsIndirectCommand));
     }
   }
 
@@ -258,33 +253,19 @@ namespace Lotus {
   {
     refreshIndirectBuffer();
     refreshLightBuffer();
-
-    // refreshObjectBuffer();
-
-		if (0 < renderBatches.size())
-		{
-			// reallocateBuffer(CPU_GPUInstanceBuffer, renderBatches.size() * sizeof(GPUInstance));
-		}
-
-		if (objectHandleBufferAllocatedSize < renderBatches.size())
-		{
-			//reallocateBuffer(CPUObjectHandleBuffer, renderBatches.size() * sizeof(uint32_t));
-		}
-
-    if (renderBatches.size() > 0)
-    {
-      // fillInstancesBuffer();
-    }
+    refreshObjectBuffer();
+    refreshObjectHandleBuffer();
   }
 
   void Renderer::refreshIndirectBuffer()
   {
-		if (indirectBufferAllocatedSize < drawBatches.size())
-		{
-			// reallocateBuffer(CPUIndirectBuffer, drawBatches.size() * sizeof(DrawElementsIndirectCommand));
-		}
     if (drawBatches.size() > 0)
     {
+      if (indirectBufferAllocatedSize < drawBatches.size())
+      {
+        // reallocateBuffer(CPUIndirectBuffer, drawBatches.size() * sizeof(DrawElementsIndirectCommand));
+      }
+
       for (int i = 0; i < drawBatches.size(); i++)
       {
         auto drawBatch = drawBatches[i];
@@ -338,19 +319,63 @@ namespace Lotus {
 
   void Renderer::refreshObjectBuffer()
   {
-    if (dirtyObjects.size() > 0)
+    if (dirtyObjectsHandlers.size() > 0)
     {
-      size_t copySize = renderables.size() * sizeof(GPUObjectData);
+      size_t copySize = renderables.size() * sizeof(GPUObjectData); // TODO
       if (objectBufferAllocatedSize < renderables.size())
       {
         // reallocateBuffer(CPUObjectDataBuffer, copySize);
       }
 
       // If 80% of the objects are dirty, then just reupload the whole thing
-      if (dirtyObjects.size() >= renderables.size() * 0.8)
+      if (dirtyObjectsHandlers.size() >= 0) // TODO
       {
-        fillObjectBuffer();
+        for(int i = 0; i < renderables.size(); i++)
+        {
+          RenderObject* renderable = &renderables[i];
+          GPUObjectData object;
+          object.model = renderable->model;
+
+          memcpy(CPUObjectBuffer + i, &object, sizeof(GPUObjectData));
+        }
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, objectBufferID);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, renderables.size() * sizeof(GPUObjectData), CPUObjectBuffer);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
       }
+      else
+      {
+        // TODO
+      }
+
+      dirtyObjectsHandlers.clear();
+    }
+  }
+
+  void Renderer::refreshObjectHandleBuffer()
+  {
+    if (drawBatches.size() > 0)
+    {
+      if (objectHandleBufferAllocatedSize < renderables.size()) // TODO
+      {
+        //reallocateBuffer(CPUObjectHandleBuffer, renderBatches.size() * sizeof(uint32_t));
+      }
+
+      int dataIndex = 0;
+      for (int dI = 0; dI < drawBatches.size(); dI++)
+      {
+        auto drawBatch = drawBatches[dI];
+
+        for (int iI = 0; iI < drawBatch.instanceCount; iI++)
+        {
+          CPUObjectHandleBuffer[dataIndex] = renderBatches[drawBatch.prevInstanceCount + iI].objectHandler.get();
+          dataIndex++;
+        }
+      }
+
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, objectHandleBufferID);
+      glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, renderables.size() * sizeof(uint32_t), CPUObjectHandleBuffer);
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
   }
 
@@ -401,6 +426,7 @@ namespace Lotus {
       // Merge the new render batches into the main render batch array
       if (renderBatches.size() > 0 && newRenderBatches.size() > 0)
       {
+        // TODO
       }
       else if (renderBatches.size() == 0)
       {
@@ -484,34 +510,28 @@ namespace Lotus {
     }
   }
 
-  void Renderer::fillObjectBuffer()
+  void Renderer::refreshInstancesBuffer()
   {
-    for(int i = 0; i < renderables.size(); i++)
+		if (0 < renderBatches.size())
+		{
+			// reallocateBuffer(CPU_GPUInstanceBuffer, renderBatches.size() * sizeof(GPUInstance));
+		}
+
+    if (renderBatches.size() > 0)
     {
-      RenderObject* renderable = &renderables[i];
-      GPUObjectData object;
-      object.model = renderable->model;
+      GPUInstance* data = nullptr; // TODO
 
-      memcpy(CPUObjectBuffer + i, &object, sizeof(GPUObjectData));
-    }
-
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, objectBufferID);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, renderables.size(), CPUObjectBuffer);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-  }
-
-  void Renderer::fillInstancesBuffer(GPUInstance* data)
-  {
-    int dataIndex = 0;
-    for (int dI = 0; dI < drawBatches.size(); dI++)
-    {
-      auto drawBatch = drawBatches[dI];
-
-      for (int iI = 0; iI < drawBatch.instanceCount; iI++)
+      int dataIndex = 0;
+      for (int dI = 0; dI < drawBatches.size(); dI++)
       {
-        data[dataIndex].objectID = 0; //(&objects[renderBatches[drawBatch.prevInstancesCount + iI].objectHandler.get()])->objectHandler.get();
-        data[dataIndex].drawBatchID = dI;
-        dataIndex++;
+        auto drawBatch = drawBatches[dI];
+
+        for (int iI = 0; iI < drawBatch.instanceCount; iI++)
+        {
+          data[dataIndex].objectID = 0; //(&objects[renderBatches[drawBatch.prevInstancesCount + iI].objectHandler.get()])->objectHandler.get();
+          data[dataIndex].drawBatchID = dI;
+          dataIndex++;
+        }
       }
     }
   }

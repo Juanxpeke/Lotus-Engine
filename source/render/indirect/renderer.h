@@ -48,10 +48,7 @@ namespace Lotus
     Handler<RenderObject> createObject(std::shared_ptr<Mesh> mesh);
 
     Handler<DrawMesh> getMeshHandler(std::shared_ptr<Mesh> mesh);
-
-    void updateObject(Handler<RenderObject> objectHandler);
-
-
+    
     void setAmbientLight(glm::vec3 color);
     std::shared_ptr<DirectionalLight> createDirectionalLight();
     std::shared_ptr<PointLight> createPointLight();  
@@ -67,13 +64,9 @@ namespace Lotus
     void refreshIndirectBuffer();
     void refreshLightBuffer();
     void refreshObjectBuffer();
-    // void refreshObjectHandleBuffer();
+    void refreshObjectHandleBuffer();
 
-    void fillObjectBuffer();
-    void fillInstancesBuffer(GPUInstance* data);
-
-
-  
+    void refreshInstancesBuffer();
 
     // void reallocateBuffer(void* data, size_t size);
 
@@ -100,7 +93,7 @@ namespace Lotus
     std::vector<RenderObject> renderables;
     std::vector<DrawMesh> meshes;
 
-    std::vector<Handler<RenderObject>> dirtyObjects;
+    std::vector<Handler<RenderObject>> dirtyObjectsHandlers;
 
     uint32_t vertexArrayID;
 

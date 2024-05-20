@@ -15,7 +15,7 @@ layout(std140, binding = 0) readonly buffer Objects
 };
 
 // Shader storage buffer with the objects
-layout(std140, binding = 1) readonly buffer ObjectHandles
+layout(std430, binding = 1) readonly buffer ObjectHandles
 {
   // When using [], then the size of this array is determined at the time the shader
   // is executed. The size is the rest of this buffer object range
@@ -34,14 +34,16 @@ out vec3 fragNormal;
 
 void main()
 {
-	int objectID = gl_InstanceID;
+	uint objectID = objectHandles[gl_BaseInstance + gl_InstanceID];
+
+  Object object = objects[objectID];
 
 	// mat4 model = models[meshInstanceID];
   mat4 model = mat4(1.0);
 
 	fragObjectID = objectID;
-	fragPosition = vec3(model * vec4(position, 1.0));
-	fragNormal = mat3(transpose(inverse(model))) * normal;
+	fragPosition = vec3(object.model * vec4(position, 1.0));
+	fragNormal = mat3(transpose(inverse(object.model))) * normal;
 	
-	gl_Position = projection * view * model * vec4(position, 1.0);
+	gl_Position = projection * view * object.model * vec4(position, 1.0);
 }
