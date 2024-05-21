@@ -90,8 +90,8 @@ int main()
   std::shared_ptr<Lotus::Mesh> cube = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
   std::shared_ptr<Lotus::Mesh> sphere = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
 
-  renderer.createObject(sphere);
-  renderer.createObject(sphere);
+  renderer.createMeshInstance(sphere);
+  renderer.createMeshInstance(sphere);
 
 
 	float lastTime = glfwGetTime();

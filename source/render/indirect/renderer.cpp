@@ -114,7 +114,7 @@ namespace Lotus {
     }
   }
 
-  Handler<RenderObject> Renderer::createObject(std::shared_ptr<Mesh> mesh)
+  std::shared_ptr<MeshInstance> Renderer::createMeshInstance(std::shared_ptr<Mesh> mesh)
   {
     std::shared_ptr<MeshInstance> meshInstance = std::make_shared<MeshInstance>(mesh);
 
@@ -122,9 +122,6 @@ namespace Lotus {
 
     RenderObject newObject;
     newObject.meshHandler = getMeshHandler(mesh);
-    // newObj.model = object->model;	
-    // newObj.updateIndex = (uint32_t)-1;
-    // newObj.index = -1;
 
     Handler<RenderObject> handler;
     handler.set(static_cast<uint32_t>(renderables.size()));
@@ -134,7 +131,7 @@ namespace Lotus {
     dirtyObjectsHandlers.push_back(handler);
     unbatchedObjectsHandlers.push_back(handler);
 
-    return handler;
+    return meshInstance;
   }
 
   Handler<DrawMesh> Renderer::getMeshHandler(std::shared_ptr<Mesh> mesh)
@@ -309,9 +306,12 @@ namespace Lotus {
       {
         for(int i = 0; i < renderables.size(); i++)
         {
+          const std::shared_ptr<MeshInstance> meshInstance = objects[i];
+
           RenderObject* renderable = &renderables[i];
+
           GPUObjectData object;
-          object.model = renderable->model;
+          object.model = meshInstance->getModelMatrix();
 
           memcpy(CPUObjectBuffer + i, &object, sizeof(GPUObjectData));
         }

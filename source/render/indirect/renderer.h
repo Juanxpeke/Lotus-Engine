@@ -46,7 +46,7 @@ namespace Lotus
 
     void startUp();
 
-    Handler<RenderObject> createObject(std::shared_ptr<Mesh> mesh);
+    std::shared_ptr<MeshInstance> createMeshInstance(std::shared_ptr<Mesh> mesh);
 
     Handler<DrawMesh> getMeshHandler(std::shared_ptr<Mesh> mesh);
     
@@ -69,10 +69,6 @@ namespace Lotus
 
     void refreshInstancesBuffer();
 
-    // void reallocateBuffer(void* data, size_t size);
-
-
-
   private:
     struct GPULightsData
     {
@@ -83,21 +79,34 @@ namespace Lotus
       int pointLightsCount;
     };
 
+    // Shaders
     std::array<ShaderProgram, static_cast<unsigned int>(1)> shaders;
 
+    // Maps
+	  std::unordered_map<std::shared_ptr<Mesh>, Handler<DrawMesh>> meshMap;
+    
+    // Lighting
     uint32_t lightBufferID;
     glm::vec3 ambientLight;
     std::vector<std::shared_ptr<DirectionalLight>> directionalLights;
     std::vector<std::shared_ptr<PointLight>> pointLights;
 
+    // Objects
     std::vector<std::shared_ptr<MeshInstance>> objects;
-
-    // Scene Data
     std::vector<RenderObject> renderables;
+    std::vector<Handler<RenderObject>> dirtyObjectsHandlers;
+    std::vector<Handler<RenderObject>> toUnbatchObjectsHandlers;
+    std::vector<Handler<RenderObject>> unbatchedObjectsHandlers;
+    
+    // Meshes
     std::vector<DrawMesh> meshes;
 
-    std::vector<Handler<RenderObject>> dirtyObjectsHandlers;
+    // Batches
+    std::vector<RenderBatch> renderBatches;
+    std::vector<DrawBatch> drawBatches;
+    std::vector<ShaderBatch> shaderBatches;
 
+    // Buffers
     uint32_t vertexArrayID;
 
     Vertex* CPUVertexBuffer;
@@ -110,6 +119,11 @@ namespace Lotus
     size_t indexBufferAllocatedSize;
     uint32_t indexBufferID;
 
+    DrawElementsIndirectCommand* CPUIndirectBuffer;
+    size_t indirectBufferSize;
+    size_t indirectBufferAllocatedSize;
+    uint32_t indirectBufferID;
+
     GPUObjectData* CPUObjectBuffer;
     size_t objectBufferSize;
     size_t objectBufferAllocatedSize;
@@ -120,32 +134,13 @@ namespace Lotus
     size_t materialBufferAllocatedSize;
     uint32_t materialBufferID;
 
-	  std::unordered_map<std::shared_ptr<Mesh>, Handler<DrawMesh>> meshMap;
-    // End Scene Data
-
-    // Pass Data
-    std::vector<RenderBatch> renderBatches;
-    std::vector<DrawBatch> drawBatches;
-    std::vector<ShaderBatch> shaderBatches;
-
-    std::vector<Handler<RenderObject>> toUnbatchObjectsHandlers;
-    std::vector<Handler<RenderObject>> unbatchedObjectsHandlers;
-
-    std::vector<Handler<PassObject>> reusableObjects; // TODO
-    std::vector<Handler<PassObject>> objectsToDelete; // TODO
-
-    DrawElementsIndirectCommand* CPUIndirectBuffer;
-    size_t indirectBufferSize;
-    size_t indirectBufferAllocatedSize;
-    uint32_t indirectBufferID;
-
-    GPUInstance* CPU_GPUInstanceBuffer;
-    size_t CPU_GPUInstanceBufferSize;
-    
     uint32_t* CPUObjectHandleBuffer;
     size_t objectHandleBufferSize;
     size_t objectHandleBufferAllocatedSize;
     uint32_t objectHandleBufferID;
-    // End Pass Data
+
+    GPUInstance* CPU_GPUInstanceBuffer;
+    size_t CPU_GPUInstanceBufferSize;
+
   };
 }
