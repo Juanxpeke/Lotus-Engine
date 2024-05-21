@@ -2,97 +2,100 @@
 
 #include "transform.h"
 
-class Node3D
+namespace Lotus
 {
-public:
-
-  Node3D() = default;
-
-  Transform getTransform() const
+  class Node3D
   {
-    return transform;
-  }
+  public:
 
-  const glm::vec3& getLocalTranslation() const
-  {
-    return transform.getLocalTranslation();
-  }
+    Node3D() = default;
 
-  const glm::fquat& getLocalRotation() const
-  {
-    return transform.getLocalRotation();
-  }
+    Transform getTransform() const
+    {
+      return transform;
+    }
 
-  const glm::vec3& getLocalScale() const
-  {
-    return transform.getLocalScale();
-  }
+    const glm::vec3& getLocalTranslation() const
+    {
+      return transform.getLocalTranslation();
+    }
 
-  glm::mat4 getModelMatrix() const
-  {
-    return transform.getModelMatrix();
-  }
+    const glm::fquat& getLocalRotation() const
+    {
+      return transform.getLocalRotation();
+    }
 
-  glm::mat4 getViewMatrix() const
-  {
-    return transform.getViewMatrix();
-  }
+    const glm::vec3& getLocalScale() const
+    {
+      return transform.getLocalScale();
+    }
 
-  void setTransform(const Transform& newTransform)
-  {
-    transform = newTransform;
-  }
+    glm::mat4 getModelMatrix() const
+    {
+      return transform.getModelMatrix();
+    }
 
-  void translate(glm::vec3 translation)
-  {
-    transform.translate(translation);
-  }
+    glm::mat4 getViewMatrix() const
+    {
+      return transform.getViewMatrix();
+    }
 
-  void setTranslation(const glm::vec3 translation)
-  {
-    transform.setTranslation(translation);
-  }
+    void setTransform(const Transform& newTransform)
+    {
+      transform = newTransform;
+    }
 
-  void scale(float scale)
-  {
-    transform.scale(scale);
-  }
+    void translate(glm::vec3 translation)
+    {
+      transform.translate(translation);
+    }
 
-  void scale(glm::vec3 scale)
-  {
-    transform.scale(scale);
-  }
+    void setTranslation(const glm::vec3 translation)
+    {
+      transform.setTranslation(translation);
+    }
 
-  void setScale(const glm::vec3& scale)
-  {
-    transform.setScale(scale);
-  }
-  
-  void rotate(glm::vec3 axis, float angle)
-  {
-    transform.rotate(axis, angle);
-  }
+    void scale(float scale)
+    {
+      transform.scale(scale);
+    }
 
-  void setRotation(const glm::fquat& rotation)
-  {
-    transform.setRotation(rotation);
-  }
+    void scale(glm::vec3 scale)
+    {
+      transform.scale(scale);
+    }
 
-  glm::vec3 getUpVector() const
-  {
-    return transform.getUpVector();
-  }
-  
-  glm::vec3 getRightVector() const
-  {
-    return transform.getRightVector();
-  }
+    void setScale(const glm::vec3& scale)
+    {
+      transform.setScale(scale);
+    }
+    
+    void rotate(glm::vec3 axis, float angle)
+    {
+      transform.rotate(axis, angle);
+    }
 
-  glm::vec3 getFrontVector() const
-  {
-    return transform.getFrontVector();
-  }
+    void setRotation(const glm::fquat& rotation)
+    {
+      transform.setRotation(rotation);
+    }
 
-private:					
-  Transform transform;
-};
+    glm::vec3 getUpVector() const
+    {
+      return transform.getUpVector();
+    }
+    
+    glm::vec3 getRightVector() const
+    {
+      return transform.getRightVector();
+    }
+
+    glm::vec3 getFrontVector() const
+    {
+      return transform.getFrontVector();
+    }
+
+  protected:					
+    Transform transform;
+  };
+}

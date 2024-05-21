@@ -19,7 +19,7 @@ const float cameraAngularSpeed = 2.0f;
 const int objectsCount = 1000;
 const float objectsAreaSide = 50.f;
 
-void updateFromInputs(GLFWwindow* window, float dt, Camera* cameraPtr)
+void updateFromInputs(GLFWwindow* window, float dt, Lotus::Camera* cameraPtr)
 {
   // Translation
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
@@ -81,7 +81,7 @@ int main()
 
 	glViewport(0, 0, width, height);
 
-  Camera camera;
+  Lotus::Camera camera;
 
   Lotus::Renderer renderer;
   renderer.startUp();
@@ -90,11 +90,13 @@ int main()
   std::shared_ptr<Lotus::Mesh> cube = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
   std::shared_ptr<Lotus::Mesh> sphere = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
 
-  renderer.createMeshInstance(sphere);
-  renderer.createMeshInstance(sphere);
-
+  std::shared_ptr<Lotus::MeshInstance> object1 = renderer.createMeshInstance(sphere);
+  std::shared_ptr<Lotus::MeshInstance> object2 = renderer.createMeshInstance(sphere);
+  
+  object1->translate(glm::vec3(3, 0, 0));
 
 	float lastTime = glfwGetTime();
+  float elapsedTime = 0.0;
 
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
@@ -104,8 +106,18 @@ int main()
 		float currentTime = glfwGetTime();
 		float dt = currentTime - lastTime;
 		lastTime = currentTime;
-		
+    elapsedTime += dt;
+
 		updateFromInputs(window, dt, &camera);
+    
+    object1->translate(glm::vec3(dt, 0, 0));
+	
+    if (elapsedTime > 3.0)
+    {
+      object1->setMesh(cube);
+
+      elapsedTime = 0.0;
+    }
 
 		std::cout << "FPS: " << 1.0f / dt << std::endl;
 

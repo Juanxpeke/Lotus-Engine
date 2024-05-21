@@ -203,6 +203,8 @@ namespace Lotus {
     glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     glm::vec3 cameraPosition = camera.getLocalTranslation();
     
+    updateObjects();
+
     buildBatches();
 
     refreshBuffers();
@@ -221,6 +223,9 @@ namespace Lotus {
 
       glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (GLvoid*) 0, shaderBatch.count, sizeof(DrawElementsIndirectCommand));
     }
+
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+    glBindVertexArray(0);
   }
 
   void Renderer::updateObjects()
@@ -228,22 +233,23 @@ namespace Lotus {
     for (int i = 0; i < meshInstances.size(); i++)
     {
       const std::shared_ptr<MeshInstance>& meshInstance = meshInstances[i];
+      Transform& meshTransform = meshInstance->transform;
 
-      if (!meshInstance->isDirty()) { continue; }
+      if (!meshTransform.dirty && !meshInstance->meshDirty && !meshInstance->materialDirty) { continue; }
 
       RenderObject& object = objects[i];
       Handler<RenderObject> objectHandler(i);
 
-      if (meshInstance->transformDirty)
+      if (meshTransform.dirty)
       {
         object.model = meshInstance->getModelMatrix();
 
-        meshInstance->transformDirty = false;
+        meshTransform.dirty = false;
       }
       if (meshInstance->meshDirty)
       {
         object.meshHandler = getMeshHandler(meshInstance->getMesh());
-        
+
         toUnbatchObjectsHandlers.push_back(objectHandler);
         unbatchedObjectsHandlers.push_back(objectHandler);
 

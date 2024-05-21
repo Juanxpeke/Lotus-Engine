@@ -34,15 +34,9 @@ namespace Lotus
 
 
   private:
-
-    bool isDirty() {  return transformDirty || meshDirty || materialDirty; }
-    bool isMeshDirty() { return meshDirty; }
-    bool isMaterialDirty() { return materialDirty; }
-
     std::shared_ptr<Mesh> meshPtr;
     // std::shared_ptr<Material> materialPtr;
 
-    bool transformDirty;
     bool meshDirty;
     bool materialDirty;
   };
