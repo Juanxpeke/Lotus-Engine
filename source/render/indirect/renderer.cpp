@@ -132,6 +132,7 @@ namespace Lotus {
     RenderObject newObject;
     newObject.model = meshInstance->getModelMatrix();
     newObject.meshHandle = getMeshHandle(mesh);
+    newObject.ID = objects.size();
 
     Handle<RenderObject> handle(static_cast<uint32_t>(objects.size()));
 
@@ -143,9 +144,9 @@ namespace Lotus {
     return meshInstance;
   }
 
-  Handle<DrawMesh> Renderer::getMeshHandle(std::shared_ptr<Mesh> mesh)
+  Handle<RenderMesh> Renderer::getMeshHandle(std::shared_ptr<Mesh> mesh)
   {
-    Handle<DrawMesh> handle;
+    Handle<RenderMesh> handle;
 
     auto it = meshMap.find(mesh);
 
@@ -154,7 +155,7 @@ namespace Lotus {
       const std::vector<Vertex>& vertices = mesh->getVertices();
       const std::vector<unsigned int>& indices = mesh->getIndices();
 
-      DrawMesh newMesh;
+      RenderMesh newMesh;
       newMesh.firstIndex = indexBufferSize;
       newMesh.baseVertex = vertexBufferSize;
       newMesh.count = indices.size();
@@ -253,6 +254,10 @@ namespace Lotus {
         {
           object.model = meshInstance->getModelMatrix();
         }
+        if (meshInstance->materialDirty)
+        {
+          object.materialHandle = Handle<RenderMaterial>();
+        }
         if (meshInstance->meshDirty || meshInstance->shaderDirty)
         {
           /*
@@ -303,7 +308,7 @@ namespace Lotus {
       {
         RenderBatch batch;
 
-        batch.objectHandle = Handle<RenderObject>();//objectHandle;
+        batch.objectHandle = Handle<RenderObject>(object.ID);
         batch.meshHandle = object.meshHandle;
         batch.shaderHandle = object.shaderHandle;
 
@@ -520,7 +525,7 @@ namespace Lotus {
       {
         auto drawBatch = drawBatches[i];
 
-        const DrawMesh& mesh = meshes[drawBatch.meshHandle.get()];
+        const RenderMesh& mesh = meshes[drawBatch.meshHandle.get()];
 
         CPUIndirectBuffer[i].count = mesh.count;
         CPUIndirectBuffer[i].instanceCount = drawBatch.instanceCount;
@@ -582,14 +587,12 @@ namespace Lotus {
       {
         for(int i = 0; i < objects.size(); i++)
         {
-          const std::shared_ptr<MeshInstance> meshInstance = meshInstances[i];
+          const RenderObject& object = objects[i];
 
-          RenderObject* renderable = &objects[i];
+          GPUObjectData GPUObject;
+          GPUObject.model = object.model;
 
-          GPUObjectData object;
-          object.model = meshInstance->getModelMatrix();
-
-          memcpy(CPUObjectBuffer + i, &object, sizeof(GPUObjectData));
+          memcpy(CPUObjectBuffer + i, &GPUObject, sizeof(GPUObjectData));
         }
 
 

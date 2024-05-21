@@ -43,16 +43,22 @@ namespace Lotus
   /*
     Representation of a mesh in the GPU buffers
   */
-  struct DrawMesh
+  struct RenderMesh
   {
-      uint32_t count;
-      uint32_t firstIndex;
-      uint32_t baseVertex;
+    uint32_t count;
+    uint32_t firstIndex;
+    uint32_t baseVertex;
+  };
+
+  struct RenderMaterial
+  {
+    uint32_t xd;
   };
 
   struct RenderObject
   {
-    Handle<DrawMesh> meshHandle;
+    Handle<RenderMesh> meshHandle;
+    Handle<RenderMaterial> materialHandle;
     Handle<int> shaderHandle;
 
     glm::mat4 model;
@@ -75,7 +81,7 @@ namespace Lotus
   struct DrawBatch
   {
     Handle<int> shaderHandle;
-    Handle<DrawMesh> meshHandle;
+    Handle<RenderMesh> meshHandle;
     uint32_t prevInstanceCount;
     uint32_t instanceCount;
   };
@@ -87,6 +93,6 @@ namespace Lotus
   {
     Handle<RenderObject> objectHandle;
     Handle<int> shaderHandle;
-    Handle<DrawMesh> meshHandle;
+    Handle<RenderMesh> meshHandle;
   };
 }
