@@ -76,7 +76,7 @@ namespace Lotus
 
 
     // Util Functions
-    Handler<DrawMesh> getMeshHandler(std::shared_ptr<Mesh> mesh);
+    Handle<DrawMesh> getMeshHandle(std::shared_ptr<Mesh> mesh);
 
     struct GPULightsData
     {
@@ -91,7 +91,7 @@ namespace Lotus
     std::array<ShaderProgram, static_cast<unsigned int>(1)> shaders;
 
     // Maps
-	  std::unordered_map<std::shared_ptr<Mesh>, Handler<DrawMesh>> meshMap;
+	  std::unordered_map<std::shared_ptr<Mesh>, Handle<DrawMesh>> meshMap;
     
     // Lighting
     uint32_t lightBufferID;
@@ -102,9 +102,9 @@ namespace Lotus
     // Objects
     std::vector<std::shared_ptr<MeshInstance>> meshInstances;
     std::vector<RenderObject> objects;
-    std::vector<Handler<RenderObject>> dirtyObjectsHandlers;
-    std::vector<Handler<RenderObject>> toUnbatchObjectsHandlers;
-    std::vector<Handler<RenderObject>> unbatchedObjectsHandlers;
+    std::vector<Handle<RenderObject>> dirtyObjectsHandlers;
+    std::vector<RenderObject> toUnbatchObjects;
+    std::vector<Handle<RenderObject>> unbatchedObjectsHandlers;
     
     // Meshes
     std::vector<DrawMesh> meshes;

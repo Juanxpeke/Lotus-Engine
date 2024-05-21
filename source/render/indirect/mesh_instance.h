@@ -13,7 +13,7 @@ namespace Lotus
 
   public:
 
-    MeshInstance(std::shared_ptr<Mesh> mesh) : meshPtr(mesh)
+    MeshInstance(std::shared_ptr<Mesh> mesh) : meshPtr(mesh), meshDirty(false), materialDirty(false), shaderDirty(false)
     {
       // ASSERT(mesh != nullptr, "StaticMeshComponent Error: Mesh pointer cannot be null.");
       // ASSERT(material != nullptr, "StaticMeshComponent Error: Material cannot be null.");
@@ -39,5 +39,6 @@ namespace Lotus
 
     bool meshDirty;
     bool materialDirty;
+    bool shaderDirty;
   };
 }

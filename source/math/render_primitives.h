@@ -10,34 +10,34 @@ namespace Lotus
     Abstract representation of an unsigned int ID related to an specific class
   */
   template <typename T>
-  class Handler
+  class Handle
   {
   public:
-    Handler() : handle(0) {}
-    Handler(uint32_t initHandle) : handle(initHandle) {}
+    Handle() : value(0) {}
+    Handle(uint32_t initValue) : value(initValue) {}
 
-    Handler<T>& operator=(const Handler<T>& other)
+    Handle<T>& operator=(const Handle<T>& other)
     {
-      handle = other.handle;
+      value = other.value;
       return *this;
     }
 
-    friend bool operator==(const Handler<T>& l, const Handler<T>& r)
+    friend bool operator==(const Handle<T>& l, const Handle<T>& r)
     {
-      return l.handle == r.handle;
+      return l.value == r.value;
     }
 
-    friend bool operator<(const Handler<T>& l, const Handler<T>& r)
+    friend bool operator<(const Handle<T>& l, const Handle<T>& r)
     {
-      return l.handle < r.handle;
+      return l.value < r.value;
     }
 
-    uint32_t get() const { return handle; }
+    uint32_t get() const { return value; }
 
-    void set(uint32_t newHandle) { handle = newHandle; }
+    void set(uint32_t newValue) { value = newValue; }
 
   private:
-    uint32_t handle;
+    uint32_t value;
   };
 
   /*
@@ -52,24 +52,11 @@ namespace Lotus
 
   struct RenderObject
   {
-    Handler<DrawMesh> meshHandler;
-    Handler<int> shaderHandler;
+    Handle<DrawMesh> meshHandle;
+    Handle<int> shaderHandle;
 
     glm::mat4 model;
-  };
-
-  struct PassObject
-  {
-      // PassMaterial material;
-      Handler<DrawMesh> meshHandler;
-      Handler<RenderObject> objectHandler;
-      int32_t builtbatch;
-      uint32_t customKey;
-  };
-
-  struct PassMaterial
-  {
-
+    uint32_t ID;
   };
 
   /*
@@ -77,7 +64,7 @@ namespace Lotus
   */
   struct ShaderBatch
   {
-    Handler<int> shaderHandler;
+    Handle<int> shaderHandle;
 		uint32_t first;
 		uint32_t count;
   };
@@ -87,8 +74,8 @@ namespace Lotus
   */
   struct DrawBatch
   {
-    Handler<int> shaderHandler;
-    Handler<DrawMesh> meshHandler;
+    Handle<int> shaderHandle;
+    Handle<DrawMesh> meshHandle;
     uint32_t prevInstanceCount;
     uint32_t instanceCount;
   };
@@ -98,8 +85,8 @@ namespace Lotus
   */
   struct RenderBatch
   {
-    Handler<RenderObject> objectHandler;
-    Handler<int> shaderHandler;
-    Handler<DrawMesh> meshHandler;
+    Handle<RenderObject> objectHandle;
+    Handle<int> shaderHandle;
+    Handle<DrawMesh> meshHandle;
   };
 }

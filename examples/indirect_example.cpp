@@ -96,7 +96,9 @@ int main()
   object1->translate(glm::vec3(3, 0, 0));
 
 	float lastTime = glfwGetTime();
-  float elapsedTime = 0.0;
+
+  float meshChangeElapsedTime = 0.0;
+  float meshChangeSphere = false;
 
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
@@ -106,20 +108,28 @@ int main()
 		float currentTime = glfwGetTime();
 		float dt = currentTime - lastTime;
 		lastTime = currentTime;
-    elapsedTime += dt;
+    meshChangeElapsedTime += dt;
 
 		updateFromInputs(window, dt, &camera);
     
     object1->translate(glm::vec3(dt, 0, 0));
 	
-    if (elapsedTime > 3.0)
+    if (meshChangeElapsedTime > 3.0)
     {
-      object1->setMesh(cube);
+      if (meshChangeSphere)
+      {
+        object1->setMesh(sphere);
+      }
+      else
+      {
+        object1->setMesh(cube);
+      }
 
-      elapsedTime = 0.0;
+      meshChangeElapsedTime = 0.0;
+      meshChangeSphere = !meshChangeSphere;
     }
 
-		std::cout << "FPS: " << 1.0f / dt << std::endl;
+		// std::cout << "FPS: " << 1.0f / dt << std::endl;
 
 		renderer.render(camera);
 

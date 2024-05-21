@@ -16,7 +16,8 @@ namespace Lotus
         const glm::vec3& scale = glm::vec3(1.0f)) :
       localTranslation(translation),
       localRotation(rotation),
-      localScale(scale) {}
+      localScale(scale),
+      dirty(false) {}
 
     const glm::vec3& getLocalTranslation() const
     {
