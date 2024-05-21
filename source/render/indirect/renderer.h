@@ -47,8 +47,6 @@ namespace Lotus
     void startUp();
 
     std::shared_ptr<MeshInstance> createMeshInstance(std::shared_ptr<Mesh> mesh);
-
-    Handler<DrawMesh> getMeshHandler(std::shared_ptr<Mesh> mesh);
     
     void setAmbientLight(glm::vec3 color);
     std::shared_ptr<DirectionalLight> createDirectionalLight();
@@ -56,20 +54,30 @@ namespace Lotus
 
     void render(const Camera& camera);
 
+    // Objects Functions
+    void updateObjects();
+
+    // Batches Functions
     void buildBatches();
     void buildRenderBatches();
     void buildDrawBatches();
     void buildShaderBatches();
 
+    // Buffers Functions
     void refreshBuffers();
     void refreshIndirectBuffer();
     void refreshLightBuffer();
     void refreshObjectBuffer();
     void refreshObjectHandleBuffer();
 
-    void refreshInstancesBuffer();
+    void refreshInstancesBuffer(); // TODO
 
   private:
+
+
+    // Util Functions
+    Handler<DrawMesh> getMeshHandler(std::shared_ptr<Mesh> mesh);
+
     struct GPULightsData
     {
       GPUDirectionalLightData directionalLights[2 * HalfMaxDirectionalLights];
@@ -92,8 +100,8 @@ namespace Lotus
     std::vector<std::shared_ptr<PointLight>> pointLights;
 
     // Objects
-    std::vector<std::shared_ptr<MeshInstance>> objects;
-    std::vector<RenderObject> renderables;
+    std::vector<std::shared_ptr<MeshInstance>> meshInstances;
+    std::vector<RenderObject> objects;
     std::vector<Handler<RenderObject>> dirtyObjectsHandlers;
     std::vector<Handler<RenderObject>> toUnbatchObjectsHandlers;
     std::vector<Handler<RenderObject>> unbatchedObjectsHandlers;

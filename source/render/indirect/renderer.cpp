@@ -118,15 +118,15 @@ namespace Lotus {
   {
     std::shared_ptr<MeshInstance> meshInstance = std::make_shared<MeshInstance>(mesh);
 
-    objects.push_back(meshInstance);
+    meshInstances.push_back(meshInstance);
 
     RenderObject newObject;
     newObject.meshHandler = getMeshHandler(mesh);
 
     Handler<RenderObject> handler;
-    handler.set(static_cast<uint32_t>(renderables.size()));
+    handler.set(static_cast<uint32_t>(objects.size()));
 
-    renderables.push_back(newObject);
+    objects.push_back(newObject);
 
     dirtyObjectsHandlers.push_back(handler);
     unbatchedObjectsHandlers.push_back(handler);
@@ -223,136 +223,40 @@ namespace Lotus {
     }
   }
 
-  void Renderer::refreshBuffers()
+  void Renderer::updateObjects()
   {
-    refreshIndirectBuffer();
-    refreshLightBuffer();
-    refreshObjectBuffer();
-    refreshObjectHandleBuffer();
-  }
-
-  void Renderer::refreshIndirectBuffer()
-  {
-    if (drawBatches.size() > 0)
+    for (int i = 0; i < meshInstances.size(); i++)
     {
-      if (indirectBufferAllocatedSize < drawBatches.size())
+      const std::shared_ptr<MeshInstance>& meshInstance = meshInstances[i];
+
+      if (!meshInstance->isDirty()) { continue; }
+
+      RenderObject& object = objects[i];
+      Handler<RenderObject> objectHandler(i);
+
+      if (meshInstance->transformDirty)
       {
-        // reallocateBuffer(CPUIndirectBuffer, drawBatches.size() * sizeof(DrawElementsIndirectCommand));
+        object.model = meshInstance->getModelMatrix();
+
+        meshInstance->transformDirty = false;
+      }
+      if (meshInstance->meshDirty)
+      {
+        object.meshHandler = getMeshHandler(meshInstance->getMesh());
+        
+        toUnbatchObjectsHandlers.push_back(objectHandler);
+        unbatchedObjectsHandlers.push_back(objectHandler);
+
+        meshInstance->meshDirty = false;
+      }
+      if (meshInstance->materialDirty)
+      {
+        object.shaderHandler = Handler<int>();
+
+        meshInstance->materialDirty = false;
       }
 
-      for (int i = 0; i < drawBatches.size(); i++)
-      {
-        auto drawBatch = drawBatches[i];
-
-        const DrawMesh& mesh = meshes[drawBatch.meshHandler.get()];
-
-        CPUIndirectBuffer[i].count = mesh.count;
-        CPUIndirectBuffer[i].instanceCount = drawBatch.instanceCount;
-        CPUIndirectBuffer[i].firstIndex = mesh.firstIndex;
-        CPUIndirectBuffer[i].baseVertex = mesh.baseVertex;
-        CPUIndirectBuffer[i].baseInstance = drawBatch.prevInstanceCount;
-      }
-
-      glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferID);
-      glBufferSubData(GL_DRAW_INDIRECT_BUFFER, 0, drawBatches.size() * sizeof(DrawElementsIndirectCommand), CPUIndirectBuffer);
-      glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-    }
-  }
-
-  void Renderer::refreshLightBuffer()
-  {
-    GPULightsData lightsData;
-
-    lightsData.ambientLight = ambientLight;
-
-    uint32_t directionalLightsCount = std::min(static_cast<uint32_t>(HalfMaxDirectionalLights * 2), static_cast<uint32_t>(directionalLights.size()));
-    lightsData.directionalLightsCount = static_cast<int>(directionalLightsCount);
-
-    for (uint32_t i = 0; i < directionalLightsCount; i++)
-    {
-      const std::shared_ptr<DirectionalLight>& dirLight = directionalLights[i];
-      lightsData.directionalLights[i].colorIntensity = dirLight->getLightColor() * dirLight->getLightIntensity();
-      lightsData.directionalLights[i].direction = glm::rotate(dirLight->getLightDirection(), dirLight->getFrontVector());
-    }
-
-    uint32_t pointLightsCount = std::min(static_cast<uint32_t>(HalfMaxPointLights * 2), static_cast<uint32_t>(pointLights.size()));
-    lightsData.pointLightsCount = static_cast<int>(pointLightsCount);
-
-    for (uint32_t i = 0; i < pointLightsCount; i++)
-    {
-      const std::shared_ptr<PointLight>& pointLight = pointLights[i];
-      lightsData.pointLights[i].colorIntensity = pointLight->getLightColor() * pointLight->getLightIntensity();
-      lightsData.pointLights[i].position = pointLight->getLocalTranslation();
-      lightsData.pointLights[i].radius = pointLight->getLightRadius();
-    }
-
-    glBindBuffer(GL_UNIFORM_BUFFER, lightBufferID);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GPULightsData), &lightsData);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-  }
-
-  void Renderer::refreshObjectBuffer()
-  {
-    if (dirtyObjectsHandlers.size() > 0)
-    {
-      size_t copySize = renderables.size() * sizeof(GPUObjectData); // TODO
-      if (objectBufferAllocatedSize < renderables.size())
-      {
-        // reallocateBuffer(CPUObjectDataBuffer, copySize);
-      }
-
-      // If 80% of the objects are dirty, then just reupload the whole thing
-      if (dirtyObjectsHandlers.size() >= 0) // TODO
-      {
-        for(int i = 0; i < renderables.size(); i++)
-        {
-          const std::shared_ptr<MeshInstance> meshInstance = objects[i];
-
-          RenderObject* renderable = &renderables[i];
-
-          GPUObjectData object;
-          object.model = meshInstance->getModelMatrix();
-
-          memcpy(CPUObjectBuffer + i, &object, sizeof(GPUObjectData));
-        }
-
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, objectBufferID);
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, renderables.size() * sizeof(GPUObjectData), CPUObjectBuffer);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-      }
-      else
-      {
-        // TODO
-      }
-
-      dirtyObjectsHandlers.clear();
-    }
-  }
-
-  void Renderer::refreshObjectHandleBuffer()
-  {
-    if (drawBatches.size() > 0)
-    {
-      if (objectHandleBufferAllocatedSize < renderables.size()) // TODO
-      {
-        //reallocateBuffer(CPUObjectHandleBuffer, renderBatches.size() * sizeof(uint32_t));
-      }
-
-      int dataIndex = 0;
-      for (int dI = 0; dI < drawBatches.size(); dI++)
-      {
-        auto drawBatch = drawBatches[dI];
-
-        for (int iI = 0; iI < drawBatch.instanceCount; iI++)
-        {
-          CPUObjectHandleBuffer[dataIndex] = renderBatches[drawBatch.prevInstanceCount + iI].objectHandler.get();
-          dataIndex++;
-        }
-      }
-
-      glBindBuffer(GL_SHADER_STORAGE_BUFFER, objectHandleBufferID);
-      glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, renderables.size() * sizeof(uint32_t), CPUObjectHandleBuffer);
-      glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+      dirtyObjectsHandlers.push_back(objectHandler);
     }
   }
 
@@ -377,7 +281,7 @@ namespace Lotus {
       
       for (auto objectHandler : toUnbatchObjectsHandlers)
       {
-        const RenderObject& object = renderables[objectHandler.get()];
+        const RenderObject& object = objects[objectHandler.get()];
         RenderBatch batch;
 
         batch.objectHandler = objectHandler;
@@ -415,7 +319,7 @@ namespace Lotus {
     // Fill new render batches
     for (auto objectHandler : unbatchedObjectsHandlers)
     {
-      const RenderObject& object = renderables[objectHandler.get()];
+      const RenderObject& object = objects[objectHandler.get()];
       RenderBatch batch;
 
       batch.objectHandler = objectHandler;		
@@ -537,6 +441,141 @@ namespace Lotus {
         shaderBatches.push_back(newShaderBatch);
         backShaderBatch = &shaderBatches.back();
       }
+    }
+  }
+
+  void Renderer::refreshBuffers()
+  {
+    refreshIndirectBuffer();
+    refreshLightBuffer();
+    refreshObjectBuffer();
+    refreshObjectHandleBuffer();
+  }
+
+  void Renderer::refreshIndirectBuffer()
+  {
+    if (drawBatches.size() > 0)
+    {
+      if (indirectBufferAllocatedSize < drawBatches.size())
+      {
+        // reallocateBuffer(CPUIndirectBuffer, drawBatches.size() * sizeof(DrawElementsIndirectCommand));
+      }
+
+      for (int i = 0; i < drawBatches.size(); i++)
+      {
+        auto drawBatch = drawBatches[i];
+
+        const DrawMesh& mesh = meshes[drawBatch.meshHandler.get()];
+
+        CPUIndirectBuffer[i].count = mesh.count;
+        CPUIndirectBuffer[i].instanceCount = drawBatch.instanceCount;
+        CPUIndirectBuffer[i].firstIndex = mesh.firstIndex;
+        CPUIndirectBuffer[i].baseVertex = mesh.baseVertex;
+        CPUIndirectBuffer[i].baseInstance = drawBatch.prevInstanceCount;
+      }
+
+      glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferID);
+      glBufferSubData(GL_DRAW_INDIRECT_BUFFER, 0, drawBatches.size() * sizeof(DrawElementsIndirectCommand), CPUIndirectBuffer);
+      glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+    }
+  }
+
+  void Renderer::refreshLightBuffer()
+  {
+    GPULightsData lightsData;
+
+    lightsData.ambientLight = ambientLight;
+
+    uint32_t directionalLightsCount = std::min(static_cast<uint32_t>(HalfMaxDirectionalLights * 2), static_cast<uint32_t>(directionalLights.size()));
+    lightsData.directionalLightsCount = static_cast<int>(directionalLightsCount);
+
+    for (uint32_t i = 0; i < directionalLightsCount; i++)
+    {
+      const std::shared_ptr<DirectionalLight>& dirLight = directionalLights[i];
+      lightsData.directionalLights[i].colorIntensity = dirLight->getLightColor() * dirLight->getLightIntensity();
+      lightsData.directionalLights[i].direction = glm::rotate(dirLight->getLightDirection(), dirLight->getFrontVector());
+    }
+
+    uint32_t pointLightsCount = std::min(static_cast<uint32_t>(HalfMaxPointLights * 2), static_cast<uint32_t>(pointLights.size()));
+    lightsData.pointLightsCount = static_cast<int>(pointLightsCount);
+
+    for (uint32_t i = 0; i < pointLightsCount; i++)
+    {
+      const std::shared_ptr<PointLight>& pointLight = pointLights[i];
+      lightsData.pointLights[i].colorIntensity = pointLight->getLightColor() * pointLight->getLightIntensity();
+      lightsData.pointLights[i].position = pointLight->getLocalTranslation();
+      lightsData.pointLights[i].radius = pointLight->getLightRadius();
+    }
+
+    glBindBuffer(GL_UNIFORM_BUFFER, lightBufferID);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GPULightsData), &lightsData);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+  }
+
+  void Renderer::refreshObjectBuffer()
+  {
+    if (dirtyObjectsHandlers.size() > 0)
+    {
+      size_t copySize = objects.size() * sizeof(GPUObjectData); // TODO
+      if (objectBufferAllocatedSize < objects.size())
+      {
+        // reallocateBuffer(CPUObjectDataBuffer, copySize);
+      }
+
+      // If 80% of the objects are dirty, then just reupload the whole thing
+      if (dirtyObjectsHandlers.size() >= 0) // TODO
+      {
+        for(int i = 0; i < objects.size(); i++)
+        {
+          const std::shared_ptr<MeshInstance> meshInstance = meshInstances[i];
+
+          RenderObject* renderable = &objects[i];
+
+          GPUObjectData object;
+          object.model = meshInstance->getModelMatrix();
+
+          memcpy(CPUObjectBuffer + i, &object, sizeof(GPUObjectData));
+        }
+
+
+      }
+      else
+      {
+        // TODO
+      }
+
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, objectBufferID);
+      glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, objects.size() * sizeof(GPUObjectData), CPUObjectBuffer);
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+      dirtyObjectsHandlers.clear();
+    }
+  }
+
+  void Renderer::refreshObjectHandleBuffer()
+  {
+    if (drawBatches.size() > 0)
+    {
+      if (objectHandleBufferAllocatedSize < objects.size()) // TODO
+      {
+        //reallocateBuffer(CPUObjectHandleBuffer, renderBatches.size() * sizeof(uint32_t));
+      }
+
+      int dataIndex = 0;
+      for (int dI = 0; dI < drawBatches.size(); dI++)
+      {
+        auto drawBatch = drawBatches[dI];
+
+        for (int iI = 0; iI < drawBatch.instanceCount; iI++)
+        {
+          CPUObjectHandleBuffer[dataIndex] = renderBatches[drawBatch.prevInstanceCount + iI].objectHandler.get();
+          dataIndex++;
+        }
+      }
+
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, objectHandleBufferID);
+      glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, objects.size() * sizeof(uint32_t), CPUObjectHandleBuffer);
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
   }
 
