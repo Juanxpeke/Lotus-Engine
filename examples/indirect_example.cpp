@@ -59,6 +59,28 @@ void updateFromInputs(GLFWwindow* window, float dt, Lotus::Camera* cameraPtr)
   }
 }
 
+void createDirectionalLight(Lotus::Renderer& renderer)
+{
+  std::shared_ptr<Lotus::DirectionalLight> directionalLight = renderer.createDirectionalLight();
+
+  directionalLight->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::pi<float>() * 0.5f);
+  directionalLight->rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::pi<float>() * 0.25f);
+  directionalLight->setLightColor(glm::vec3(0.1f, 0.04f, 0.0f));
+}
+
+std::shared_ptr<Lotus::MeshInstance> createSphere(Lotus::Renderer& renderer)
+{
+  auto& meshManager = Lotus::MeshManager::getInstance();
+  std::shared_ptr<Lotus::Mesh> sphere = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
+
+  std::shared_ptr<Lotus::DiffuseFlatMaterial> material = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderer.createMaterial(Lotus::MaterialType::DiffuseFlat));
+  material->setDiffuseColor(glm::vec3(1.0, 0.0, 1.0));
+
+  std::shared_ptr<Lotus::MeshInstance> sphereObject = renderer.createMeshInstance(sphere, material);
+  
+  return sphereObject;
+}
+
 int main()
 {
 	glfwInit();
@@ -86,23 +108,15 @@ int main()
   Lotus::Renderer renderer;
   renderer.startUp();
 
-  auto& meshManager = Lotus::MeshManager::getInstance();
-  std::shared_ptr<Lotus::Mesh> cube = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
-  std::shared_ptr<Lotus::Mesh> sphere = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
+  renderer.setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
+  createDirectionalLight(renderer);
 
-  std::shared_ptr<Lotus::DiffuseFlatMaterial> material = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderer.createMaterial(Lotus::MaterialType::DiffuseFlat));
-  //std::shared_ptr<Lotus::DiffuseFlatMaterial> material(0);
-  material->setDiffuseColor(glm::vec3(1.0, 0.0, 1.0));
-
-  std::shared_ptr<Lotus::MeshInstance> object1 = renderer.createMeshInstance(sphere, material);
-  std::shared_ptr<Lotus::MeshInstance> object2 = renderer.createMeshInstance(sphere, material);
+  std::shared_ptr<Lotus::MeshInstance> object1 = createSphere(renderer);
+  std::shared_ptr<Lotus::MeshInstance> object2 = createSphere(renderer);
   
   object1->translate(glm::vec3(3, 0, 0));
 
 	float lastTime = glfwGetTime();
-
-  float meshChangeElapsedTime = 0.0;
-  float meshChangeSphere = false;
 
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
@@ -112,26 +126,10 @@ int main()
 		float currentTime = glfwGetTime();
 		float dt = currentTime - lastTime;
 		lastTime = currentTime;
-    meshChangeElapsedTime += dt;
 
 		updateFromInputs(window, dt, &camera);
     
     object1->translate(glm::vec3(dt, 0, 0));
-	
-    if (meshChangeElapsedTime > 3.0)
-    {
-      if (meshChangeSphere)
-      {
-        object1->setMesh(sphere);
-      }
-      else
-      {
-        object1->setMesh(cube);
-      }
-
-      meshChangeElapsedTime = 0.0;
-      meshChangeSphere = !meshChangeSphere;
-    }
 
 		// std::cout << "FPS: " << 1.0f / dt << std::endl;
 

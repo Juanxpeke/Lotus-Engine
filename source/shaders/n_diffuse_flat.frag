@@ -14,10 +14,10 @@ struct Material
 	int int_0;
 	vec3 vec3_1;
 	int int_1;
-	int texture_0;//sampler2D texture_0;
-	int texture_1;//sampler2D texture_1;
-	int texture_2;//sampler2D texture_2;
-	int texture_3;//sampler2D texture_3;
+	vec3 vec3_2;//sampler2D texture_0;
+	int xd;//sampler2D texture_1;
+	vec3 vec3_3;//sampler2D texture_2;
+	int xdd;//sampler2D texture_3;
 };
 
 struct DirectionalLight
@@ -133,7 +133,7 @@ void main()
 		Lo += distanceAttenuation * pointLights[i].colorIntensity * max(dot(normal, -lightDirection), 0.0);
 	}
 
-	vec3 result = (ambient + Lo) * material.diffuseColor; //vec3(object.materialHandle + 1); // material.diffuseColor; 
+	vec3 result = (ambient + Lo) * material.diffuseColor;//vec3(object.materialHandle + 1); // material.diffuseColor; 
 	
 	outColor = vec4(result, 1.0);
 }
