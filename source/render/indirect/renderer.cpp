@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "../../path_manager.h"
+#include "../../util/path_manager.h"
 
 namespace Lotus {
 
@@ -193,7 +193,8 @@ namespace Lotus {
     glm::mat4 viewMatrix = camera.getViewMatrix();
     glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     glm::vec3 cameraPosition = camera.getLocalTranslation();
-    
+
+#if 1    
     updateObjects();
     updateMaterials();
 
@@ -213,11 +214,13 @@ namespace Lotus {
       glUniformMatrix4fv(ViewMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix));
       glUniformMatrix4fv(ProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
-      glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (GLvoid*) 0, shaderBatch.count, sizeof(DrawElementsIndirectCommand));
+      glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (void*) shaderBatch.first, shaderBatch.count, sizeof(DrawElementsIndirectCommand));
     }
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
     glBindVertexArray(0);
+#else
+#endif
   }
 
   void Renderer::updateObjects()
@@ -372,8 +375,8 @@ namespace Lotus {
         newRenderBatches.push_back(batch);
       }
 
-      std::cout << "New render batches" << std::endl;
-      printRenderBatches(newRenderBatches);
+      // std::cout << "New render batches" << std::endl;
+      // printRenderBatches(newRenderBatches);
 
       unbatchedObjectsHandlers.clear();
 
@@ -390,8 +393,8 @@ namespace Lotus {
         else { return false; }
       });
 
-      std::cout << "Ordered new render batches" << std::endl;
-      printRenderBatches(newRenderBatches);
+      // std::cout << "Ordered new render batches" << std::endl;
+      // printRenderBatches(newRenderBatches);
 
       // Merge the new render batches into the main render batch array
       if (renderBatches.size() > 0 && newRenderBatches.size() > 0)
@@ -424,8 +427,8 @@ namespace Lotus {
         renderBatches = std::move(newRenderBatches);
       }
 
-      std::cout << "Render batches after addition" << std::endl;
-      printRenderBatches(renderBatches);
+      // std::cout << "Render batches after addition" << std::endl;
+      // printRenderBatches(renderBatches);
     }
   }
 

@@ -41,3 +41,4 @@ add_instanced_example(i_single_mesh_example i_single_mesh_example.cpp)
 add_instanced_example(i_same_mesh_different_material i_same_mesh_different_material.cpp)
 
 add_indirect_example(indirect_example indirect_example.cpp)
+add_indirect_example(indirecT_basic_example ind_basic_example.cpp)

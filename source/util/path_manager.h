@@ -12,7 +12,7 @@ Placeholder script, don't modify it
 
 namespace Lotus
 {
-  static const std::string directoryPath = "${CMAKE_CURRENT_SOURCE_DIR}/";
+  static const std::string directoryPath = "C:/Users/juani/Desktop/Bachelor Thesis/GPU-Driven-Renderer/";
 
   static std::filesystem::path assetPath(const std::string& assetFilename)
   {

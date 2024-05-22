@@ -22,7 +22,7 @@ set(LOTUS_INCLUDE_DIRECTORY
   ${CMAKE_CURRENT_SOURCE_DIR}/source)
 
 # Header generated automatically by CMake
-configure_file(CMakeConfigFiles/path_manager_renderer.h.in ${CMAKE_CURRENT_SOURCE_DIR}/source/path_manager.h)
+configure_file(CMakeConfigFiles/path_manager_renderer.h.in ${CMAKE_CURRENT_SOURCE_DIR}/source/util/path_manager.h)
 configure_file(CMakeConfigFiles/path_manager_gl_tests.h.in ${CMAKE_CURRENT_SOURCE_DIR}/gl_tests/path_manager.h)
 
 add_subdirectory(source)
