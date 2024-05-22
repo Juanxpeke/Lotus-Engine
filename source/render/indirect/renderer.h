@@ -15,6 +15,8 @@
 #include "../../lighting/point_light.h"
 #include "mesh.h"
 #include "shader_program.h"
+#include "material.h"
+#include "diffuse_flat_material.h"
 #include "mesh_instance.h"
 
 
@@ -46,16 +48,18 @@ namespace Lotus
 
     void startUp();
 
-    std::shared_ptr<MeshInstance> createMeshInstance(std::shared_ptr<Mesh> mesh);
-    
+    std::shared_ptr<MeshInstance> createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+    std::shared_ptr<Material> createMaterial(MaterialType type);
+
     void setAmbientLight(glm::vec3 color);
     std::shared_ptr<DirectionalLight> createDirectionalLight();
     std::shared_ptr<PointLight> createPointLight();  
 
     void render(const Camera& camera);
 
-    // Objects Functions
+    // Update Functions
     void updateObjects();
+    void updateMaterials();
 
     // Batches Functions
     void buildBatches();
@@ -77,6 +81,7 @@ namespace Lotus
 
     // Util Functions
     Handle<RenderMesh> getMeshHandle(std::shared_ptr<Mesh> mesh);
+    Handle<RenderMaterial> getMaterialHandle(std::shared_ptr<Material> material);
 
     struct GPULightsData
     {
@@ -92,6 +97,7 @@ namespace Lotus
 
     // Maps
 	  std::unordered_map<std::shared_ptr<Mesh>, Handle<RenderMesh>> meshMap;
+	  std::unordered_map<std::shared_ptr<Material>, Handle<RenderMaterial>> materialMap;
     
     // Lighting
     uint32_t lightBufferID;
@@ -106,6 +112,8 @@ namespace Lotus
     std::vector<RenderObject> toUnbatchObjects;
     std::vector<Handle<RenderObject>> unbatchedObjectsHandlers;
     
+    std::vector<std::shared_ptr<Material>> materials;
+
     // Meshes
     std::vector<RenderMesh> meshes;
 

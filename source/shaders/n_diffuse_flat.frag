@@ -14,10 +14,10 @@ struct Material
 	int int_0;
 	vec3 vec3_1;
 	int int_1;
-	//sampler2D texture_0;
-	//sampler2D texture_1;
-	//sampler2D texture_2;
-	//sampler2D texture_3;
+	int texture_0;//sampler2D texture_0;
+	int texture_1;//sampler2D texture_1;
+	int texture_2;//sampler2D texture_2;
+	int texture_3;//sampler2D texture_3;
 };
 
 struct DirectionalLight
@@ -108,7 +108,8 @@ float getAngularAttenuation(vec3 normalizedLightVector, vec3 lightDirection, flo
 
 void main()
 {
-	// Material material = materials[fragObjectID];
+	Object object = objects[fragObjectID];
+	Material material = materials[object.materialHandle];
 
 	vec3 ambient = ambientLight;
 
@@ -132,7 +133,7 @@ void main()
 		Lo += distanceAttenuation * pointLights[i].colorIntensity * max(dot(normal, -lightDirection), 0.0);
 	}
 
-	vec3 result = (ambient + Lo) * vec3(1.0); // material.diffuseColor; 
+	vec3 result = (ambient + Lo) * material.diffuseColor; //vec3(object.materialHandle + 1); // material.diffuseColor; 
 	
 	outColor = vec4(result, 1.0);
 }

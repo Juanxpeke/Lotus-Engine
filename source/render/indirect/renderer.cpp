@@ -123,20 +123,20 @@ namespace Lotus {
     }
   }
 
-  std::shared_ptr<MeshInstance> Renderer::createMeshInstance(std::shared_ptr<Mesh> mesh)
+  std::shared_ptr<MeshInstance> Renderer::createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
   {
-    std::shared_ptr<MeshInstance> meshInstance = std::make_shared<MeshInstance>(mesh);
-
+    std::shared_ptr<MeshInstance> meshInstance = std::make_shared<MeshInstance>(mesh, material);
     meshInstances.push_back(meshInstance);
 
     RenderObject newObject;
     newObject.model = meshInstance->getModelMatrix();
     newObject.meshHandle = getMeshHandle(mesh);
-    newObject.ID = objects.size();
-
-    Handle<RenderObject> handle(static_cast<uint32_t>(objects.size()));
-
+    newObject.materialHandle = getMaterialHandle(material);
+    newObject.ID = static_cast<uint32_t>(objects.size());
+    
     objects.push_back(newObject);
+
+    Handle<RenderObject> handle(newObject.ID);
 
     dirtyObjectsHandlers.push_back(handle);
     unbatchedObjectsHandlers.push_back(handle);
@@ -144,44 +144,25 @@ namespace Lotus {
     return meshInstance;
   }
 
-  Handle<RenderMesh> Renderer::getMeshHandle(std::shared_ptr<Mesh> mesh)
+  std::shared_ptr<Material> Renderer::createMaterial(MaterialType type)
   {
-    Handle<RenderMesh> handle;
+    unsigned int offset = static_cast<unsigned int>(type);
 
-    auto it = meshMap.find(mesh);
-
-    if (it == meshMap.end())
+    switch (type)
     {
-      const std::vector<Vertex>& vertices = mesh->getVertices();
-      const std::vector<unsigned int>& indices = mesh->getIndices();
-
-      RenderMesh newMesh;
-      newMesh.firstIndex = indexBufferSize;
-      newMesh.baseVertex = vertexBufferSize;
-      newMesh.count = indices.size();
-
-      glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-      glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize * sizeof(Vertex), vertices.size() * sizeof(Vertex), vertices.data());
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-      vertexBufferSize += vertices.size();
-
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
-      glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSize * sizeof(unsigned int), indices.size() * sizeof(unsigned int), indices.data());
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-      indexBufferSize += indices.size();
-
-      handle.set(static_cast<uint32_t>(meshes.size()));
-      meshMap[mesh] = handle;
-      
-      meshes.push_back(newMesh);
+    case MaterialType::DiffuseFlat:
+      return std::make_shared<DiffuseFlatMaterial>(shaders[0]);
+      break;
+    case MaterialType::DiffuseTextured:
+      return std::make_shared<DiffuseFlatMaterial>(shaders[0]);
+      break;
+    case MaterialType::MaterialTypeCount:
+      return std::make_shared<DiffuseFlatMaterial>(shaders[0]);
+      break;
+    default:
+      return nullptr;
+      break;
     }
-    else
-    {
-      handle = (*it).second;
-    }
-    return handle;
   }
 
   void Renderer::setAmbientLight(glm::vec3 color)
@@ -214,6 +195,7 @@ namespace Lotus {
     glm::vec3 cameraPosition = camera.getLocalTranslation();
     
     updateObjects();
+    updateMaterials();
 
     buildBatches();
 
@@ -253,10 +235,12 @@ namespace Lotus {
         if (transform->dirty)
         {
           object.model = meshInstance->getModelMatrix();
+          transform->dirty = false;
         }
         if (meshInstance->materialDirty)
         {
-          object.materialHandle = Handle<RenderMaterial>();
+          object.materialHandle = getMaterialHandle(meshInstance->getMaterial());
+          meshInstance->materialDirty = false;
         }
         if (meshInstance->meshDirty || meshInstance->shaderDirty)
         {
@@ -268,18 +252,34 @@ namespace Lotus {
           unbatchedObjectsHandlers.push_back(objectHandle);
 
           object.meshHandle = getMeshHandle(meshInstance->getMesh());
-          object.shaderHandle = Handle<int>();
+          object.shaderID = 0;// meshInstance->getMaterial()->getShaderID();
+          
+          meshInstance->meshDirty = false;
+          meshInstance->shaderDirty = false;
         }
-
-        transform->dirty = false;
-        meshInstance->meshDirty = false;
-        meshInstance->materialDirty = false;
-        meshInstance->shaderDirty = false;
 
         // Queue the object to be updated in the GPU buffer
         dirtyObjectsHandlers.push_back(objectHandle);
       }
     }
+  }
+
+  void Renderer::updateMaterials()
+  {
+    for (int i = 0; i < materials.size(); i++)
+    {
+      const std::shared_ptr<Material>& material = materials[i];
+
+      if (material->dirty)
+      {
+        CPUMaterialBuffer[i] = material->getMaterialData();     
+  
+        material->dirty = false;
+      }
+    }
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialBufferID);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, materials.size() * sizeof(GPUMaterialData), CPUMaterialBuffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
   }
 
   void Renderer::buildBatches()
@@ -310,7 +310,7 @@ namespace Lotus {
 
         batch.objectHandle = Handle<RenderObject>(object.ID);
         batch.meshHandle = object.meshHandle;
-        batch.shaderHandle = object.shaderHandle;
+        batch.shaderHandle = object.shaderID;
 
         deletionRenderBatches.push_back(batch);
       }
@@ -367,7 +367,7 @@ namespace Lotus {
 
         batch.objectHandle = objectHandle;		
         batch.meshHandle = object.meshHandle;
-        batch.shaderHandle = object.shaderHandle;
+        batch.shaderHandle = object.shaderID;
 
         newRenderBatches.push_back(batch);
       }
@@ -591,6 +591,7 @@ namespace Lotus {
 
           GPUObjectData GPUObject;
           GPUObject.model = object.model;
+          GPUObject.materialHandle = object.materialHandle.get();
 
           memcpy(CPUObjectBuffer + i, &GPUObject, sizeof(GPUObjectData));
         }
@@ -661,6 +662,68 @@ namespace Lotus {
         }
       }
     }
+  }
+
+  Handle<RenderMesh> Renderer::getMeshHandle(std::shared_ptr<Mesh> mesh)
+  {
+    Handle<RenderMesh> handle;
+
+    auto it = meshMap.find(mesh);
+
+    if (it == meshMap.end())
+    {
+      const std::vector<Vertex>& vertices = mesh->getVertices();
+      const std::vector<unsigned int>& indices = mesh->getIndices();
+
+      RenderMesh newMesh;
+      newMesh.firstIndex = indexBufferSize;
+      newMesh.baseVertex = vertexBufferSize;
+      newMesh.count = indices.size();
+
+      glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
+      glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize * sizeof(Vertex), vertices.size() * sizeof(Vertex), vertices.data());
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+      vertexBufferSize += vertices.size();
+
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
+      glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSize * sizeof(unsigned int), indices.size() * sizeof(unsigned int), indices.data());
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+      indexBufferSize += indices.size();
+
+      handle.set(static_cast<uint32_t>(meshes.size()));
+      meshMap[mesh] = handle;
+      
+      meshes.push_back(newMesh);
+    }
+    else
+    {
+      handle = (*it).second;
+    }
+
+    return handle;
+  }
+
+  Handle<RenderMaterial> Renderer::getMaterialHandle(std::shared_ptr<Material> material)
+  {
+    Handle<RenderMaterial> handle;
+
+    auto it = materialMap.find(material);
+
+    if (it == materialMap.end())
+    {
+      handle.set(static_cast<uint32_t>(materials.size()));
+      materialMap[material] = handle;
+      
+      materials.push_back(material);
+    }
+    else
+    {
+      handle = (*it).second;
+    }
+
+    return handle;
   }
 
 }

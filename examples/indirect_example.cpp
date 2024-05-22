@@ -90,8 +90,12 @@ int main()
   std::shared_ptr<Lotus::Mesh> cube = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
   std::shared_ptr<Lotus::Mesh> sphere = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
 
-  std::shared_ptr<Lotus::MeshInstance> object1 = renderer.createMeshInstance(sphere);
-  std::shared_ptr<Lotus::MeshInstance> object2 = renderer.createMeshInstance(sphere);
+  std::shared_ptr<Lotus::DiffuseFlatMaterial> material = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderer.createMaterial(Lotus::MaterialType::DiffuseFlat));
+  //std::shared_ptr<Lotus::DiffuseFlatMaterial> material(0);
+  material->setDiffuseColor(glm::vec3(1.0, 0.0, 1.0));
+
+  std::shared_ptr<Lotus::MeshInstance> object1 = renderer.createMeshInstance(sphere, material);
+  std::shared_ptr<Lotus::MeshInstance> object2 = renderer.createMeshInstance(sphere, material);
   
   object1->translate(glm::vec3(3, 0, 0));
 

@@ -59,7 +59,7 @@ namespace Lotus
   {
     Handle<RenderMesh> meshHandle;
     Handle<RenderMaterial> materialHandle;
-    Handle<int> shaderHandle;
+    uint32_t shaderID;
 
     glm::mat4 model;
     uint32_t ID;

@@ -5,6 +5,9 @@ set(ENGINE_HEADERS
     mesh.h
     mesh_manager.h
     shader_program.h
+    material.h
+    diffuse_flat_material.h
+    mesh_instance.h
     renderer.h)
 
 set(ENGINE_SOURCES

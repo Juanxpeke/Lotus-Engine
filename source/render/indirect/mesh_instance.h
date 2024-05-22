@@ -3,7 +3,7 @@
 #include <iostream>
 #include "../../scene/node_3d.h"
 #include "mesh.h"
-// #include "material.h"
+#include "material.h"
 
 namespace Lotus
 {
@@ -13,14 +13,19 @@ namespace Lotus
 
   public:
 
-    MeshInstance(std::shared_ptr<Mesh> mesh) : meshPtr(mesh), meshDirty(false), materialDirty(false), shaderDirty(false)
+    MeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) :
+      meshPtr(mesh),
+      materialPtr(material),
+      meshDirty(false),
+      materialDirty(false),
+      shaderDirty(false)
     {
       // ASSERT(mesh != nullptr, "StaticMeshComponent Error: Mesh pointer cannot be null.");
       // ASSERT(material != nullptr, "StaticMeshComponent Error: Material cannot be null.");
     }
 
     const std::shared_ptr<Mesh>& getMesh() const noexcept { return meshPtr; }
-    // const std::shared_ptr<Material>& getMaterial() const noexcept { return materialPtr; }
+    const std::shared_ptr<Material>& getMaterial() const noexcept { return materialPtr; }
 
     void setMesh(std::shared_ptr<Mesh> mesh) noexcept
     {
@@ -29,13 +34,23 @@ namespace Lotus
       meshPtr = mesh;
       meshDirty = true;
     }
-    // void setMaterial(std::shared_ptr<Material> material) noexcept;
+    
+    void setMaterial(std::shared_ptr<Material> material) noexcept
+    {
+      if (material == nullptr || material == materialPtr) { return; }
 
+      if (material->getShaderID() != materialPtr->getShaderID())
+      {
+        shaderDirty = true;
+      }
 
+      materialPtr = material;
+      materialDirty = true;
+    }
 
   private:
     std::shared_ptr<Mesh> meshPtr;
-    // std::shared_ptr<Material> materialPtr;
+    std::shared_ptr<Material> materialPtr;
 
     bool meshDirty;
     bool materialDirty;

@@ -5,7 +5,7 @@
 #include <fstream>
 #include <array>
 #include <glad/glad.h>
-#include "renderer.h"
+// #include "renderer.h"
 
 namespace Lotus
 {
@@ -93,9 +93,9 @@ namespace Lotus
     std::array<ShaderConstant, 3> shaderConstants = 
     {
       {
-      {"${MAX_DIRECTIONAL_LIGHTS}", std::to_string(Renderer::HalfMaxDirectionalLights * 2)},
-      {"${MAX_POINT_LIGHTS}", std::to_string(Renderer::HalfMaxPointLights * 2)},
-      {"${MAX_SPOT_LIGHTS}", std::to_string(Renderer::HalfMaxSpotLights * 2)}
+      {"${MAX_DIRECTIONAL_LIGHTS}", std::to_string(2)}, //Renderer::HalfMaxDirectionalLights * 2)},
+      {"${MAX_POINT_LIGHTS}", std::to_string(2)}, //Renderer::HalfMaxPointLights * 2)},
+      {"${MAX_SPOT_LIGHTS}", std::to_string(2)}, //Renderer::HalfMaxSpotLights * 2)}
       }
     };
     
