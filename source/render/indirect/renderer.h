@@ -34,13 +34,13 @@ namespace Lotus
     static constexpr unsigned int HalfMaxSpotLights = 1;
 
     static constexpr unsigned int LightUBOBindingPoint = 0;
-    static constexpr unsigned int ObjectSSBOBindingPoint = 0;
-    static constexpr unsigned int ObjectHandleSSBOBindingPoint = 1;
-    static constexpr unsigned int MaterialSSBOBindingPoint = 2;
+    static constexpr unsigned int ObjectBufferBindingPoint = 0;
+    static constexpr unsigned int ObjectHandleBufferBindingPoint = 1;
+    static constexpr unsigned int MaterialBufferBindingPoint = 2;
 
     static constexpr unsigned int VertexBufferInitialAllocationSize = 1 << 16; 
     static constexpr unsigned int IndexBufferInitialAllocationSize = 1 << 16;
-    static constexpr unsigned int IndirectBufferInitialAllocationSize = 1 << 15;
+    static constexpr unsigned int IndirectBufferInitialAllocationSize = 1 << 10;
     static constexpr unsigned int ObjectBufferInitialAllocationSize = 1 << 10;
     static constexpr unsigned int MaterialBufferInitialAllocationSize = 1 << 8;
 
@@ -136,18 +136,10 @@ namespace Lotus
     size_t indexBufferAllocatedSize;
     uint32_t indexBufferID;
 
-    DrawElementsIndirectCommand* CPUIndirectBuffer;
-    size_t indirectBufferSize;
-    size_t indirectBufferAllocatedSize;
-    uint32_t indirectBufferID;
-
+    DrawIndirectBuffer GPUIndirectBuffer;
     ShaderStorageBuffer<GPUObjectData> GPUObjectBuffer;
     ShaderStorageBuffer<GPUMaterialData> GPUMaterialBuffer;
-
-    uint32_t* CPUObjectHandleBuffer;
-    size_t objectHandleBufferSize;
-    size_t objectHandleBufferAllocatedSize;
-    uint32_t objectHandleBufferID;
+    ShaderStorageBuffer<uint32_t> GPUObjectHandleBuffer;
 
     GPUInstance* CPU_GPUInstanceBuffer;
     size_t CPU_GPUInstanceBufferSize;

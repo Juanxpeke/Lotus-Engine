@@ -30,6 +30,16 @@ namespace Lotus {
       delete[] CPUBuffer;
     }
 
+    virtual void bind()
+    {
+      glBindBuffer(bufferType, ID);
+    }
+
+    virtual void unbind()
+    {
+      glBindBuffer(bufferType, 0);
+    }
+
     void allocate(size_t initialAllocationSize)
     {
       glBindBuffer(bufferType, ID);
@@ -79,8 +89,6 @@ namespace Lotus {
 
         ID = newID;
         allocatedSize = newAllocationSize;
-
-        reset();
       }
       else
       {
@@ -118,8 +126,6 @@ namespace Lotus {
       write(CPUBuffer, currentSize);
       // glUnmapNamedBuffer(ID);
     }
-
-    virtual void reset() {}
 
     uint32_t ID;
     uint32_t bufferType;
@@ -165,14 +171,18 @@ namespace Lotus {
 
     void setBindingPoint(uint32_t newBindingPoint)
     {
-      std::cout << "SSBO BP" << std::endl;
       glBindBufferBase(this->bufferType, newBindingPoint, this->ID);
       bindingPoint = newBindingPoint;
     }
 
-    virtual void reset() override
+    virtual void bind() override
     {
       glBindBufferBase(this->bufferType, bindingPoint, this->ID);
+    }
+
+    virtual void unbind() override
+    {
+      glBindBufferBase(this->bufferType, bindingPoint, 0);
     }
 
     uint32_t bindingPoint;
