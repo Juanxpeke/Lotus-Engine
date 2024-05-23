@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include "../../math/render_primitives.h"
 #include "../../math/gpu_primitives.h"
+#include "../../math/gpu_buffers.h"
 #include "../../scene/transform.h"
 #include "../../scene/camera.h"
 #include "../../lighting/directional_light.h"
@@ -39,9 +40,9 @@ namespace Lotus
 
     static constexpr unsigned int VertexBufferInitialAllocationSize = 1 << 16; 
     static constexpr unsigned int IndexBufferInitialAllocationSize = 1 << 16;
-    static constexpr unsigned int IndirectBufferInitialAllocationSize = 1 << 11;
-    static constexpr unsigned int ObjectBufferInitialAllocationSize = 1 << 11;
-    static constexpr unsigned int MaterialBufferInitialAllocationSize = 1 << 11;
+    static constexpr unsigned int IndirectBufferInitialAllocationSize = 1 << 15;
+    static constexpr unsigned int ObjectBufferInitialAllocationSize = 1 << 10;
+    static constexpr unsigned int MaterialBufferInitialAllocationSize = 1 << 8;
 
     Renderer();
     ~Renderer();
@@ -108,7 +109,7 @@ namespace Lotus
     // Objects
     std::vector<std::shared_ptr<MeshInstance>> meshInstances;
     std::vector<RenderObject> objects;
-    std::vector<Handle<RenderObject>> dirtyObjectsHandlers;
+    std::vector<Handle<RenderObject>> dirtyObjectsHandles;
     std::vector<RenderObject> toUnbatchObjects;
     std::vector<Handle<RenderObject>> unbatchedObjectsHandlers;
     
@@ -140,15 +141,8 @@ namespace Lotus
     size_t indirectBufferAllocatedSize;
     uint32_t indirectBufferID;
 
-    GPUObjectData* CPUObjectBuffer;
-    size_t objectBufferSize;
-    size_t objectBufferAllocatedSize;
-    uint32_t objectBufferID;
-
-    GPUMaterialData* CPUMaterialBuffer;
-    size_t materialBufferSize;
-    size_t materialBufferAllocatedSize;
-    uint32_t materialBufferID;
+    ShaderStorageBuffer<GPUObjectData> GPUObjectBuffer;
+    ShaderStorageBuffer<GPUMaterialData> GPUMaterialBuffer;
 
     uint32_t* CPUObjectHandleBuffer;
     size_t objectHandleBufferSize;

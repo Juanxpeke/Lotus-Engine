@@ -16,9 +16,6 @@ char title[256];
 const float cameraSpeed = 14.4f;
 const float cameraAngularSpeed = 2.0f;
 
-const int objectsCount = 1000;
-const float objectsAreaSide = 50.f;
-
 void updateFromInputs(GLFWwindow* window, float dt, Lotus::Camera* cameraPtr)
 {
   // Translation

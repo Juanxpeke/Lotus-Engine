@@ -26,10 +26,6 @@ namespace Lotus {
     indexBufferSize(0),
     indirectBufferAllocatedSize(IndirectBufferInitialAllocationSize),
     indirectBufferSize(0),
-    objectBufferAllocatedSize(ObjectBufferInitialAllocationSize),
-    objectBufferSize(0),
-    materialBufferAllocatedSize(MaterialBufferInitialAllocationSize),
-    materialBufferSize(0),
     ambientLight({1.0, 1.0, 1.0})
   {}
 
@@ -45,8 +41,6 @@ namespace Lotus {
     glGenBuffers(1, &indexBufferID);
     glGenBuffers(1, &indirectBufferID);
     glGenBuffers(1, &lightBufferID);
-    glGenBuffers(1, &objectBufferID);
-    glGenBuffers(1, &materialBufferID);
     glGenBuffers(1, &objectHandleBufferID);
 
     glBindVertexArray(vertexArrayID);
@@ -76,19 +70,19 @@ namespace Lotus {
     glBufferData(GL_UNIFORM_BUFFER, sizeof(GPULightsData), nullptr, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, LightUBOBindingPoint, lightBufferID);
 
-    CPUObjectBuffer = new GPUObjectData[objectBufferAllocatedSize];
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, objectBufferID);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, objectBufferAllocatedSize * sizeof(GPUObjectData), nullptr, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ObjectSSBOBindingPoint, objectBufferID);
+    GPUObjectBuffer.allocate(ObjectBufferInitialAllocationSize);
+    GPUObjectBuffer.setBindingPoint(ObjectSSBOBindingPoint);
 
-    CPUMaterialBuffer = new GPUMaterialData[materialBufferAllocatedSize];
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialBufferID);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, materialBufferAllocatedSize * sizeof(GPUMaterialData), nullptr, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, MaterialSSBOBindingPoint, materialBufferID);
+    GPUMaterialBuffer.allocate(MaterialBufferInitialAllocationSize);
+    GPUMaterialBuffer.setBindingPoint(MaterialSSBOBindingPoint);
+    
+    // glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialBufferID);
+    // glBufferData(GL_SHADER_STORAGE_BUFFER, materialBufferAllocatedSize * sizeof(GPUMaterialData), nullptr, GL_DYNAMIC_DRAW);
+    // glBindBufferBase(GL_SHADER_STORAGE_BUFFER, MaterialSSBOBindingPoint, materialBufferID);
 
-    CPUObjectHandleBuffer = new uint32_t[objectBufferAllocatedSize];
+    CPUObjectHandleBuffer = new uint32_t[72000];
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, objectHandleBufferID);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, objectBufferAllocatedSize * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 72000 * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ObjectHandleSSBOBindingPoint, objectHandleBufferID);
 
     glBindVertexArray(0);
@@ -109,16 +103,12 @@ namespace Lotus {
       glDeleteBuffers(1, &indexBufferID);
       glDeleteBuffers(1, &indirectBufferID);
       glDeleteBuffers(1, &lightBufferID);
-      glDeleteBuffers(1, &objectBufferID);
-      glDeleteBuffers(1, &materialBufferID);
       glDeleteBuffers(1, &objectHandleBufferID);
       glDeleteVertexArrays(1, &vertexArrayID);
 
       vertexArrayID = 0;
 
       delete[] CPUIndirectBuffer;
-      delete[] CPUObjectBuffer;
-      delete[] CPUMaterialBuffer;
       delete[] CPUObjectHandleBuffer;
     }
   }
@@ -135,10 +125,11 @@ namespace Lotus {
     newObject.ID = static_cast<uint32_t>(objects.size());
     
     objects.push_back(newObject);
+    GPUObjectBuffer.currentSize++;
 
     Handle<RenderObject> handle(newObject.ID);
 
-    dirtyObjectsHandlers.push_back(handle);
+    dirtyObjectsHandles.push_back(handle);
     unbatchedObjectsHandlers.push_back(handle);
 
     return meshInstance;
@@ -262,27 +253,25 @@ namespace Lotus {
         }
 
         // Queue the object to be updated in the GPU buffer
-        dirtyObjectsHandlers.push_back(objectHandle);
+        dirtyObjectsHandles.push_back(objectHandle);
       }
     }
   }
 
   void Renderer::updateMaterials()
   {
+    GPUMaterialData* materialBuffer = GPUMaterialBuffer.map();
     for (int i = 0; i < materials.size(); i++)
     {
       const std::shared_ptr<Material>& material = materials[i];
 
       if (material->dirty)
       {
-        CPUMaterialBuffer[i] = material->getMaterialData();     
-  
+        materialBuffer[i] = material->getMaterialData();
         material->dirty = false;
       }
     }
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialBufferID);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, materials.size() * sizeof(GPUMaterialData), CPUMaterialBuffer);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    GPUMaterialBuffer.unmap();
   }
 
   void Renderer::buildBatches()
@@ -577,40 +566,23 @@ namespace Lotus {
 
   void Renderer::refreshObjectBuffer()
   {
-    if (dirtyObjectsHandlers.size() > 0)
+    if (dirtyObjectsHandles.size() > 0)
     {
-      size_t copySize = objects.size() * sizeof(GPUObjectData); // TODO
-      if (objectBufferAllocatedSize < objects.size())
+      GPUObjectData* objectBuffer = GPUObjectBuffer.map();
+      
+      for (const Handle<RenderObject>& objectHandle : dirtyObjectsHandles)
       {
-        // reallocateBuffer(CPUObjectDataBuffer, copySize);
+        uint32_t index = objectHandle.get();
+
+        const RenderObject& object = objects[index];
+
+        objectBuffer[index].model = object.model;
+        objectBuffer[index].materialHandle = object.materialHandle.get();
       }
 
-      // If 80% of the objects are dirty, then just reupload the whole thing
-      if (dirtyObjectsHandlers.size() >= 0) // TODO
-      {
-        for(int i = 0; i < objects.size(); i++)
-        {
-          const RenderObject& object = objects[i];
+      GPUObjectBuffer.unmap();
 
-          GPUObjectData GPUObject;
-          GPUObject.model = object.model;
-          GPUObject.materialHandle = object.materialHandle.get();
-
-          memcpy(CPUObjectBuffer + i, &GPUObject, sizeof(GPUObjectData));
-        }
-
-
-      }
-      else
-      {
-        // TODO
-      }
-
-      glBindBuffer(GL_SHADER_STORAGE_BUFFER, objectBufferID);
-      glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, objects.size() * sizeof(GPUObjectData), CPUObjectBuffer);
-      glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-      dirtyObjectsHandlers.clear();
+      dirtyObjectsHandles.clear();
     }
   }
 
@@ -720,6 +692,7 @@ namespace Lotus {
       materialMap[material] = handle;
       
       materials.push_back(material);
+      GPUMaterialBuffer.currentSize++;
     }
     else
     {
