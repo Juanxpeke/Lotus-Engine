@@ -1,5 +1,7 @@
 #pragma once
 
+// #define GPU_BUFFERS_ENABLE_CPU_MAP
+
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -133,8 +135,8 @@ namespace Lotus
 
     DrawIndirectBuffer GPUIndirectBuffer;
     ShaderStorageBuffer<GPUObjectData> GPUObjectBuffer;
-    ShaderStorageBuffer<GPUMaterialData> GPUMaterialBuffer;
     ShaderStorageBuffer<uint32_t> GPUObjectHandleBuffer;
+    ShaderStorageBuffer<GPUMaterialData> GPUMaterialBuffer;
 
     GPUInstance* CPU_GPUInstanceBuffer;
     size_t CPU_GPUInstanceBufferSize;

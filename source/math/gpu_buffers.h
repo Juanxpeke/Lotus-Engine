@@ -29,7 +29,10 @@ namespace Lotus
     ~GPUBuffer()
     {
       glDeleteBuffers(1, &ID);
+
+#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
       delete[] CPUBuffer;
+#endif
     }
 
     virtual void bind()
@@ -55,7 +58,9 @@ namespace Lotus
       glBufferData(bufferType, initialAllocationSize * sizeof(T), nullptr, GL_DYNAMIC_DRAW);
       glBindBuffer(bufferType, 0);
 
+#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
       CPUBuffer = new T[initialAllocationSize];
+#endif
 
       allocatedSize = initialAllocationSize;
       allocated = true;
@@ -90,12 +95,14 @@ namespace Lotus
 
       glDeleteBuffers(1, &ID);
 
+#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
       T* newCPUBuffer = new T[newAllocationSize];
       std::memcpy(newCPUBuffer, CPUBuffer, allocatedSize * sizeof(T));
 
       delete[] CPUBuffer;
 
       CPUBuffer = newCPUBuffer;
+#endif
 
       ID = newID;
       allocatedSize = newAllocationSize;
@@ -108,23 +115,29 @@ namespace Lotus
       glBindBuffer(bufferType, ID);
       glBufferSubData(bufferType, first * sizeof(T), size * sizeof(T), source);
       glBindBuffer(bufferType, 0);
-
-      filledSize = size;
     }
 
     T* map()
     {
+#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
       if (allocatedSize < filledSize)
       {
         reallocate(filledSize);
       }
 
       return CPUBuffer;
+#else
+      return (T*) (glMapNamedBuffer(ID, GL_WRITE_ONLY));
+#endif
     }
 
     void unmap()
     {
+#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
       write(CPUBuffer, 0, filledSize);
+#else
+      glUnmapNamedBuffer(ID);
+#endif
     }
 
     uint32_t ID;
@@ -133,7 +146,9 @@ namespace Lotus
     size_t allocatedSize;
     bool allocated;
 
+#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
     T* CPUBuffer;
+#endif
   };
 
   template <typename T>
@@ -143,24 +158,27 @@ namespace Lotus
     {
       uint32_t first = this->filledSize;
 
-      if (allocationPlaces.size() > 0)
+      if (!allocationPlaces.empty())
       {
-        first = *allocationPlaces.rbegin();
-        allocationPlaces.erase(allocationPlaces.rbegin());
+        first = *allocationPlaces.begin();
+        allocationPlaces.erase(allocationPlaces.begin());
+      }
+      
+      if (first == this->filledSize)
+      {
+        this->filledSize = this->filledSize + 1;
       }
 
-      if (first + this->size > this->allocatedSize)
+      if (this->filledSize > this->allocatedSize)
       {
-        reallocate(first + this->size);
+        this->reallocate(this->filledSize);
       }
 
-      if (first + this->size > this->filledSize)
-      {
-        this->filledSize = first + this->size;
-      }
+      this->write(source, first, 1);
 
-      write(source, first, this->size);
-      //std::memcpy(CPUBuffer + first, source, size * sizeof(T));
+#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
+      this->CPUBuffer[first] = *source;
+#endif
 
       return first;
     }
@@ -218,7 +236,10 @@ namespace Lotus
       }
 
       this->write(source, first, size);
+
+#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
       //std::memcpy(CPUBuffer + first, source, size * sizeof(T));
+#endif
 
       return first;
     }
@@ -230,10 +251,10 @@ namespace Lotus
 
       for (int i = 0; i < allocationBlocks.size(); i++)
       {
-        
+        // TODO: Indentify previous and next allocation blocks
       }
 
-      allocationBlocks.emplace_back(first, size);
+      // TODO: If they exist, do the merge, if not, then allocationBlocks.emplace_back(first, size);
     }
 
     struct AllocationBlock

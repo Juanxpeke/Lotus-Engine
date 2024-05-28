@@ -73,22 +73,28 @@ namespace Lotus {
     std::shared_ptr<MeshInstance> meshInstance = std::make_shared<MeshInstance>(mesh, material);
     meshInstances.push_back(meshInstance);
 
+    GPUObjectData gpuObject;
+    gpuObject.model = meshInstance->getModelMatrix();
+    gpuObject.materialHandle = getMaterialHandle(material).get();
+      
+    uint32_t objectID = GPUObjectBuffer.add(&gpuObject);
+
     RenderObject newObject;
-    newObject.model = meshInstance->getModelMatrix();
+    newObject.model = gpuObject.model;
     newObject.meshHandle = getMeshHandle(mesh);
     newObject.materialHandle = getMaterialHandle(material);
-    newObject.ID = static_cast<uint32_t>(objects.size());
+    newObject.ID = objectID;
     
+    Handle<RenderObject> handle(static_cast<uint32_t>(objects.size()));
     objects.push_back(newObject);
     
-    //GPUObjectBuffer.add()
+    //GPUObjectBuffer.filledSize++;
+    //GPUObjectHandleBuffer.filledSize++;
+    uint32_t xd = 1;
+    GPUObjectHandleBuffer.add(&xd);
 
-    GPUObjectBuffer.filledSize++;
-    GPUObjectHandleBuffer.filledSize++;
 
-    Handle<RenderObject> handle(newObject.ID);
-
-    dirtyObjectsHandles.push_back(handle);
+    //dirtyObjectsHandles.push_back(handle);
     unbatchedObjectsHandlers.push_back(handle);
 
     return meshInstance;
@@ -96,13 +102,8 @@ namespace Lotus {
 
   void Renderer::deleteMeshInstance(std::shared_ptr<MeshInstance> meshInstance)
   {
-    struct HandleEntry { int index; };
-    HandleEntry handleEntry; 
-
-    meshInstances[handleEntry.index] = std::move(meshInstances.back());
+    meshInstances[0] = std::move(meshInstances.back());
     meshInstances.pop_back();
-
-    
   }
 
   std::shared_ptr<Material> Renderer::createMaterial(MaterialType type)
@@ -335,7 +336,7 @@ namespace Lotus {
         const RenderObject& object = objects[objectHandle.get()];
         RenderBatch batch;
 
-        batch.objectHandle = objectHandle;		
+        batch.objectHandle = object.ID;		
         batch.meshHandle = object.meshHandle;
         batch.shaderHandle = object.shaderID;
 
@@ -544,18 +545,16 @@ namespace Lotus {
 
   void Renderer::refreshObjectBuffer()
   {
-    if (dirtyObjectsHandles.size() > 0)
+    if (!dirtyObjectsHandles.empty())
     {
       GPUObjectData* objectBuffer = GPUObjectBuffer.map();
       
       for (const Handle<RenderObject>& objectHandle : dirtyObjectsHandles)
       {
-        uint32_t index = objectHandle.get();
+        const RenderObject& object = objects[objectHandle.get()];
 
-        const RenderObject& object = objects[index];
-
-        objectBuffer[index].model = object.model;
-        objectBuffer[index].materialHandle = object.materialHandle.get();
+        objectBuffer[object.ID].model = object.model;
+        objectBuffer[object.ID].materialHandle = object.materialHandle.get();
       }
 
       GPUObjectBuffer.unmap();
@@ -577,7 +576,7 @@ namespace Lotus {
 
         for (int iI = 0; iI < drawBatch.instanceCount; iI++)
         {
-          objectHandleBuffer[index] = renderBatches[drawBatch.prevInstanceCount + iI].objectHandle.get();
+          objectHandleBuffer[index] = objects[renderBatches[drawBatch.prevInstanceCount + iI].objectHandle.get()].ID;
           index++;
         }
       }
