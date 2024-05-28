@@ -50,6 +50,8 @@ namespace Lotus
     void startUp();
 
     std::shared_ptr<MeshInstance> createMeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+    void deleteMeshInstance(std::shared_ptr<MeshInstance> meshInstance);
+
     std::shared_ptr<Material> createMaterial(MaterialType type);
 
     void setAmbientLight(glm::vec3 color);
@@ -126,15 +128,8 @@ namespace Lotus
     // Buffers
     uint32_t vertexArrayID;
 
-    Vertex* CPUVertexBuffer;
-    size_t vertexBufferSize;
-    size_t vertexBufferAllocatedSize;
-    uint32_t vertexBufferID;
-
-    unsigned int* CPUIndexBuffer;
-    size_t indexBufferSize;
-    size_t indexBufferAllocatedSize;
-    uint32_t indexBufferID;
+    VertexBuffer GPUVertexBuffer;
+    IndexBuffer GPUIndexBuffer;
 
     DrawIndirectBuffer GPUIndirectBuffer;
     ShaderStorageBuffer<GPUObjectData> GPUObjectBuffer;
@@ -143,6 +138,5 @@ namespace Lotus
 
     GPUInstance* CPU_GPUInstanceBuffer;
     size_t CPU_GPUInstanceBufferSize;
-
   };
 }

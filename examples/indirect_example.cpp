@@ -65,6 +65,19 @@ void createDirectionalLight(Lotus::Renderer& renderer)
   directionalLight->setLightColor(glm::vec3(0.1f, 0.04f, 0.0f));
 }
 
+std::shared_ptr<Lotus::MeshInstance> createCube(Lotus::Renderer& renderer)
+{
+  auto& meshManager = Lotus::MeshManager::getInstance();
+  std::shared_ptr<Lotus::Mesh> cube = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
+
+  std::shared_ptr<Lotus::DiffuseFlatMaterial> material = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderer.createMaterial(Lotus::MaterialType::DiffuseFlat));
+  material->setDiffuseColor(glm::vec3(1.0, 0.0, 1.0));
+
+  std::shared_ptr<Lotus::MeshInstance> cubeObject = renderer.createMeshInstance(cube, material);
+  
+  return cubeObject;
+}
+
 std::shared_ptr<Lotus::MeshInstance> createSphere(Lotus::Renderer& renderer)
 {
   auto& meshManager = Lotus::MeshManager::getInstance();
@@ -109,7 +122,7 @@ int main()
   createDirectionalLight(renderer);
 
   std::shared_ptr<Lotus::MeshInstance> object1 = createSphere(renderer);
-  std::shared_ptr<Lotus::MeshInstance> object2 = createSphere(renderer);
+  std::shared_ptr<Lotus::MeshInstance> object2 = createCube(renderer);
   
   object1->translate(glm::vec3(3, 0, 0));
 
