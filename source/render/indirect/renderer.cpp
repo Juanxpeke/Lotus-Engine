@@ -73,14 +73,14 @@ namespace Lotus {
     std::shared_ptr<MeshInstance> meshInstance = std::make_shared<MeshInstance>(mesh, material);
     meshInstances.push_back(meshInstance);
 
-    GPUObjectData gpuObject;
-    gpuObject.model = meshInstance->getModelMatrix();
-    gpuObject.materialHandle = getMaterialHandle(material).get();
+    GPUObjectData GPUObject;
+    GPUObject.model = meshInstance->getModelMatrix();
+    GPUObject.materialHandle = getMaterialHandle(material).get();
       
-    uint32_t objectID = GPUObjectBuffer.add(&gpuObject);
+    uint32_t objectID = GPUObjectBuffer.add(&GPUObject);
 
     RenderObject newObject;
-    newObject.model = gpuObject.model;
+    newObject.model = GPUObject.model;
     newObject.meshHandle = getMeshHandle(mesh);
     newObject.materialHandle = getMaterialHandle(material);
     newObject.ID = objectID;
@@ -88,13 +88,9 @@ namespace Lotus {
     Handle<RenderObject> handle(static_cast<uint32_t>(objects.size()));
     objects.push_back(newObject);
     
-    //GPUObjectBuffer.filledSize++;
-    //GPUObjectHandleBuffer.filledSize++;
     uint32_t xd = 1;
     GPUObjectHandleBuffer.add(&xd);
 
-
-    //dirtyObjectsHandles.push_back(handle);
     unbatchedObjectsHandlers.push_back(handle);
 
     return meshInstance;
@@ -157,8 +153,7 @@ namespace Lotus {
     glm::vec3 cameraPosition = camera.getLocalTranslation();
 
 #if 1    
-    updateObjects();
-    updateMaterials();
+    update();
 
     buildBatches();
 
@@ -191,6 +186,12 @@ namespace Lotus {
     glBindVertexArray(0);
 #else
 #endif
+  }
+
+  void Renderer::update()
+  {
+    updateObjects();
+    updateMaterials();
   }
 
   void Renderer::updateObjects()
@@ -239,18 +240,20 @@ namespace Lotus {
 
   void Renderer::updateMaterials()
   {
-    GPUMaterialData* materialBuffer = GPUMaterialBuffer.map();
     for (int i = 0; i < materials.size(); i++)
     {
       const std::shared_ptr<Material>& material = materials[i];
 
       if (material->dirty)
       {
-        materialBuffer[i] = material->getMaterialData();
+        RenderMaterial& renderMaterial= renderMaterials[i];
+        Handle<RenderMaterial> materialHandle(i);
+
         material->dirty = false;
+
+        dirtyMaterialHandles.push_back(materialHandle);
       }
     }
-    GPUMaterialBuffer.unmap();
   }
 
   void Renderer::buildBatches()
@@ -486,6 +489,7 @@ namespace Lotus {
     refreshLightBuffer();
     refreshObjectBuffer();
     refreshObjectHandleBuffer();
+    refreshMaterialBuffer();
   }
 
   void Renderer::refreshIndirectBuffer()
@@ -584,6 +588,27 @@ namespace Lotus {
       GPUObjectHandleBuffer.unmap();
     }
   }
+  
+  void Renderer::refreshMaterialBuffer()
+  {
+    if (!dirtyMaterialHandles.empty())
+    {
+      GPUMaterialData* materialBuffer = GPUMaterialBuffer.map();
+
+      for (const Handle<RenderMaterial>& materialHandle : dirtyMaterialHandles)
+      {
+        const RenderMaterial& renderMaterial = renderMaterials[materialHandle.get()];
+
+        const std::shared_ptr<Material>& material = materials[materialHandle.get()];
+
+        materialBuffer[renderMaterial.ID] = materials[materialHandle.get()]->getMaterialData();
+      }
+
+      GPUMaterialBuffer.unmap();
+
+      dirtyMaterialHandles.clear();
+    }
+  }
 
   void Renderer::refreshInstancesBuffer()
   {
@@ -631,9 +656,9 @@ namespace Lotus {
       newMesh.count = indices.size();
 
       handle.set(static_cast<uint32_t>(meshes.size()));
-      meshMap[mesh] = handle;
-      
       meshes.push_back(newMesh);
+
+      meshMap[mesh] = handle;
     }
     else
     {
@@ -651,11 +676,19 @@ namespace Lotus {
 
     if (it == materialMap.end())
     {
-      handle.set(static_cast<uint32_t>(materials.size()));
-      materialMap[material] = handle;
-      
       materials.push_back(material);
-      GPUMaterialBuffer.filledSize++;
+
+      GPUMaterialData GPUMaterial = material->getMaterialData();
+      
+      uint32_t materialID = GPUMaterialBuffer.add(&GPUMaterial);
+
+      RenderMaterial renderMaterial;
+      renderMaterial.ID = materialID;
+      
+      handle.set(static_cast<uint32_t>(renderMaterials.size()));
+      renderMaterials.push_back(renderMaterial);
+      
+      materialMap[material] = handle;
     }
     else
     {

@@ -52,7 +52,7 @@ namespace Lotus
 
   struct RenderMaterial
   {
-    uint32_t xd;
+    uint32_t ID;
   };
 
   struct RenderObject
@@ -62,6 +62,7 @@ namespace Lotus
     uint32_t shaderID;
 
     glm::mat4 model;
+    
     uint32_t ID;
   };
 

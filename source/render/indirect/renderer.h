@@ -1,6 +1,6 @@
 #pragma once
 
-// #define GPU_BUFFERS_ENABLE_CPU_MAP
+#define GPU_BUFFERS_ENABLE_CPU_MAP
 
 #include <cstddef>
 #include <cstdint>
@@ -63,6 +63,7 @@ namespace Lotus
     void render(const Camera& camera);
 
     // Update Functions
+    void update();
     void updateObjects();
     void updateMaterials();
 
@@ -78,6 +79,7 @@ namespace Lotus
     void refreshLightBuffer();
     void refreshObjectBuffer();
     void refreshObjectHandleBuffer();
+    void refreshMaterialBuffer();
 
     void refreshInstancesBuffer(); // TODO
 
@@ -118,6 +120,8 @@ namespace Lotus
     std::vector<Handle<RenderObject>> unbatchedObjectsHandlers;
     
     std::vector<std::shared_ptr<Material>> materials;
+    std::vector<RenderMaterial> renderMaterials;
+    std::vector<Handle<RenderMaterial>> dirtyMaterialHandles;
 
     // Meshes
     std::vector<RenderMesh> meshes;
