@@ -154,8 +154,7 @@ namespace Lotus {
     glm::mat4 viewMatrix = camera.getViewMatrix();
     glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     glm::vec3 cameraPosition = camera.getLocalTranslation();
-
-#if 1    
+   
     update();
 
     buildBatches();
@@ -187,8 +186,6 @@ namespace Lotus {
     GPUIndirectBuffer.unbind();
 
     glBindVertexArray(0);
-#else
-#endif
   }
 
   void Renderer::update()
@@ -273,13 +270,13 @@ namespace Lotus {
 
   void Renderer::buildObjectBatches()
   {
-    if (toUnbatchObjects.size() > 0)
+    if (!toUnbatchObjects.empty())
     {
       std::cout << "Render batches" << std::endl;
       printRenderBatches(objectBatches);
 
-      std::vector<ObjectBatch> deletionRenderBatches;
-      deletionRenderBatches.reserve(toUnbatchObjects.size());
+      std::vector<ObjectBatch> deletionObjectBatches;
+      deletionObjectBatches.reserve(toUnbatchObjects.size());
       
       for (auto object : toUnbatchObjects)
       {
@@ -289,15 +286,15 @@ namespace Lotus {
         batch.meshHandle = object.meshHandle;
         batch.shaderHandle = object.shaderID;
 
-        deletionRenderBatches.push_back(batch);
+        deletionObjectBatches.push_back(batch);
       }
 
-      std::cout << "Deletion render batches" << std::endl;
-      printRenderBatches(deletionRenderBatches);
+      // std::cout << "Deletion render batches" << std::endl;
+      // printRenderBatches(deletionRenderBatches);
 
       toUnbatchObjects.clear();
 
-      std::sort(deletionRenderBatches.begin(), deletionRenderBatches.end(),
+      std::sort(deletionObjectBatches.begin(), deletionObjectBatches.end(),
       [](const ObjectBatch& bA, const ObjectBatch& bB) {
         if (bA.shaderHandle < bB.shaderHandle) { return true; }
         else if (bA.shaderHandle == bB.shaderHandle) {
@@ -308,13 +305,13 @@ namespace Lotus {
         else { return false; }
       });
 
-      std::cout << "Ordered deletion render batches" << std::endl;
-      printRenderBatches(deletionRenderBatches);
+      // std::cout << "Ordered deletion render batches" << std::endl;
+      // printRenderBatches(deletionRenderBatches);
 
-      std::vector<ObjectBatch> newRenderBatches;
-      newRenderBatches.reserve(objectBatches.size());
+      std::vector<ObjectBatch> objectBatchesWithDeletion;
+      objectBatchesWithDeletion.reserve(objectBatches.size());
 
-      std::set_difference(objectBatches.begin(), objectBatches.end(), deletionRenderBatches.begin(), deletionRenderBatches.end(), std::back_inserter(newRenderBatches),
+      std::set_difference(objectBatches.begin(), objectBatches.end(), deletionObjectBatches.begin(), deletionObjectBatches.end(), std::back_inserter(objectBatchesWithDeletion),
       [](const ObjectBatch& bA, const ObjectBatch& bB) {
         if (bA.shaderHandle < bB.shaderHandle) { return true; }
         else if (bA.shaderHandle == bB.shaderHandle) {
@@ -325,16 +322,16 @@ namespace Lotus {
         else { return false; }
       });
 
-      objectBatches = std::move(newRenderBatches);
+      objectBatches = std::move(objectBatchesWithDeletion);
 
-      std::cout << "Render batches after deletion" << std::endl;
-      printRenderBatches(objectBatches);
+      // std::cout << "Render batches after deletion" << std::endl;
+      // printRenderBatches(objectBatches);
     }
 
-    if (unbatchedObjectsHandles.size() > 0)
+    if (!unbatchedObjectsHandles.empty())
     {
-      std::vector<ObjectBatch> newRenderBatches;
-      newRenderBatches.reserve(unbatchedObjectsHandles.size());
+      std::vector<ObjectBatch> newObjectBatches;
+      newObjectBatches.reserve(unbatchedObjectsHandles.size());
       
       // Fill new render batches
       for (auto objectHandle : unbatchedObjectsHandles)
@@ -346,7 +343,7 @@ namespace Lotus {
         batch.meshHandle = object.meshHandle;
         batch.shaderHandle = object.shaderID;
 
-        newRenderBatches.push_back(batch);
+        newObjectBatches.push_back(batch);
       }
 
       // std::cout << "New render batches" << std::endl;
@@ -355,7 +352,7 @@ namespace Lotus {
       unbatchedObjectsHandles.clear();
 
       // New render batches sort
-      std::sort(newRenderBatches.begin(), newRenderBatches.end(),
+      std::sort(newObjectBatches.begin(), newObjectBatches.end(),
       [](const ObjectBatch& bA, const ObjectBatch& bB)
       {
         if (bA.shaderHandle < bB.shaderHandle) { return true; }
@@ -371,14 +368,14 @@ namespace Lotus {
       // printRenderBatches(newRenderBatches);
 
       // Merge the new render batches into the main render batch array
-      if (objectBatches.size() > 0 && newRenderBatches.size() > 0)
+      if (!objectBatches.empty() && !newObjectBatches.empty())
       {
         int index = objectBatches.size();
-        objectBatches.reserve(objectBatches.size() + newRenderBatches.size());
+        objectBatches.reserve(objectBatches.size() + newObjectBatches.size());
         
-        for (auto b : newRenderBatches)
+        for (const ObjectBatch& objectBatch : newObjectBatches)
         {
-          objectBatches.push_back(b);
+          objectBatches.push_back(objectBatch);
         }
 
         ObjectBatch* begin = objectBatches.data();
@@ -396,9 +393,9 @@ namespace Lotus {
           else { return false; }
         });
       }
-      else if (objectBatches.size() == 0)
+      else if (objectBatches.empty())
       {
-        objectBatches = std::move(newRenderBatches);
+        objectBatches = std::move(newObjectBatches);
       }
 
       // std::cout << "Render batches after addition" << std::endl;
@@ -497,7 +494,7 @@ namespace Lotus {
 
   void Renderer::refreshIndirectBuffer()
   {
-    if (drawBatches.size() > 0)
+    if (!drawBatches.empty())
     {
       DrawElementsIndirectCommand* indirectBuffer = GPUIndirectBuffer.map();
 
@@ -552,65 +549,71 @@ namespace Lotus {
 
   void Renderer::refreshObjectBuffer()
   {
-    if (!dirtyObjectsHandles.empty())
+    if (dirtyObjectsHandles.empty())
     {
-      GPUObjectData* objectBuffer = GPUObjectBuffer.map();
-      
-      for (const Handle<RenderObject>& objectHandle : dirtyObjectsHandles)
-      {
-        const RenderObject& object = renderObjects[objectHandle.get()];
-
-        objectBuffer[object.ID].model = object.model;
-        objectBuffer[object.ID].materialHandle = object.materialHandle.get();
-      }
-
-      GPUObjectBuffer.unmap();
-
-      dirtyObjectsHandles.clear();
+      return;
     }
+
+    GPUObjectData* objectBuffer = GPUObjectBuffer.map();
+    
+    for (const Handle<RenderObject>& objectHandle : dirtyObjectsHandles)
+    {
+      const RenderObject& object = renderObjects[objectHandle.get()];
+
+      objectBuffer[object.ID].model = object.model;
+      objectBuffer[object.ID].materialHandle = object.materialHandle.get();
+    }
+
+    GPUObjectBuffer.unmap();
+
+    dirtyObjectsHandles.clear();
   }
 
   void Renderer::refreshObjectHandleBuffer()
   {
-    if (drawBatches.size() > 0)
+    if (drawBatches.empty())
     {
-      uint32_t* objectHandleBuffer = GPUObjectHandleBuffer.map();
-
-      int index = 0;
-      for (int dI = 0; dI < drawBatches.size(); dI++)
-      {
-        auto drawBatch = drawBatches[dI];
-
-        for (int iI = 0; iI < drawBatch.instanceCount; iI++)
-        {
-          objectHandleBuffer[index] = renderObjects[objectBatches[drawBatch.prevInstanceCount + iI].objectHandle.get()].ID;
-          index++;
-        }
-      }
-
-      GPUObjectHandleBuffer.unmap();
+      return;
     }
+
+    uint32_t* objectHandleBuffer = GPUObjectHandleBuffer.map();
+
+    int index = 0;
+    for (int dI = 0; dI < drawBatches.size(); dI++)
+    {
+      auto drawBatch = drawBatches[dI];
+
+      for (int iI = 0; iI < drawBatch.instanceCount; iI++)
+      {
+        objectHandleBuffer[index] = renderObjects[objectBatches[drawBatch.prevInstanceCount + iI].objectHandle.get()].ID;
+        index++;
+      }
+    }
+
+    GPUObjectHandleBuffer.unmap();
   }
   
   void Renderer::refreshMaterialBuffer()
   {
-    if (!dirtyMaterialsHandles.empty())
+    if (dirtyMaterialsHandles.empty())
     {
-      GPUMaterialData* materialBuffer = GPUMaterialBuffer.map();
-
-      for (const Handle<RenderMaterial>& materialHandle : dirtyMaterialsHandles)
-      {
-        const RenderMaterial& renderMaterial = renderMaterials[materialHandle.get()];
-
-        const std::shared_ptr<Material>& material = materials[materialHandle.get()];
-
-        materialBuffer[renderMaterial.ID] = materials[materialHandle.get()]->getMaterialData();
-      }
-
-      GPUMaterialBuffer.unmap();
-
-      dirtyMaterialsHandles.clear();
+      return;
     }
+
+    GPUMaterialData* materialBuffer = GPUMaterialBuffer.map();
+
+    for (const Handle<RenderMaterial>& materialHandle : dirtyMaterialsHandles)
+    {
+      const RenderMaterial& renderMaterial = renderMaterials[materialHandle.get()];
+
+      const std::shared_ptr<Material>& material = materials[materialHandle.get()];
+
+      materialBuffer[renderMaterial.ID] = materials[materialHandle.get()]->getMaterialData();
+    }
+
+    GPUMaterialBuffer.unmap();
+
+    dirtyMaterialsHandles.clear();
   }
 
   void Renderer::refreshInstancesBuffer()
