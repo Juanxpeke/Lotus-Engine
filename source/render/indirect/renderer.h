@@ -69,7 +69,7 @@ namespace Lotus
 
     // Batches Functions
     void buildBatches();
-    void buildRenderBatches();
+    void buildObjectBatches();
     void buildDrawBatches();
     void buildShaderBatches();
 
@@ -114,20 +114,21 @@ namespace Lotus
 
     // Objects
     std::vector<std::shared_ptr<MeshInstance>> meshInstances;
-    std::vector<RenderObject> objects;
+    std::vector<RenderObject> renderObjects;
     std::vector<Handle<RenderObject>> dirtyObjectsHandles;
     std::vector<RenderObject> toUnbatchObjects;
-    std::vector<Handle<RenderObject>> unbatchedObjectsHandlers;
+    std::vector<Handle<RenderObject>> unbatchedObjectsHandles;
     
+    // Materials
     std::vector<std::shared_ptr<Material>> materials;
     std::vector<RenderMaterial> renderMaterials;
-    std::vector<Handle<RenderMaterial>> dirtyMaterialHandles;
+    std::vector<Handle<RenderMaterial>> dirtyMaterialsHandles;
 
     // Meshes
-    std::vector<RenderMesh> meshes;
+    std::vector<RenderMesh> renderMeshes;
 
     // Batches
-    std::vector<RenderBatch> renderBatches;
+    std::vector<ObjectBatch> objectBatches;
     std::vector<DrawBatch> drawBatches;
     std::vector<ShaderBatch> shaderBatches;
 

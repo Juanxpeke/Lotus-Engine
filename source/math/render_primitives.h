@@ -62,7 +62,7 @@ namespace Lotus
     uint32_t shaderID;
 
     glm::mat4 model;
-    
+
     uint32_t ID;
   };
 
@@ -90,7 +90,7 @@ namespace Lotus
   /*
     Batch for a single object
   */
-  struct RenderBatch
+  struct ObjectBatch
   {
     Handle<RenderObject> objectHandle;
     Handle<int> shaderHandle;
