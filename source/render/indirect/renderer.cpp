@@ -295,9 +295,6 @@ namespace Lotus {
         deletionObjectBatches.push_back(batch);
       }
 
-      std::cout << "Deletion render batches" << std::endl;
-      printRenderBatches(deletionObjectBatches);
-
       toUnbatchObjects.clear();
 
       std::sort(deletionObjectBatches.begin(), deletionObjectBatches.end(),
@@ -311,8 +308,8 @@ namespace Lotus {
         else { return false; }
       });
 
-      std::cout << "Ordered deletion render batches" << std::endl;
-      printRenderBatches(deletionObjectBatches);
+      // std::cout << "Ordered deletion render batches" << std::endl;
+      // printRenderBatches(deletionObjectBatches);
 
       std::vector<ObjectBatch> objectBatchesWithDeletion;
       objectBatchesWithDeletion.reserve(objectBatches.size());
@@ -330,8 +327,8 @@ namespace Lotus {
 
       objectBatches = std::move(objectBatchesWithDeletion);
 
-      std::cout << "Render batches after deletion" << std::endl;
-      printRenderBatches(objectBatches);
+      // std::cout << "Render batches after deletion" << std::endl;
+      // printRenderBatches(objectBatches);
     }
 
     if (!unbatchedObjectsHandles.empty())
@@ -353,9 +350,6 @@ namespace Lotus {
         newObjectBatches.push_back(batch);
       }
 
-      std::cout << "New render batches" << std::endl;
-      printRenderBatches(newObjectBatches);
-
       unbatchedObjectsHandles.clear();
 
       // New render batches sort
@@ -371,8 +365,8 @@ namespace Lotus {
         else { return false; }
       });
 
-      std::cout << "Ordered new render batches" << std::endl;
-      printRenderBatches(newObjectBatches);
+      //std::cout << "Ordered new render batches" << std::endl;
+      //printRenderBatches(newObjectBatches);
 
       // Merge the new render batches into the main render batch array
       if (!objectBatches.empty() && !newObjectBatches.empty())
@@ -405,8 +399,8 @@ namespace Lotus {
         objectBatches = std::move(newObjectBatches);
       }
 
-      std::cout << "Render batches after addition" << std::endl;
-      printRenderBatches(objectBatches);
+      // std::cout << "Render batches after addition" << std::endl;
+      // printRenderBatches(objectBatches);
     }
   }
 
