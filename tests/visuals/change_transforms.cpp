@@ -94,7 +94,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  sprintf(title, "Change Transofmrs");
+  sprintf(title, "Change Transforms");
 	GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
 
 	if (window == NULL)
