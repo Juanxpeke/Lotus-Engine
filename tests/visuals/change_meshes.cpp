@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "../test_util.h"
 #include "util/path_manager.h"
 #include "scene/camera.h"
 #include "render/indirect/renderer.h"
@@ -27,31 +28,11 @@ std::vector<std::shared_ptr<Lotus::MeshInstance>> objects;
 std::vector<std::shared_ptr<Lotus::Mesh>> meshes;
 std::vector<int> meshIndices;
 
-class Event
-{
-public:
-  
-  Event(double duration) : lockDuration(duration) {}
-
-  virtual void execute() {};
-
-  double getLockDuration()
-  {
-    return lockDuration;
-  }
-
-private:
-  double lockDuration;
-};
-
-class ObjectMeshChangeEvent : public Event
+class ObjectMeshChangeEvent : public LotusTest::Event
 {
 public:
 
-  ObjectMeshChangeEvent(double duration, int index) : Event(duration)
-  {
-    objectIndex = index;
-  }
+  ObjectMeshChangeEvent(double time, int index) : LotusTest::Event(time), objectIndex(index) {}
 
   virtual void execute() override
   {
@@ -63,54 +44,6 @@ public:
   }
 private:
   int objectIndex;
-};
-
-class ObjectsMeshChangeEvent : public Event
-{
-public:
-  using Event::Event;
-
-  virtual void execute() override
-  {
-    int meshIndex = meshIndices[0];
-    int newMeshIndex = (meshIndex + 1) % meshes.size();
-
-    for (int i = 0; i < objects.size(); i++)
-    {
-      objects[i]->setMesh(meshes[newMeshIndex]);
-      meshIndices[i] = newMeshIndex;
-    }
-  }
-};
-
-class EventQueue
-{
-public:
-
-  EventQueue(double initialLockTime = 0.0) : lockTime(initialLockTime), currentEventIndex(-1) {}
-
-  void update(double dt)
-  {
-    lockTime -= dt;
-
-    if (lockTime < 0 && !events.empty())
-    {
-      std::cout <<"NEW EVENT EXECUTION" << std::endl;
-      currentEventIndex = (currentEventIndex + 1) % events.size();
-      lockTime = events[currentEventIndex]->getLockDuration();
-      events[currentEventIndex]->execute();
-    }
-  }
-
-  void queue(Event* event)
-  {
-    events.push_back(event);
-  }
-
-private:
-  double lockTime;
-  int currentEventIndex;
-  std::vector<Event*> events;
 };
 
 void updateFromInputs(GLFWwindow* window, float dt, Lotus::Camera* cameraPtr)
@@ -222,15 +155,13 @@ int main()
   meshIndices.push_back(1);
   meshIndices.push_back(2);
 
-  EventQueue eventQueue(3.0);
-  ObjectMeshChangeEvent e1(3.0, 0);
-  ObjectMeshChangeEvent e2(3.0, 1);
+  LotusTest::EventTimeline eventTimeline;
+  ObjectMeshChangeEvent e1(1.0, 0);
+  ObjectMeshChangeEvent e2(2.0, 1);
   ObjectMeshChangeEvent e3(3.0, 2);
-  ObjectsMeshChangeEvent e4(3.0);
-  eventQueue.queue(&e1);
-  eventQueue.queue(&e2);
-  eventQueue.queue(&e3);
-  eventQueue.queue(&e4);
+  eventTimeline.addEvent(&e1);
+  eventTimeline.addEvent(&e2);
+  eventTimeline.addEvent(&e3);
 	
 	double lastTime = glfwGetTime();
 
@@ -243,7 +174,7 @@ int main()
     lastTime = currentTime;
 
     updateFromInputs(window, dt, &camera);
-    eventQueue.update(dt);
+    eventTimeline.update(dt);
 
 		renderer.render(camera);
 

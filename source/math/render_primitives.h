@@ -57,13 +57,15 @@ namespace Lotus
 
   struct RenderObject
   {
-    Handle<RenderMesh> meshHandle;
-    Handle<RenderMaterial> materialHandle;
-    uint32_t shaderID;
+    Handle<RenderMesh> meshHandle = 0;
+    Handle<RenderMaterial> materialHandle = 0;
+    uint32_t shaderID = 0;
 
     glm::mat4 model;
 
-    uint32_t ID;
+    uint32_t ID = 0;
+
+    bool unbatched = true;
   };
 
   /*

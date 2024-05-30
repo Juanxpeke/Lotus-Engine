@@ -86,6 +86,7 @@ namespace Lotus {
     renderObject.model = GPUObject.model;
     renderObject.meshHandle = getMeshHandle(mesh);
     renderObject.materialHandle = getMaterialHandle(material);
+    renderObject.shaderID = 0;
     renderObject.ID = objectID;
     
     Handle<RenderObject> handle(static_cast<uint32_t>(renderObjects.size()));
@@ -218,12 +219,17 @@ namespace Lotus {
         }
         if (meshInstance->meshDirty || meshInstance->shaderDirty)
         {
-          /*
-            The renderer MUST rearrange the batch related to this object if the mesh or the shader change
-            so the batches ordering logic works accordingly.
-          */
-          toUnbatchObjects.push_back(renderObject);
-          unbatchedObjectsHandles.push_back(objectHandle);
+          if (!renderObject.unbatched)
+          {
+            /*
+              The renderer MUST rearrange the batch related to this object if the mesh or the shader change
+              so the batches ordering logic works accordingly.
+            */
+            toUnbatchObjects.push_back(renderObject);
+            unbatchedObjectsHandles.push_back(objectHandle);
+
+            renderObject.unbatched = true;
+          }
 
           renderObject.meshHandle = getMeshHandle(meshInstance->getMesh());
           renderObject.shaderID = 0;// meshInstance->getMaterial()->getShaderID();
@@ -278,7 +284,7 @@ namespace Lotus {
       std::vector<ObjectBatch> deletionObjectBatches;
       deletionObjectBatches.reserve(toUnbatchObjects.size());
       
-      for (auto object : toUnbatchObjects)
+      for (const RenderObject& object : toUnbatchObjects)
       {
         ObjectBatch batch;
 
@@ -289,8 +295,8 @@ namespace Lotus {
         deletionObjectBatches.push_back(batch);
       }
 
-      // std::cout << "Deletion render batches" << std::endl;
-      // printRenderBatches(deletionRenderBatches);
+      std::cout << "Deletion render batches" << std::endl;
+      printRenderBatches(deletionObjectBatches);
 
       toUnbatchObjects.clear();
 
@@ -305,8 +311,8 @@ namespace Lotus {
         else { return false; }
       });
 
-      // std::cout << "Ordered deletion render batches" << std::endl;
-      // printRenderBatches(deletionRenderBatches);
+      std::cout << "Ordered deletion render batches" << std::endl;
+      printRenderBatches(deletionObjectBatches);
 
       std::vector<ObjectBatch> objectBatchesWithDeletion;
       objectBatchesWithDeletion.reserve(objectBatches.size());
@@ -324,8 +330,8 @@ namespace Lotus {
 
       objectBatches = std::move(objectBatchesWithDeletion);
 
-      // std::cout << "Render batches after deletion" << std::endl;
-      // printRenderBatches(objectBatches);
+      std::cout << "Render batches after deletion" << std::endl;
+      printRenderBatches(objectBatches);
     }
 
     if (!unbatchedObjectsHandles.empty())
@@ -336,7 +342,8 @@ namespace Lotus {
       // Fill new render batches
       for (auto objectHandle : unbatchedObjectsHandles)
       {
-        const RenderObject& object = renderObjects[objectHandle.get()];
+        RenderObject& object = renderObjects[objectHandle.get()];
+        object.unbatched = false;
 
         ObjectBatch batch;
         batch.objectHandle = object.ID;		
@@ -346,8 +353,8 @@ namespace Lotus {
         newObjectBatches.push_back(batch);
       }
 
-      // std::cout << "New render batches" << std::endl;
-      // printRenderBatches(newRenderBatches);
+      std::cout << "New render batches" << std::endl;
+      printRenderBatches(newObjectBatches);
 
       unbatchedObjectsHandles.clear();
 
@@ -364,8 +371,8 @@ namespace Lotus {
         else { return false; }
       });
 
-      // std::cout << "Ordered new render batches" << std::endl;
-      // printRenderBatches(newRenderBatches);
+      std::cout << "Ordered new render batches" << std::endl;
+      printRenderBatches(newObjectBatches);
 
       // Merge the new render batches into the main render batch array
       if (!objectBatches.empty() && !newObjectBatches.empty())
@@ -398,8 +405,8 @@ namespace Lotus {
         objectBatches = std::move(newObjectBatches);
       }
 
-      // std::cout << "Render batches after addition" << std::endl;
-      // printRenderBatches(renderBatches);
+      std::cout << "Render batches after addition" << std::endl;
+      printRenderBatches(objectBatches);
     }
   }
 
