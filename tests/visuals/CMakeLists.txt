@@ -11,4 +11,5 @@ endfunction(add_indirect_example)
 add_visual_test(different_meshes)
 add_visual_test(different_materials)
 
+add_visual_test(change_transforms)
 add_visual_test(change_meshes)

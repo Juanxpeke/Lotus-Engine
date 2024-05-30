@@ -5,11 +5,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../test_util.h"
 #include "util/path_manager.h"
 #include "scene/camera.h"
 #include "render/indirect/renderer.h"
 #include "render/indirect/mesh_manager.h"
+#include "../test_util.h"
 
 int width = 720;
 int height = 720;
@@ -113,7 +113,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  sprintf(title, "Different Meshes");
+  sprintf(title, "Change Meshes");
 	GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
 
 	if (window == NULL)
