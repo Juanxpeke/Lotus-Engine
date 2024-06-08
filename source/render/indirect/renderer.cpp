@@ -26,6 +26,8 @@ namespace Lotus {
   void Renderer::startUp()
   {
     shaders[static_cast<unsigned int>(0)] = ShaderProgram(shaderPath("n_diffuse_flat.vert"), shaderPath("n_diffuse_flat.frag"));
+    //shaders[static_cast<unsigned int>(1)] = ShaderProgram(shaderPath("n_unlit_flat.vert"), shaderPath("n_unlit_flat.frag"));
+    terrainShader = ShaderProgram(shaderPath("terrain.vert"), shaderPath("terrain.frag"));
 
     glEnable(GL_DEPTH_TEST);
     
@@ -127,6 +129,13 @@ namespace Lotus {
     }
   }
 
+  std::shared_ptr<Terrain> Renderer::createTerrain()
+  {
+    terrain = std::make_shared<Terrain>(64);
+    
+    return terrain;
+  }
+
   void Renderer::setAmbientLight(glm::vec3 color)
   {
     ambientLight = color;
@@ -186,7 +195,19 @@ namespace Lotus {
     GPUObjectHandleBuffer.unbind();
     GPUIndirectBuffer.unbind();
 
-    glBindVertexArray(0);
+    if (terrain != nullptr)
+    {
+      glUseProgram(terrainShader.getProgramID());
+
+      glUniformMatrix4fv(ViewMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+      glUniformMatrix4fv(ProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+      glBindVertexArray(terrain->vertexArrayID);
+
+      glDrawElements(GL_TRIANGLES, terrain->indexBuffer.filledSize, GL_UNSIGNED_INT, nullptr);
+
+      glBindVertexArray(0);
+    }
   }
 
   void Renderer::update()

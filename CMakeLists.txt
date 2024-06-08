@@ -15,7 +15,8 @@ set(THIRD_PARTY_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/assimp/include
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/assimp/include/assimp
-  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/stb)
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/stb
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/PerlinNoise)
 set(THIRD_PARTY_LIBRARIES glfw glad ${OPENGL_LIBRARIES} assimp stb)
 
 set(LOTUS_INCLUDE_DIRECTORY
@@ -26,7 +27,7 @@ configure_file(CMakeConfigFiles/path_manager_renderer.h.in ${CMAKE_CURRENT_SOURC
 configure_file(CMakeConfigFiles/path_manager_gl_tests.h.in ${CMAKE_CURRENT_SOURCE_DIR}/gl_tests/path_manager.h)
 
 add_subdirectory(source)
-add_subdirectory(examples)
+#add_subdirectory(examples)
 add_subdirectory(gl_tests)
 add_subdirectory(tests)
 add_subdirectory(third_party)

@@ -16,6 +16,7 @@
 #include "../../scene/camera.h"
 #include "../../lighting/directional_light.h"
 #include "../../lighting/point_light.h"
+#include "../../terrain/terrain.h"
 #include "mesh.h"
 #include "shader_program.h"
 #include "material.h"
@@ -55,6 +56,8 @@ namespace Lotus
     void deleteMeshInstance(std::shared_ptr<MeshInstance> meshInstance);
 
     std::shared_ptr<Material> createMaterial(MaterialType type);
+
+    std::shared_ptr<Terrain> createTerrain();
 
     void setAmbientLight(glm::vec3 color);
     std::shared_ptr<DirectionalLight> createDirectionalLight();
@@ -143,7 +146,13 @@ namespace Lotus
     ShaderStorageBuffer<uint32_t> GPUObjectHandleBuffer;
     ShaderStorageBuffer<GPUMaterialData> GPUMaterialBuffer;
 
+    // TODO
     GPUInstance* CPU_GPUInstanceBuffer;
     size_t CPU_GPUInstanceBufferSize;
+
+    // Terrains
+    ShaderProgram terrainShader;
+
+    std::shared_ptr<Terrain> terrain;
   };
 }
