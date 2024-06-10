@@ -164,15 +164,15 @@ int main()
 	createCube(renderer);
 	createSphere(renderer);
 	
-	float lastTime = glfwGetTime();
+	double lastTime = glfwGetTime();
 
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
 		
-		float currentTime = glfwGetTime();
-    float dt = currentTime - lastTime;
+		double currentTime = glfwGetTime();
+    double dt = currentTime - lastTime;
     lastTime = currentTime;
 
     updateFromInputs(window, dt, &camera);
