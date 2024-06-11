@@ -1,9 +1,11 @@
 #pragma once
 
+#include <cmath>
 #include <algorithm>
 #include <memory>
 #include <vector>
 #include <glm/glm.hpp>
+#include "render/indirect/diffuse_flat_material.h"
 #include "render/indirect/mesh_instance.h"
 
 namespace LotusTest
@@ -124,5 +126,52 @@ namespace LotusTest
     double distance;
   };
 
+  class MaterialValueChange
+  {
+  public:
+    MaterialValueChange() = default;
+
+    virtual void apply(double dt) = 0;
+  };
+
+  class DiffuseColorChange : public MaterialValueChange
+  {
+  public:
+    DiffuseColorChange(
+        std::shared_ptr<Lotus::DiffuseFlatMaterial> material,
+        const std::vector<glm::vec3>& initialColors,
+        double initialDuration = 3.0) :
+      materialPtr(material),
+      colors(initialColors),
+      duration(initialDuration),
+      elapsedTime(0.0)
+    {}
+
+    virtual void apply(double dt) override
+    {
+      if (colors.empty() || duration <= 0)
+      {
+        return;
+      }
+
+      elapsedTime += dt;
+
+      double progress = std::fmod(elapsedTime, duration) / duration;
+
+      int currentIdx = static_cast<int>(progress * colors.size()) % colors.size();
+      int nextIdx = (currentIdx + 1) % colors.size();
+
+      double t = (progress * colors.size()) - currentIdx;
+      glm::vec3 newColor = glm::mix(colors[currentIdx], colors[nextIdx], t);
+
+      materialPtr->setDiffuseColor(newColor);
+    }
+
+  private:
+    std::shared_ptr<Lotus::DiffuseFlatMaterial> materialPtr;
+    std::vector<glm::vec3> colors;
+    double duration;
+    double elapsedTime;
+  };
 }
 
