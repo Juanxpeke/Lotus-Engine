@@ -121,7 +121,7 @@ int main()
 	renderer.setAmbientLight(glm::vec3(0.5, 0.5, 0.5));
 	createDirectionalLight(renderer);
 
-  sphereMesh =  meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
+  sphereMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
 
   std::shared_ptr<Lotus::Material> whiteFlatMaterial = createFlatMaterial(renderer, glm::vec3(1.0, 1.0, 1.0));
   std::shared_ptr<Lotus::Material> redFlatMaterial = createFlatMaterial(renderer, glm::vec3(1.0, 0.0, 0.0));

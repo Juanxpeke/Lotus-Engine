@@ -23,10 +23,9 @@ glm::vec3 newObjectPositionOffset(5, 0, 0);
 
 Lotus::MeshManager& meshManager = Lotus::MeshManager::getInstance();
 std::shared_ptr<Lotus::Mesh> sphereMesh;
-std::shared_ptr<Lotus::DiffuseFlatMaterial> blackAndWhiteFlatMaterial;
-std::shared_ptr<Lotus::DiffuseFlatMaterial> RGBFlatMaterial;
+std::shared_ptr<Lotus::DiffuseFlatMaterial> whiteFlatMaterial; 
 
-std::vector<LotusTest::DiffuseColorChange> diffuseColorChanges;
+std::vector<LotusTest::CyclicDirectedTranslation> objectsMovements;
 
 void updateFromInputs(GLFWwindow* window, float dt, Lotus::Camera* cameraPtr)
 {
@@ -77,24 +76,15 @@ void createDirectionalLight(Lotus::Renderer& renderer)
   directionalLight->setLightColor(glm::vec3(0.1f, 0.04f, 0.0f));
 }
 
-std::shared_ptr<Lotus::DiffuseFlatMaterial> createAnimatedFlatMaterial(Lotus::Renderer& renderer, const std::vector<glm::vec3> colors)
+void createNewObject(Lotus::Renderer& renderer)
 {
-  std::shared_ptr<Lotus::DiffuseFlatMaterial> flatMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderer.createMaterial(Lotus::MaterialType::DiffuseFlat));
-
-  flatMaterial->setDiffuseColor(colors[0]);
-
-  diffuseColorChanges.emplace_back(flatMaterial, colors);
-
-  return flatMaterial;
-}
-
-void createNewObject(Lotus::Renderer& renderer, std::shared_ptr<Lotus::Material> material)
-{
-	std::shared_ptr<Lotus::MeshInstance> object = renderer.createMeshInstance(sphereMesh, material);
+	std::shared_ptr<Lotus::MeshInstance> object = renderer.createMeshInstance(sphereMesh, whiteFlatMaterial);
 
 	object->translate(newObjectPosition);
 
   newObjectPosition += newObjectPositionOffset;
+
+  objectsMovements.emplace_back(object);
 }
 
 int main()
@@ -104,7 +94,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  sprintf(title, "Change Meshes");
+  sprintf(title, "Change Transforms");
 	GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
 
 	if (window == NULL)
@@ -128,13 +118,14 @@ int main()
 	renderer.setAmbientLight(glm::vec3(0.5, 0.5, 0.5));
 	createDirectionalLight(renderer);
 
-  sphereMesh =  meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
+  sphereMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
 
-  blackAndWhiteFlatMaterial = createAnimatedFlatMaterial(renderer, { { 1.0, 1.0, 1.0 }, { 0.0, 0.0, 0.0 } });
-  RGBFlatMaterial = createAnimatedFlatMaterial(renderer, { { 1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } });
+  whiteFlatMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderer.createMaterial(Lotus::MaterialType::DiffuseFlat));
 
-	createNewObject(renderer, blackAndWhiteFlatMaterial);
-  createNewObject(renderer, RGBFlatMaterial);
+	createNewObject(renderer);
+  createNewObject(renderer);
+  createNewObject(renderer);
+  createNewObject(renderer);
 	
 	double lastTime = glfwGetTime();
 
@@ -148,9 +139,9 @@ int main()
 
     updateFromInputs(window, dt, &camera);
 
-    for (LotusTest::DiffuseColorChange& diffuseColorChange : diffuseColorChanges)
+    for (LotusTest::CyclicDirectedTranslation& objectMovement : objectsMovements)
     {
-      diffuseColorChange.apply(dt);
+      objectMovement.apply(dt);
     }
 
 		renderer.render(camera);

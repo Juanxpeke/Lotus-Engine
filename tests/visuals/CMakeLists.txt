@@ -12,9 +12,11 @@ add_visual_test(different_meshes)
 add_visual_test(different_materials)
 #add_visual_test(different_shaders)
 
-add_visual_test(change_transforms)
 add_visual_test(change_meshes)
-add_visual_test(change_material_values)
+add_visual_test(change_materials)
+
+add_visual_test(modify_transforms)
+add_visual_test(modify_material_values)
 
 add_visual_test(random_generation)
 

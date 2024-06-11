@@ -42,6 +42,7 @@ public:
     objects[objectIndex]->setMesh(meshes[newMeshIndex]);
     meshIndices[objectIndex] = newMeshIndex;
   }
+
 private:
   int objectIndex;
 };
@@ -138,8 +139,8 @@ int main()
 	createDirectionalLight(renderer);
 
   std::shared_ptr<Lotus::Mesh> planeMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Plane);
-  std::shared_ptr<Lotus::Mesh> cubeMesh =  meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
-  std::shared_ptr<Lotus::Mesh> sphereMesh =  meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
+  std::shared_ptr<Lotus::Mesh> cubeMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
+  std::shared_ptr<Lotus::Mesh> sphereMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
 
   whiteFlatMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderer.createMaterial(Lotus::MaterialType::DiffuseFlat));
 

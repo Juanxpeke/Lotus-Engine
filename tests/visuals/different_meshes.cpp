@@ -114,9 +114,9 @@ int main()
 	createDirectionalLight(renderer);
 
   std::shared_ptr<Lotus::Mesh> planeMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Plane);
-  std::shared_ptr<Lotus::Mesh> cubeMesh =  meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
-  std::shared_ptr<Lotus::Mesh> sphereMesh =  meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
-  std::shared_ptr<Lotus::Mesh> ventMesh =  meshManager.loadMesh(Lotus::assetPath("models/air_conditioner/AirConditioner.obj"));
+  std::shared_ptr<Lotus::Mesh> cubeMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
+  std::shared_ptr<Lotus::Mesh> sphereMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
+  std::shared_ptr<Lotus::Mesh> ventMesh = meshManager.loadMesh(Lotus::assetPath("models/air_conditioner/AirConditioner.obj"));
 
   whiteFlatMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderer.createMaterial(Lotus::MaterialType::DiffuseFlat));
 
