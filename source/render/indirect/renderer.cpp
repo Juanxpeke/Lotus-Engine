@@ -43,8 +43,8 @@ namespace Lotus {
 
   void Renderer::startUp()
   {
-    shaders[static_cast<unsigned int>(MaterialType::UnlitFlat)] = ShaderProgram(shaderPath("n_unlit_flat.vert"), shaderPath("n_unlit_flat.frag"));
-    shaders[static_cast<unsigned int>(MaterialType::DiffuseFlat)] = ShaderProgram(shaderPath("n_diffuse_flat.vert"), shaderPath("n_diffuse_flat.frag"));
+    shaders[static_cast<unsigned int>(MaterialType::UnlitFlat)] = ShaderProgram(shaderPath("indirect/unlit_flat.vert"), shaderPath("indirect/unlit_flat.frag"));
+    shaders[static_cast<unsigned int>(MaterialType::DiffuseFlat)] = ShaderProgram(shaderPath("indirect/diffuse_flat.vert"), shaderPath("indirect/diffuse_flat.frag"));
 
     terrainShader = ShaderProgram(shaderPath("terrain.vert"), shaderPath("terrain.frag"));
 
