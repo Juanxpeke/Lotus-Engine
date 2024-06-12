@@ -1,10 +1,6 @@
 #version 460 core
 
-struct Object
-{
-  mat4 model;
-  uint materialHandle;
-};
+#include ../common/primitives.glsl
 
 // Shader storage buffer with the objects
 layout(std140, binding = 0) readonly buffer Objects
@@ -21,11 +17,12 @@ layout(std430, binding = 1) readonly buffer ObjectHandles
 layout(location = 0) uniform mat4 view;
 layout(location = 1) uniform mat4 projection;
 
+// Inputs
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 
+// Outputs
 flat out uint fragObjectID;
-
 
 void main()
 {
