@@ -20,7 +20,7 @@ layout(std140, binding = 0) readonly buffer Objects
 	Object[] objects;
 };
 
-// Shader storage buffer with the materials of each mesh instance
+// Shader storage buffer with the materials
 layout(std140, binding = 2) readonly buffer Materials
 {
 	Material[] materials;

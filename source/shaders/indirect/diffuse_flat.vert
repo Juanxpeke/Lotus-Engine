@@ -8,7 +8,7 @@ layout(std140, binding = 0) readonly buffer Objects
 	Object[] objects;
 };
 
-// Shader storage buffer with the objects
+// Shader storage buffer with the objects handles
 layout(std430, binding = 1) readonly buffer ObjectHandles
 {
 	uint[] objectHandles;

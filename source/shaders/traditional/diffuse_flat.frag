@@ -14,12 +14,10 @@ layout(std140, binding = 0) uniform Lights
 	int pointLightsCount;
 };
 
-layout (location = 3) uniform sampler2D diffuseTexture;
-layout (location = 4) uniform vec3 diffuseTextureTint;
+layout(location = 3) uniform vec3 diffuseColor;
 
 in vec3 fragPosition;
 in vec3 fragNormal;
-in vec2 fragTexCoord;
 
 out vec4 outColor;
 
@@ -31,7 +29,7 @@ void main()
 
 	// Light contribution accumulated value from all light sources
 	vec3 Lo = vec3(0.0f, 0.0f, 0.0f);
-	
+
 	// Directional lights iteration
 	for(int i = 0; i < directionalLightsCount; i++)
 	{
@@ -46,10 +44,10 @@ void main()
 		float distanceAttenuation = getDistanceAttenuation(lightVector, pointLights[i].radius);
 		Lo += distanceAttenuation * pointLights[i].colorIntensity * max(dot(normal, -lightDirection), 0.0);
 	}
-	
-	vec3 diffuseColor = texture(diffuseTexture, fragTexCoord).xyz;
 
 	vec3 result = (ambient + Lo) * diffuseColor;
 
-	outColor = vec4(diffuseTextureTint * result, 1.0);
+	outColor = vec4(result, 1.0);
 }
+
+

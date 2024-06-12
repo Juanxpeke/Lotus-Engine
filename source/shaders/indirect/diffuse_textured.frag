@@ -2,31 +2,31 @@
 
 #version 460 core
 
-#include ../common/lighting.glsl
-#include ../common/primitives.glsl
+// Enable bindless textures
+#extension GL_ARB_bindless_texture : require
 
 struct Material
 {
-	vec3 diffuseColor;
+	vec3 diffuseTextureTint;
 	int int_0;
 	vec3 vec3_1;
 	int int_1;
-	vec3 vec3_2;
-	int int_2;
-	vec3 vec3_3;
-	int int_3;
-};
-
-// Shader storage buffer with the objects
-layout(std140, binding = 0) readonly buffer Objects
-{
-	Object[] objects;
+	sampler2D diffuseTexture;
+	sampler2D tex_1;
+	sampler2D tex_2;
+	sampler2D tex_3;
 };
 
 // Shader storage buffer with the materials
 layout(std140, binding = 2) readonly buffer Materials
 {
 	Material[] materials;
+};
+
+// Textures block
+layout (std140, binding = 1) uniform Textures
+{
+  sampler2D textures[512];
 };
 
 // Lights information uniform
@@ -43,6 +43,7 @@ layout(std140, binding = 0) uniform Lights
 flat in uint fragObjectID;
 in vec3 fragPosition;
 in vec3 fragNormal;
+in vec2 fragTexCoord;
 
 // Outputs
 out vec4 outColor;
@@ -58,7 +59,7 @@ void main()
 
 	// Light contribution accumulated value from all light sources
 	vec3 Lo = vec3(0.0f, 0.0f, 0.0f);
-
+	
 	// Directional lights iteration
 	for(int i = 0; i < directionalLightsCount; i++)
 	{
@@ -73,10 +74,10 @@ void main()
 		float distanceAttenuation = getDistanceAttenuation(lightVector, pointLights[i].radius);
 		Lo += distanceAttenuation * pointLights[i].colorIntensity * max(dot(normal, -lightDirection), 0.0);
 	}
-
-	vec3 result = (ambient + Lo) * material.diffuseColor; 
 	
-	outColor = vec4(result, 1.0);
+	vec3 diffuseColor = texture(material.diffuseTexture, fragTexCoord).xyz;
+
+	vec3 result = (ambient + Lo) * diffuseColor;
+
+	outColor = vec4(material.diffuseTextureTint * result, 1.0);
 }
-
-
