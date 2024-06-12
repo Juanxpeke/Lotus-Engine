@@ -39,7 +39,7 @@ namespace Lotus
     {
       if (material == nullptr || material == materialPtr) { return; }
 
-      if (material->getShaderID() != materialPtr->getShaderID())
+      if (material->getType() != materialPtr->getType())
       {
         shaderDirty = true;
       }

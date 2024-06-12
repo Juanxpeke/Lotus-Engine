@@ -8,16 +8,21 @@ function(add_visual_test TARGET_NAME)
 	target_include_directories(${TARGET_NAME} PRIVATE ${LOTUS_INCLUDE_DIRECTORY} ${THIRD_PARTY_INCLUDE_DIRECTORIES})
 endfunction(add_indirect_example)
 
+# Objects with different parameters
 add_visual_test(different_meshes)
 add_visual_test(different_materials)
-#add_visual_test(different_shaders)
+add_visual_test(different_shaders)
 
+# Objects with changes by events
 add_visual_test(change_meshes)
 add_visual_test(change_materials)
 
+# Objects with continuous modification
 add_visual_test(modify_transforms)
 add_visual_test(modify_material_values)
 
+# Objects random generation
 add_visual_test(random_generation)
 
+# Terrain generation
 add_visual_test(terrain)

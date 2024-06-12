@@ -8,7 +8,10 @@ namespace Lotus
   class DiffuseFlatMaterial : public Material
   {
   public:
-    DiffuseFlatMaterial(const ShaderProgram& shaderProgram) : Material(shaderProgram), diffuseColor(glm::vec3(1.0f)) {}
+    DiffuseFlatMaterial() : diffuseColor(glm::vec3(1.0f))
+    {
+      this->type = MaterialType::DiffuseFlat;
+    }
 
     glm::vec3 getDiffuseColor() const { return diffuseColor; }
 

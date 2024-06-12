@@ -20,6 +20,7 @@
 #include "mesh.h"
 #include "shader_program.h"
 #include "material.h"
+#include "unlit_flat_material.h"
 #include "diffuse_flat_material.h"
 #include "mesh_instance.h"
 
@@ -103,7 +104,7 @@ namespace Lotus
     };
 
     // Shaders
-    std::array<ShaderProgram, static_cast<unsigned int>(1)> shaders;
+    std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount)> shaders;
 
     // Maps
 	  std::unordered_map<std::shared_ptr<Mesh>, Handle<RenderMesh>> meshMap;

@@ -133,7 +133,7 @@ void main()
 		Lo += distanceAttenuation * pointLights[i].colorIntensity * max(dot(normal, -lightDirection), 0.0);
 	}
 
-	vec3 result = (ambient + Lo) * material.diffuseColor;//vec3(object.materialHandle + 1); // material.diffuseColor; 
+	vec3 result = (ambient + Lo) * material.diffuseColor; 
 	
 	outColor = vec4(result, 1.0);
 }

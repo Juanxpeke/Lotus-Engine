@@ -21,15 +21,16 @@ namespace Lotus
   friend class Renderer;
 
   public:
-    Material(const ShaderProgram& shaderProgram) : shaderID(shaderProgram.getProgramID()), dirty(false) {}
+    Material() : dirty(false) {}
+    
     virtual ~Material() = default;
 
-    uint32_t getShaderID() { return shaderID; };
+    MaterialType getType() { return type; };
 
     virtual GPUMaterialData getMaterialData() = 0;
 
   protected:
-    uint32_t shaderID;
+    MaterialType type;
     bool dirty;
   };
 }

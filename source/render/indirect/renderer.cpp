@@ -18,6 +18,24 @@ namespace Lotus {
     std::cout << std::endl;
   }
 
+  void printDrawBatches(const std::vector<DrawBatch>& batches)
+  {
+    for (int i = 0; i < batches.size(); i++)
+    {
+      std::cout << "DB[" << i << "] = {ic_" << batches[i].instanceCount << "pic_" << batches[i].prevInstanceCount << "mh_" << batches[i].meshHandle.get() << "sh_" << batches[i].shaderHandle.get() << "}" << std::endl; 
+    }
+    std::cout << std::endl;
+  }
+
+  void printShaderBatches(const std::vector<ShaderBatch>& batches)
+  {
+    for (int i = 0; i < batches.size(); i++)
+    {
+      std::cout << "SB[" << i << "] = {c_" << batches[i].count << "f_" << batches[i].first << "sh_" << batches[i].shaderHandle.get() << "}" << std::endl; 
+    }
+    std::cout << std::endl;
+  }
+
   Renderer::Renderer() :
     vertexArrayID(0),
     ambientLight({1.0, 1.0, 1.0})
@@ -25,8 +43,9 @@ namespace Lotus {
 
   void Renderer::startUp()
   {
-    shaders[static_cast<unsigned int>(0)] = ShaderProgram(shaderPath("n_diffuse_flat.vert"), shaderPath("n_diffuse_flat.frag"));
-    //shaders[static_cast<unsigned int>(1)] = ShaderProgram(shaderPath("n_unlit_flat.vert"), shaderPath("n_unlit_flat.frag"));
+    shaders[static_cast<unsigned int>(MaterialType::UnlitFlat)] = ShaderProgram(shaderPath("n_unlit_flat.vert"), shaderPath("n_unlit_flat.frag"));
+    shaders[static_cast<unsigned int>(MaterialType::DiffuseFlat)] = ShaderProgram(shaderPath("n_diffuse_flat.vert"), shaderPath("n_diffuse_flat.frag"));
+
     terrainShader = ShaderProgram(shaderPath("terrain.vert"), shaderPath("terrain.frag"));
 
     glEnable(GL_DEPTH_TEST);
@@ -86,16 +105,16 @@ namespace Lotus {
 
     RenderObject renderObject;
     renderObject.model = GPUObject.model;
-    renderObject.meshHandle = getMeshHandle(mesh);
-    renderObject.materialHandle = getMaterialHandle(material);
-    renderObject.shaderID = 0;
+    renderObject.meshHandle = meshHandle;
+    renderObject.materialHandle = materialHandle;
+    renderObject.shaderHandle = static_cast<unsigned int>(material->getType());
     renderObject.ID = objectID;
     
     Handle<RenderObject> handle(static_cast<uint32_t>(renderObjects.size()));
     renderObjects.push_back(renderObject);
     
-    uint32_t xd = 1;
-    GPUObjectHandleBuffer.add(&xd);
+    uint32_t placeholderHandle = 1;
+    GPUObjectHandleBuffer.add(&placeholderHandle);
 
     unbatchedObjectsHandles.push_back(handle);
 
@@ -114,14 +133,17 @@ namespace Lotus {
 
     switch (type)
     {
+    case MaterialType::UnlitFlat:
+      return std::make_shared<UnlitFlatMaterial>();
+      break;
     case MaterialType::DiffuseFlat:
-      return std::make_shared<DiffuseFlatMaterial>(shaders[0]);
+      return std::make_shared<DiffuseFlatMaterial>();
       break;
     case MaterialType::DiffuseTextured:
-      return std::make_shared<DiffuseFlatMaterial>(shaders[0]);
+      return std::make_shared<DiffuseFlatMaterial>();
       break;
     case MaterialType::MaterialTypeCount:
-      return std::make_shared<DiffuseFlatMaterial>(shaders[0]);
+      return std::make_shared<DiffuseFlatMaterial>();
       break;
     default:
       return nullptr;
@@ -187,7 +209,12 @@ namespace Lotus {
       glUniformMatrix4fv(ViewMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix));
       glUniformMatrix4fv(ProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
-      glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, (void*) shaderBatch.first, shaderBatch.count, sizeof(DrawElementsIndirectCommand));
+      glMultiDrawElementsIndirect(
+          GL_TRIANGLES,
+          GL_UNSIGNED_INT,
+          (void*) (shaderBatch.first * sizeof(DrawElementsIndirectCommand)),
+          shaderBatch.count,
+          sizeof(DrawElementsIndirectCommand));
     }
 
     GPUMaterialBuffer.unbind();
@@ -253,7 +280,7 @@ namespace Lotus {
           }
 
           renderObject.meshHandle = getMeshHandle(meshInstance->getMesh());
-          renderObject.shaderID = 0;// meshInstance->getMaterial()->getShaderID();
+          renderObject.shaderHandle = static_cast<unsigned int>(meshInstance->getMaterial()->getType());
           
           meshInstance->meshDirty = false;
           meshInstance->shaderDirty = false;
@@ -311,7 +338,7 @@ namespace Lotus {
 
         batch.objectHandle = Handle<RenderObject>(object.ID);
         batch.meshHandle = object.meshHandle;
-        batch.shaderHandle = object.shaderID;
+        batch.shaderHandle = object.shaderHandle;
 
         deletionObjectBatches.push_back(batch);
       }
@@ -366,7 +393,7 @@ namespace Lotus {
         ObjectBatch batch;
         batch.objectHandle = object.ID;		
         batch.meshHandle = object.meshHandle;
-        batch.shaderHandle = object.shaderID;
+        batch.shaderHandle = object.shaderHandle;
 
         newObjectBatches.push_back(batch);
       }
@@ -386,8 +413,8 @@ namespace Lotus {
         else { return false; }
       });
 
-      //std::cout << "Ordered new render batches" << std::endl;
-      //printRenderBatches(newObjectBatches);
+      std::cout << "Ordered new render batches" << std::endl;
+      printRenderBatches(newObjectBatches);
 
       // Merge the new render batches into the main render batch array
       if (!objectBatches.empty() && !newObjectBatches.empty())
@@ -420,8 +447,8 @@ namespace Lotus {
         objectBatches = std::move(newObjectBatches);
       }
 
-      // std::cout << "Render batches after addition" << std::endl;
-      // printRenderBatches(objectBatches);
+      std::cout << "Render batches after addition" << std::endl;
+      printRenderBatches(objectBatches);
     }
   }
 
@@ -436,6 +463,7 @@ namespace Lotus {
     newDrawBatch.prevInstanceCount = 0;
     newDrawBatch.instanceCount = 0;
     newDrawBatch.meshHandle = objectBatches[0].meshHandle;
+    newDrawBatch.shaderHandle = objectBatches[0].shaderHandle;
 
     drawBatches.push_back(newDrawBatch);
     DrawBatch* backDrawBatch = &drawBatches.back();
@@ -459,6 +487,7 @@ namespace Lotus {
         newDrawBatch.prevInstanceCount = i;
         newDrawBatch.instanceCount = 1;
         newDrawBatch.meshHandle = renderBatch->meshHandle;
+        newDrawBatch.shaderHandle = renderBatch->shaderHandle;
 
         drawBatches.push_back(newDrawBatch);
         backDrawBatch = &drawBatches.back();
@@ -466,6 +495,9 @@ namespace Lotus {
         GPUIndirectBuffer.filledSize++;
       }
     }
+
+    std::cout << "Draw batches " << std::endl;
+    printDrawBatches(drawBatches);
   }
 
   void Renderer::buildShaderBatches()
@@ -503,6 +535,9 @@ namespace Lotus {
         backShaderBatch = &shaderBatches.back();
       }
     }
+
+    std::cout << "Shader batches " << std::endl;
+    printShaderBatches(shaderBatches);
   }
 
   void Renderer::refreshBuffers()
@@ -535,6 +570,8 @@ namespace Lotus {
 
       GPUIndirectBuffer.unmap();
     }
+
+    std::cout << GPUIndirectBuffer << std::endl;
   }
 
   void Renderer::refreshLightBuffer()
