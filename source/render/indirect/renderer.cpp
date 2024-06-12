@@ -413,8 +413,8 @@ namespace Lotus {
         else { return false; }
       });
 
-      std::cout << "Ordered new render batches" << std::endl;
-      printRenderBatches(newObjectBatches);
+      //std::cout << "Ordered new render batches" << std::endl;
+      //printRenderBatches(newObjectBatches);
 
       // Merge the new render batches into the main render batch array
       if (!objectBatches.empty() && !newObjectBatches.empty())
@@ -447,8 +447,8 @@ namespace Lotus {
         objectBatches = std::move(newObjectBatches);
       }
 
-      std::cout << "Render batches after addition" << std::endl;
-      printRenderBatches(objectBatches);
+      //std::cout << "Render batches after addition" << std::endl;
+      //printRenderBatches(objectBatches);
     }
   }
 
@@ -496,8 +496,8 @@ namespace Lotus {
       }
     }
 
-    std::cout << "Draw batches " << std::endl;
-    printDrawBatches(drawBatches);
+    //std::cout << "Draw batches " << std::endl;
+    //printDrawBatches(drawBatches);
   }
 
   void Renderer::buildShaderBatches()
@@ -536,8 +536,8 @@ namespace Lotus {
       }
     }
 
-    std::cout << "Shader batches " << std::endl;
-    printShaderBatches(shaderBatches);
+    // std::cout << "Shader batches " << std::endl;
+    // printShaderBatches(shaderBatches);
   }
 
   void Renderer::refreshBuffers()
@@ -571,7 +571,7 @@ namespace Lotus {
       GPUIndirectBuffer.unmap();
     }
 
-    std::cout << GPUIndirectBuffer << std::endl;
+    // std::cout << GPUIndirectBuffer << std::endl;
   }
 
   void Renderer::refreshLightBuffer()

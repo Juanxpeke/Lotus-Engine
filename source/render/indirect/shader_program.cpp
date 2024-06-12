@@ -56,10 +56,14 @@ namespace Lotus
   ShaderProgram&  ShaderProgram::operator=(ShaderProgram&& program) noexcept
   {
     if (&program == this)
+    {
       return *this;
+    }
 
     if (programID)
+    {
       glDeleteProgram(programID);
+    }
 
     programID = program.programID;
     program.programID = 0;
@@ -76,11 +80,25 @@ namespace Lotus
       return std::string();
     }
 
-    std::stringstream shaderStringStream;
-    shaderStringStream << shaderFileStream.rdbuf();
-    shaderFileStream.close();
+    std::string path = shaderPath.string();
+    std::string directory = path.substr(0, path.find_last_of("/\\"));
+    std::string sourceCode, line;
 
-    return shaderStringStream.str();
+    while (std::getline(shaderFileStream, line))
+    {
+      if (line.substr(0, 8) == "#include")
+      {
+        std::filesystem::path includePath = directory + "/" + line.substr(9);
+
+        sourceCode += readShaderFile(includePath);
+      }
+      else
+      {
+        sourceCode += line + "\n";
+      }
+    }
+
+    return sourceCode;
   }
 
   void ShaderProgram::preProcessShader(std::string& shaderCode) const noexcept
