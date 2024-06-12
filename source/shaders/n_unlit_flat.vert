@@ -9,16 +9,12 @@ struct Object
 // Shader storage buffer with the objects
 layout(std140, binding = 0) readonly buffer Objects
 {
-  // When using [], then the size of this array is determined at the time the shader
-  // is executed. The size is the rest of this buffer object range
 	Object[] objects;
 };
 
 // Shader storage buffer with the objects
 layout(std430, binding = 1) readonly buffer ObjectHandles
 {
-  // When using [], then the size of this array is determined at the time the shader
-  // is executed. The size is the rest of this buffer object range
 	uint[] objectHandles;
 };
 
