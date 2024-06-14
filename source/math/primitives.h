@@ -6,18 +6,6 @@
 
 namespace Lotus
 {
-  struct Mat4f
-  {
-    float values[16];
-
-    Mat4f()
-    {
-      for (int i = 0; i < 16; i ++)
-      {
-        values[i] = 0.0f;
-      }
-    }
-  };
 
   struct Vertex
   {
