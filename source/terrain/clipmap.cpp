@@ -12,7 +12,9 @@ namespace Lotus
     tileResolution(clipmapTileResolution),
     quadSize(clipmapQuadSize),
     tile(tileResolution, quadSize),
-    tileMesh(tile.vertices, tile.indices)
+    tileMesh(tile.vertices, tile.indices),
+    filler(tileResolution, quadSize),
+    fillerMesh(filler.vertices, filler.indices)
   {
     clipmapProgram = ShaderProgram(shaderPath("terrain/clipmap.vert"), shaderPath("terrain/clipmap.frag"));
   }
@@ -20,7 +22,7 @@ namespace Lotus
   void Clipmap::render(const Camera& camera)
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     glEnable( GL_POLYGON_OFFSET_LINE );
     glPolygonOffset( -1, -1 );
@@ -42,6 +44,9 @@ namespace Lotus
       glm::vec2 tileSize((tileResolution * quadSize) << level);
       glm::vec2 levelOrigin = snappedPos - glm::vec2((tileResolution * quadSize) << (level + 1));
 
+
+      glUniform1fv(2, 1, &scale);
+
       glBindVertexArray(tileMesh.getVertexArrayID());
 
       for (int x = 0; x < 4; x++)
@@ -58,12 +63,17 @@ namespace Lotus
 
           glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(viewMatrix));
           glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-          glUniform1fv(2, 1, &scale);
           glUniform2fv(3, 1, glm::value_ptr(tileOffset));
 
           glDrawElements(GL_TRIANGLES, tileMesh.getIndicesCount(), GL_UNSIGNED_INT, nullptr);
         }
       }
+
+      glBindVertexArray(fillerMesh.getVertexArrayID());
+
+      glUniform2fv(3, 1, glm::value_ptr(snappedPos));
+
+      glDrawElements(GL_TRIANGLES, fillerMesh.getIndicesCount(), GL_UNSIGNED_INT, nullptr);
     }
 
     glBindVertexArray(0);
