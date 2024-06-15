@@ -16,6 +16,7 @@ set(THIRD_PARTY_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/assimp/include
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/assimp/include/assimp
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/stb
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/spdlog/include
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/PerlinNoise)
 set(THIRD_PARTY_LIBRARIES glfw glad ${OPENGL_LIBRARIES} assimp stb)
 
