@@ -12,7 +12,7 @@ namespace Lotus
 {
   struct Tile : MeshPrimitive
   {
-    Tile(uint32_t quadsPerSide, uint16_t quadSize)
+    Tile(uint32_t quadsPerSide)
     {
       uint32_t verticesPerSide = quadsPerSide + 1;
 
@@ -24,7 +24,7 @@ namespace Lotus
       {
         for (uint32_t x = 0; x < verticesPerSide; x++)
         {
-          vertex.position = { x * quadSize, 0, y * quadSize };
+          vertex.position = { x, 0, y };
           vertices.push_back(vertex);
         }
       }
@@ -48,7 +48,7 @@ namespace Lotus
 
   struct Filler : MeshPrimitive
   {
-    Filler(uint32_t quadsPerTileSide, uint16_t quadSize)
+    Filler(uint32_t quadsPerTileSide)
     {
       uint32_t verticesPerTileSide = quadsPerTileSide + 1;
       uint32_t offset = quadsPerTileSide;
@@ -59,33 +59,33 @@ namespace Lotus
       
       for (uint32_t i = 0; i < verticesPerTileSide; i++)
       {
-        vertex.position = { (offset + i + 1) * quadSize, 0, 0 };
+        vertex.position = { offset + i + 1, 0, 0 };
         vertices.push_back(vertex);
-        vertex.position = { (offset + i + 1) * quadSize, 0, quadSize };
-        vertices.push_back(vertex);
-      }
-
-      for (uint32_t i = 0; i < verticesPerTileSide; i++)
-      {
-        vertex.position = { quadSize, 0, (offset + i + 1) * quadSize };
-        vertices.push_back(vertex);
-        vertex.position = { 0, 0, (offset + i + 1) * quadSize };
+        vertex.position = { offset + i + 1, 0, 1 };
         vertices.push_back(vertex);
       }
 
       for (uint32_t i = 0; i < verticesPerTileSide; i++)
       {
-        vertex.position = { -float((offset + i) * quadSize), 0, quadSize };
+        vertex.position = { 1, 0, offset + i + 1 };
         vertices.push_back(vertex);
-        vertex.position = { -float((offset + i) * quadSize), 0, 0 };
+        vertex.position = { 0, 0, offset + i + 1 };
         vertices.push_back(vertex);
       }
 
       for (uint32_t i = 0; i < verticesPerTileSide; i++)
       {
-        vertex.position = { 0, 0, -float((offset + i) * quadSize) };
+        vertex.position = { -float(offset + i), 0, 1 };
         vertices.push_back(vertex);
-        vertex.position = { quadSize, 0, -float((offset + i) * quadSize) };
+        vertex.position = { -float(offset + i), 0, 0 };
+        vertices.push_back(vertex);
+      }
+
+      for (uint32_t i = 0; i < verticesPerTileSide; i++)
+      {
+        vertex.position = { 0, 0, -float(offset + i) };
+        vertices.push_back(vertex);
+        vertex.position = { 1, 0, -float(offset + i) };
         vertices.push_back(vertex);
       }
 
@@ -122,23 +122,93 @@ namespace Lotus
     }
   };
 
+  struct Trim : MeshPrimitive
+  {
+    Trim(uint32_t quadsPerTileSide)
+    {
+      uint32_t quadsPerLevelSide = quadsPerTileSide * 4 + 1;
+      uint32_t verticesPerLevelSide = quadsPerLevelSide + 1;
+
+      vertices.reserve((verticesPerLevelSide * 2 + 1) * 2);
+
+      Vertex vertex;
+
+      // Vertical part of L
+      for (uint32_t i = 0; i < verticesPerLevelSide + 1; i++)
+      {
+        vertex.position = { 0, 0, verticesPerLevelSide - i };
+        vertices.push_back(vertex);
+        vertex.position = { 1, 0, verticesPerLevelSide - i };
+        vertices.push_back(vertex);
+      }
+
+      // Horizontal part of L
+      for (uint32_t i = 0; i < verticesPerLevelSide; i++)
+      {
+        vertex.position = { i + 1, 0, 0 };
+        vertices.push_back(vertex);
+        vertex.position = { i + 1, 0, 1 };
+        vertices.push_back(vertex);
+      }
+
+      for (Vertex& v : vertices)
+      {
+        v.position -= glm::vec3(0.5f * (verticesPerLevelSide + 1), 0, 0.5f * (verticesPerLevelSide + 1));
+      }
+      
+      indices.reserve((verticesPerLevelSide * 2 - 1) * 6);
+
+      for (uint32_t i = 0; i < verticesPerLevelSide; i++)
+      {
+        indices.push_back((i + 0) * 2 + 1);
+        indices.push_back((i + 0) * 2 + 0);
+        indices.push_back((i + 1) * 2 + 0);
+        indices.push_back((i + 1) * 2 + 1);
+        indices.push_back((i + 0) * 2 + 1);
+        indices.push_back((i + 1) * 2 + 0);
+      }
+
+      uint32_t startOfHorizontal = (verticesPerLevelSide + 1) * 2;
+
+      for (uint32_t i = 0; i < verticesPerLevelSide - 1; i++)
+      {
+        indices.push_back(startOfHorizontal + (i + 0) * 2 + 1);
+        indices.push_back(startOfHorizontal + (i + 0) * 2 + 0);
+        indices.push_back(startOfHorizontal + (i + 1) * 2 + 0);
+        indices.push_back(startOfHorizontal + (i + 1) * 2 + 1);
+        indices.push_back(startOfHorizontal + (i + 0) * 2 + 1);
+        indices.push_back(startOfHorizontal + (i + 1) * 2 + 0);
+      }
+    }
+  };
+
   class Clipmap
   {
   public:
-    Clipmap(uint32_t clipmapLevels = 7, uint32_t clipmapTileResolution = 2, float clipmapQuadSize = 1.0f);
+    static constexpr unsigned int ModelBinding = 0;
+    static constexpr unsigned int ViewBinding = 1;
+    static constexpr unsigned int ProjectionBinding = 2;
+    static constexpr unsigned int LevelScaleBinding = 3;
+    static constexpr unsigned int OffsetBinding = 4;
+
+
+    Clipmap(uint32_t clipmapLevels = 7, uint32_t clipmapTileResolution = 2);
 
     void render(const Camera& camera);
 
   private:
     uint32_t levels;
     uint32_t tileResolution;
-    uint16_t quadSize;
 
     ShaderProgram clipmapProgram;
 
     Tile tile;
     Filler filler;
+    Trim trim;
     GPUMesh tileMesh;
     GPUMesh fillerMesh;
+    GPUMesh trimMesh;
+
+    glm::mat4 rotationModels[4];
   };
 }
