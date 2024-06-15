@@ -1,1 +1,1 @@
-add_subdirectory(visuals)
+add_subdirectory(visual)

@@ -2,11 +2,14 @@ function(add_visual_test TARGET_NAME)
 	add_executable(${TARGET_NAME} ${TARGET_NAME}.cpp)
 
 	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 20)
-	set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER tests)
+	set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER tests/visual)
 
 	target_link_libraries(${TARGET_NAME} PRIVATE LotusEngine)
 	target_include_directories(${TARGET_NAME} PRIVATE ${LOTUS_INCLUDE_DIRECTORY} ${THIRD_PARTY_INCLUDE_DIRECTORIES})
-endfunction(add_indirect_example)
+endfunction(add_visual_test)
+
+# Perlin noise
+add_visual_test(perlin_noise_texture)
 
 # Objects with different parameters
 add_visual_test(different_meshes)
