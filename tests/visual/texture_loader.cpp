@@ -9,11 +9,14 @@
 #include "render/gpu_mesh.h"
 #include "render/indirect/mesh_manager.h"
 #include "render/texture_loader.h"
-#include "render/indirect/shader_program.h"
+#include "render/shader.h"
+
+#define LOAD_IMAGE 0
 
 int width = 720;
 int height = 720;
 char title[256];
+
 
 int main()
 {
@@ -22,7 +25,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  sprintf(title, "Perlin Noise Texture");
+  sprintf(title, "Texture Loader");
 	GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
 
 	if (window == NULL)
@@ -43,9 +46,12 @@ int main()
   
   std::shared_ptr<Lotus::Mesh> planeMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Plane); 
   Lotus::GPUMesh quadMesh(planeMesh->getVertices(), planeMesh->getIndices());
-  Lotus::GPUTexture perlinNoiseTexture = textureLoader.generatePerlinTexture(width, height);
 
-  //std::shared_ptr<Lotus::GPUTexture> ventDiffuseTexture = textureLoader.loadTexture(Lotus::assetPath("models/air_conditioner/Albedo.png"));
+#if LOAD_IMAGE
+  std::shared_ptr<Lotus::GPUTexture> ventDiffuseTexture = textureLoader.loadTexture(Lotus::assetPath("models/air_conditioner/Albedo.png"));
+#else
+  std::shared_ptr<Lotus::GPUTexture> perlinNoiseTexture = textureLoader.generatePerlinTexture(width, height);
+#endif
 
   Lotus::ShaderProgram program(Lotus::shaderPath("misc/texture.vert"), Lotus::shaderPath("misc/texture.frag"));
 
@@ -53,10 +59,13 @@ int main()
 
   glUseProgram(program.getProgramID());
 
-  glUniform1i(0, 0);
+  glUniform1i(3, 0);
 
-  glBindTextureUnit(0, perlinNoiseTexture.getID());
-  //glBindTextureUnit(0, ventDiffuseTexture->getID());
+#if LOAD_IMAGE
+  glBindTextureUnit(0, ventDiffuseTexture->getID());
+#else
+  glBindTextureUnit(0, perlinNoiseTexture->getID());
+#endif
 
   // Main while loop
 	while (!glfwWindowShouldClose(window))

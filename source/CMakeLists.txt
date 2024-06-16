@@ -30,7 +30,13 @@ set(RENDER_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/diffuse_flat_material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh_instance.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/renderer.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/material.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/diffuse_flat_material.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/diffuse_textured_material.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/mesh_instance.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/texture.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/texture_manager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/renderer.h)
 
 # Source files
 
@@ -44,7 +50,12 @@ set(RENDER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/render/texture_loader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh_manager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/renderer.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/material.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/mesh_instance.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/texture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/texture_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/renderer.cpp)
 
 #add_subdirectory(render/indirect)
 

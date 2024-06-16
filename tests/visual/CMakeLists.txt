@@ -9,7 +9,7 @@ function(add_visual_test TARGET_NAME)
 endfunction(add_visual_test)
 
 # Perlin noise
-add_visual_test(perlin_noise_texture)
+add_visual_test(texture_loader)
 
 # Objects with different parameters
 add_visual_test(different_meshes)

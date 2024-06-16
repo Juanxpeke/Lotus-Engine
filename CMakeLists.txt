@@ -28,7 +28,7 @@ configure_file(CMakeConfigFiles/path_manager_renderer.h.in ${CMAKE_CURRENT_SOURC
 configure_file(CMakeConfigFiles/path_manager_gl_tests.h.in ${CMAKE_CURRENT_SOURCE_DIR}/gl_tests/path_manager.h)
 
 add_subdirectory(source)
-#add_subdirectory(examples)
+add_subdirectory(examples)
 add_subdirectory(gl_tests)
 add_subdirectory(tests)
 add_subdirectory(third_party)

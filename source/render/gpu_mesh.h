@@ -12,8 +12,8 @@ namespace Lotus
     GPUMesh(const std::vector<Lotus::Vertex>& vertices, const std::vector<unsigned int>& indices);
     ~GPUMesh();
 
-    uint32_t getVertexArrayID() { return vertexArrayID; }
-    uint32_t getIndicesCount() { return indicesCount; }
+    uint32_t getVertexArrayID() const { return vertexArrayID; }
+    uint32_t getIndicesCount() const { return indicesCount; }
 
   private:
     uint32_t vertexArrayID;

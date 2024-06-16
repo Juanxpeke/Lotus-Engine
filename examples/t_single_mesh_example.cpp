@@ -5,14 +5,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "./scene/camera.h"
-#include "./path_manager.h"
-#include "traditional/mesh_manager.h"
-#include "traditional/texture_manager.h"
-#include "traditional/shader_program.h"
-#include "traditional/diffuse_textured_material.h"
-#include "traditional/mesh_instance.h"
-#include "traditional/renderer.h"
+#include "scene/camera.h"
+#include "util/path_manager.h"
+#include "render/shader.h"
+#include "render/traditional/texture_manager.h"
+#include "render/traditional/diffuse_textured_material.h"
+#include "render/traditional/mesh_instance.h"
+#include "render/traditional/renderer.h"
 
 int width = 720;
 int height = 720;
@@ -21,7 +20,10 @@ char title[256];
 const float cameraSpeed = 14.4f;
 const float cameraAngularSpeed = 2.0f;
 
-void updateFromInputs(GLFWwindow* window, float dt, Camera* cameraPtr)
+Lotus::Plane plane;
+Lotus::GPUMesh* planeM;
+
+void updateFromInputs(GLFWwindow* window, float dt, Lotus::Camera* cameraPtr)
 {
   // Translation
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
@@ -61,18 +63,18 @@ void updateFromInputs(GLFWwindow* window, float dt, Camera* cameraPtr)
   }
 }
 
-void createDirectionalLight(Renderer& renderer)
+void createDirectionalLight(Lotus::Traditional::Renderer& renderer)
 {
-  DirectionalLight* directionalLight = renderer.createDirectionalLight();
+  std::shared_ptr<Lotus::DirectionalLight> directionalLight = renderer.createDirectionalLight();
 
   directionalLight->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::pi<float>() * 0.5f);
   directionalLight->rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::pi<float>() * 0.25f);
   directionalLight->setLightColor(glm::vec3(0.1f, 0.04f, 0.0f));
 }
 
-void createPointLights(Renderer& renderer)
+void createPointLights(Lotus::Traditional::Renderer& renderer)
 {
-  PointLight* pointLight = renderer.createPointLight();
+  std::shared_ptr<Lotus::PointLight> pointLight = renderer.createPointLight();
 
   pointLight->translate(glm::vec3(0.0f, 5.0f, 0.0f));
   pointLight->setLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -80,25 +82,28 @@ void createPointLights(Renderer& renderer)
   pointLight->setLightRadius(400.f);
 }
 
-void createPlane(Renderer& renderer)
+void createPlane(Lotus::Traditional::Renderer& renderer)
 {
-	auto& meshManager = MeshManager::getInstance();
-	std::shared_ptr<Mesh> planeMesh = meshManager.loadMesh(Mesh::PrimitiveType::Plane);
+	//auto& meshManager = MeshManager::getInstance();
+  //Lotus::Plane plane; 
+  //Lotus::GPUMesh planeM = Lotus::GPUMesh(plane.vertices, plane.indices);
+	//std::shared_ptr<Lotus::GPUMesh> planeMesh = std::make_shared<Lotus::GPUMesh>(planeM);// = meshManager.loadMesh(Mesh::PrimitiveType::Plane);
 
-  auto& textureManager = TextureManager::getInstance();
-  std::shared_ptr<Texture> planeDiffuseTexture = textureManager.loadTexture(assetPath("textures/wood.png"));
+  auto& textureManager = Lotus::Traditional::TextureManager::getInstance();
+  std::shared_ptr<Lotus::Traditional::Texture> planeDiffuseTexture = textureManager.loadTexture(Lotus::assetPath("textures/wood.png"));
 
-	std::shared_ptr<DiffuseTexturedMaterial> planeMaterial = std::static_pointer_cast<DiffuseTexturedMaterial>(renderer.createMaterial(MaterialType::DiffuseTextured));
+	std::shared_ptr<Lotus::Traditional::DiffuseTexturedMaterial> planeMaterial = std::static_pointer_cast<Lotus::Traditional::DiffuseTexturedMaterial>(renderer.createMaterial(Lotus::Traditional::MaterialType::DiffuseTextured));
 
 	planeMaterial->setDiffuseTexture(planeDiffuseTexture);
 
-	MeshInstance* planeInstance = renderer.createMeshInstance(planeMesh, planeMaterial);
+	std::shared_ptr<Lotus::Traditional::MeshInstance> planeInstance = renderer.createMeshInstance(*planeM, planeMaterial);
 
   planeInstance->rotate(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(-90.0f));
 	planeInstance->scale(20.f);
 }
 
-void createVent(Renderer& renderer)
+/*
+void createVent(Lotus::Traditional::Renderer& renderer)
 {
 	auto& meshManager = MeshManager::getInstance();
 	std::shared_ptr<Mesh> ventMesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj"), true);
@@ -115,6 +120,7 @@ void createVent(Renderer& renderer)
   ventInstance->translate(glm::vec3(0.0f, 10.0f, -18.0f));
 	ventInstance->scale(0.3f);
 }
+*/
 
 int main()
 {
@@ -138,17 +144,19 @@ int main()
 
 	glViewport(0, 0, width, height);
 
-  Camera camera;
+  Lotus::Camera camera;
 
-  Renderer renderer;
+  Lotus::Traditional::Renderer renderer;
 	renderer.startUp();
 
   renderer.setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
   createDirectionalLight(renderer);
   createPointLights(renderer);
 
+  planeM = new Lotus::GPUMesh(plane.vertices, plane.indices);
+
   createPlane(renderer);
-	createVent(renderer);
+	//createVent(renderer);
 	
 	double lastTime = glfwGetTime();
 
@@ -163,8 +171,6 @@ int main()
 
     updateFromInputs(window, dt, &camera);
 
-		std::cout << "FPS: " << 1.0f / dt << std::endl;
-
 		renderer.render(camera);
 
     glfwSwapBuffers(window);
@@ -172,6 +178,8 @@ int main()
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
+
+  delete planeM;
 
   return 0;
 }

@@ -2,7 +2,7 @@
 
 #version 460 core
 
-#include common/lighting.glsl
+#include ../common/lighting.glsl
 
 // Lights information uniform
 layout(std140, binding = 0) uniform Lights

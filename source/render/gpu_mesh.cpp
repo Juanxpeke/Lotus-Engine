@@ -41,6 +41,8 @@ namespace Lotus
   {
     if (vertexArrayID)
     { // TODO: Handle errors
+      
+      return;
       glDeleteBuffers(1, &vertexBufferID);
       glDeleteBuffers(1, &indexBufferID);
       glDeleteVertexArrays(1, &vertexArrayID);
