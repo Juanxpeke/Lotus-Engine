@@ -5,7 +5,7 @@
 #include "../math/primitives.h"
 #include "../scene/camera.h"
 #include "../render/gpu_mesh.h"
-#include "../render/indirect/shader_program.h"
+#include "../render/shader.h"
 #include "../util/path_manager.h"
 
 namespace Lotus

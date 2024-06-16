@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../math/gpu_primitives.h"
-#include "shader_program.h"
+#include "../shader.h"
 
 namespace Lotus
 {
