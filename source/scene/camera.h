@@ -12,7 +12,7 @@ namespace Lotus
         float fov = 50.0f, 
         float ratio = 9.0f / 9.0f,
         float nearPlane = 0.1f,
-        float farPlane = 100.0f) :
+        float farPlane = 1000.0f) :
       fieldOfView(fov),
       aspectRatio(ratio),
       zNearPlane(nearPlane),
