@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <glad/glad.h>
-#include "../math/gpu_buffers.h"
+#include "../render/gpu_buffer.h"
 #include "terrain_data.h"
 
 namespace Lotus

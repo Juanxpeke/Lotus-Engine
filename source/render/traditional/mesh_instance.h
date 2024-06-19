@@ -14,13 +14,13 @@ namespace Lotus
     {
     public:
 
-      MeshInstance(GPUMesh mesh, std::shared_ptr<Material> material) : meshPtr(mesh), materialPtr(material)
+      MeshInstance(std::shared_ptr<GPUMesh> mesh, std::shared_ptr<Material> material) : meshPtr(mesh), materialPtr(material)
       {
         // ASSERT(mesh != nullptr, "StaticMeshComponent Error: Mesh pointer cannot be null.");
         // ASSERT(material != nullptr, "StaticMeshComponent Error: Material cannot be null.");
       }
 
-      const GPUMesh getMesh() const noexcept { return meshPtr; }
+      const std::shared_ptr<GPUMesh> getMesh() const noexcept { return meshPtr; }
       const std::shared_ptr<Material>& getMaterial() const noexcept { return materialPtr; }
 
       void setMesh(std::shared_ptr<GPUMesh> mesh) noexcept;
@@ -28,7 +28,7 @@ namespace Lotus
 
     private:
 
-      GPUMesh meshPtr;
+      std::shared_ptr<GPUMesh> meshPtr;
       std::shared_ptr<Material> materialPtr;
     };
   }

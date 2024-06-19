@@ -1,6 +1,6 @@
 #pragma once
 
-#define GPU_BUFFERS_ENABLE_CPU_MAP
+#define GPU_BUFFERS_ENABLE_CPU_MAP 1
 
 #include <cstddef>
 #include <cstdint>
@@ -11,12 +11,12 @@
 #include <glm/glm.hpp>
 #include "../../math/render_primitives.h"
 #include "../../math/gpu_primitives.h"
-#include "../../math/gpu_buffers.h"
 #include "../../scene/transform.h"
 #include "../../scene/camera.h"
 #include "../../lighting/directional_light.h"
 #include "../../lighting/point_light.h"
 #include "../../terrain/terrain.h"
+#include "../gpu_buffer.h"
 #include "mesh.h"
 #include "../shader.h"
 #include "material.h"

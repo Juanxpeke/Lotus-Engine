@@ -31,7 +31,7 @@ namespace Lotus
 
       void render(Camera& camera) noexcept;
 
-      std::shared_ptr<MeshInstance> createMeshInstance(GPUMesh mesh, std::shared_ptr<Material> material);
+      std::shared_ptr<MeshInstance> createMeshInstance(std::shared_ptr<GPUMesh> mesh, std::shared_ptr<Material> material);
       std::shared_ptr<Material> createMaterial(MaterialType type);
 
       void setAmbientLight(glm::vec3 color);

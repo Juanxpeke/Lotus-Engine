@@ -208,11 +208,11 @@ namespace Lotus
 
     uint16_t quadSize = 1;
 
-    /*
+    
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     glEnable( GL_POLYGON_OFFSET_LINE );
     glPolygonOffset( -1, -1 );
-    */
+    
    
     glm::mat4 viewMatrix = camera.getViewMatrix();
     glm::mat4 projectionMatrix = camera.getProjectionMatrix();

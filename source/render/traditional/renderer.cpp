@@ -73,15 +73,15 @@ namespace Lotus
       for (int i = 0; i < meshInstances.size(); i++)
       {
         const std::shared_ptr<MeshInstance>& meshInstance = meshInstances[i];
-        const GPUMesh& mesh = meshInstance->getMesh();
+        const std::shared_ptr<GPUMesh>& mesh = meshInstance->getMesh();
 
         meshInstance->getMaterial()->setUniforms(projectionMatrix, viewMatrix, meshInstance->getModelMatrix(), cameraPosition);
-        glBindVertexArray(mesh.getVertexArrayID());
-        glDrawElements(GL_TRIANGLES, mesh.getIndicesCount(), GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(mesh->getVertexArrayID());
+        glDrawElements(GL_TRIANGLES, mesh->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
       }
     }
 
-    std::shared_ptr<MeshInstance> Renderer::createMeshInstance(GPUMesh mesh, std::shared_ptr<Material> material)
+    std::shared_ptr<MeshInstance> Renderer::createMeshInstance(std::shared_ptr<GPUMesh> mesh, std::shared_ptr<Material> material)
     {
       std::shared_ptr<MeshInstance> meshInstance = std::make_shared<MeshInstance>(mesh, material);
 
