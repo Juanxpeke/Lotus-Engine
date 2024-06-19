@@ -21,6 +21,7 @@ set(TERRAIN_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/clipmap.h)
 
 set(RENDER_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_buffer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_mesh.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_texture.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/shader.h

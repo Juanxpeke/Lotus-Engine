@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -8,12 +9,13 @@
 #include <vector>
 #include <set>
 #include <glad/glad.h>
-#include "gpu_primitives.h"
+#include "../util/log.h"
+#include "../math/gpu_primitives.h"
 
 namespace Lotus
 {
 
-  template <typename T>
+  template <typename T, bool CPUMapEnabled = true>
   struct GPUBuffer
   {
     GPUBuffer() :
@@ -24,16 +26,23 @@ namespace Lotus
       allocated(false)
     {
       glGenBuffers(1, &ID);
+      
+      CPUBuffer = nullptr;
     }
+
+    GPUBuffer(const GPUBuffer& other) = delete;
 
     ~GPUBuffer()
     {
       glDeleteBuffers(1, &ID);
 
-#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
-      delete[] CPUBuffer;
-#endif
+      if constexpr(CPUMapEnabled)
+      {
+        delete[] CPUBuffer;
+      }
     }
+
+    GPUBuffer& operator=(const GPUBuffer& other) = delete;
 
     virtual void bind()
     {
@@ -51,26 +60,56 @@ namespace Lotus
     {
       if (allocated)
       {
-        return; // TODO: Log error
+        LOTUS_LOG_WARN("[Buffer Warning] Tried to allocate already allocated buffer with ID {0}", ID);
+        return;
       }
 
       glBindBuffer(bufferType, ID);
       glBufferData(bufferType, initialAllocationSize * sizeof(T), nullptr, GL_DYNAMIC_DRAW);
       glBindBuffer(bufferType, 0);
 
-#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
-      CPUBuffer = new T[initialAllocationSize];
-#endif
-
+      if constexpr(CPUMapEnabled)
+      {
+        CPUBuffer = new T[initialAllocationSize];
+      }
+      
       allocatedSize = initialAllocationSize;
       allocated = true;
+
+      LOTUS_LOG_INFO("[Buffer Log] Allocated buffer with ID {0} (Size = {1})", ID, initialAllocationSize);
+    }
+
+    void allocate(size_t initialAllocationSize, const T* initialAllocationData)
+    {
+      if (allocated)
+      {
+        LOTUS_LOG_WARN("[Buffer Warning] Tried to allocate already allocated buffer with ID {0}", ID);
+        return;
+      }
+
+      glBindBuffer(bufferType, ID);
+      glBufferData(bufferType, initialAllocationSize * sizeof(T), initialAllocationData, GL_DYNAMIC_DRAW);
+      glBindBuffer(bufferType, 0);
+
+      if constexpr(CPUMapEnabled)
+      {
+        CPUBuffer = new T[initialAllocationSize];
+
+        std::memcpy(CPUBuffer, initialAllocationData, initialAllocationSize * sizeof(T));
+      }
+      
+      allocatedSize = initialAllocationSize;
+      allocated = true;
+
+      LOTUS_LOG_INFO("[Buffer Log] Allocated buffer with ID {0} (Size = {1})", ID, initialAllocationSize);
     }
 
     void reallocate(size_t size)
     {
       if (!allocated)
       {
-        return; // TODO: Throw error
+        LOTUS_LOG_WARN("[Buffer Warning] Tried to reallocate non-allocated buffer with ID {0}", ID);
+        return;
       }
 
       size_t newAllocationSize = allocatedSize;
@@ -95,14 +134,17 @@ namespace Lotus
 
       glDeleteBuffers(1, &ID);
 
-#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
-      T* newCPUBuffer = new T[newAllocationSize];
-      std::memcpy(newCPUBuffer, CPUBuffer, allocatedSize * sizeof(T));
+      if constexpr(CPUMapEnabled)
+      {
+        T* newCPUBuffer = new T[newAllocationSize];
+        std::memcpy(newCPUBuffer, CPUBuffer, allocatedSize * sizeof(T));
 
-      delete[] CPUBuffer;
+        delete[] CPUBuffer;
 
-      CPUBuffer = newCPUBuffer;
-#endif
+        CPUBuffer = newCPUBuffer;
+      }
+
+      LOTUS_LOG_INFO("[Buffer Log] Reallocated buffer with ID {0} (Old ID = {1}, Size = {2}, Old Size = {3})", newID, ID, newAllocationSize, allocatedSize);
 
       ID = newID;
       allocatedSize = newAllocationSize;
@@ -119,25 +161,31 @@ namespace Lotus
 
     T* map()
     {
-#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
-      if (allocatedSize < filledSize)
+      if constexpr(CPUMapEnabled)
       {
-        reallocate(filledSize);
-      }
+        if (allocatedSize < filledSize)
+        {
+          reallocate(filledSize);
+        }
 
-      return CPUBuffer;
-#else
-      return (T*) (glMapNamedBuffer(ID, GL_WRITE_ONLY));
-#endif
+        return CPUBuffer;
+      }
+      else
+      {
+        return (T*) (glMapNamedBuffer(ID, GL_WRITE_ONLY));
+      }
     }
 
     void unmap()
     {
-#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
-      write(CPUBuffer, 0, filledSize);
-#else
-      glUnmapNamedBuffer(ID);
-#endif
+      if constexpr(CPUMapEnabled)
+      {
+        write(CPUBuffer, 0, filledSize);
+      }
+      else
+      {
+        glUnmapNamedBuffer(ID);
+      }
     }
 
     uint32_t ID;
@@ -146,13 +194,12 @@ namespace Lotus
     size_t allocatedSize;
     bool allocated;
 
-#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
+    // TODO: Declare this variable at compile time (not possible with if constexpr)
     T* CPUBuffer;
-#endif
   };
 
-  template <typename T>
-  struct UniformGPUBuffer : GPUBuffer<T>
+  template <typename T, bool CPUMapEnabled = true>
+  struct UniformGPUBuffer : GPUBuffer<T, CPUMapEnabled>
   {
     uint32_t add(const T* source)
     {
@@ -176,9 +223,10 @@ namespace Lotus
 
       this->write(source, first, 1);
 
-#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
-      this->CPUBuffer[first] = *source;
-#endif
+      if constexpr(CPUMapEnabled)
+      {
+        this->CPUBuffer[first] = *source;
+      }
 
       return first;
     }
@@ -191,7 +239,8 @@ namespace Lotus
       }
       else
       {
-        return; // TODO: Throw error
+        LOTUS_LOG_WARN("[Buffer Warning] Tried to remove element outside buffer scope, buffer ID {0}", this->ID);
+        return;
       }
     }
 
@@ -199,7 +248,7 @@ namespace Lotus
   };
 
   template <typename T>
-  struct NonUniformGPUBuffer : GPUBuffer<T>
+  struct NonUniformGPUBuffer : GPUBuffer<T, false>
   {
     uint32_t add(const T* source, size_t size = 1)
     {
@@ -236,10 +285,6 @@ namespace Lotus
       }
 
       this->write(source, first, size);
-
-#ifdef GPU_BUFFERS_ENABLE_CPU_MAP
-      //std::memcpy(CPUBuffer + first, source, size * sizeof(T));
-#endif
 
       return first;
     }
@@ -340,7 +385,7 @@ namespace Lotus
   /*
     Buffer for draw commands
   */
-  struct DrawIndirectBuffer : public UniformGPUBuffer<DrawElementsIndirectCommand>
+  struct DrawIndirectBuffer : public UniformGPUBuffer<DrawElementsIndirectCommand, true>
   {
     DrawIndirectBuffer()
     {
@@ -352,7 +397,7 @@ namespace Lotus
     Buffer for generic uniform storage
   */
   template <typename T>
-  struct ShaderStorageBuffer : public UniformGPUBuffer<T>
+  struct ShaderStorageBuffer : public UniformGPUBuffer<T, true>
   {
     ShaderStorageBuffer() : bindingPoint(0)
     {
