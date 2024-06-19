@@ -1,12 +1,9 @@
-# None of these are files related to the build, treat them as targets
-.PHONY: all clean vcpkg
-
 # Build folder
 BUILD_DIR = build
 
 # Targets
 
-all:
+default:
 	cmake --preset=default
 
 vcpkg:

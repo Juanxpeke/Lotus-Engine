@@ -1,14 +1,14 @@
-# Build stuff
+# Build
 /build
-*/build
-*/path_manager.h
-
-# Visual Studio
-.vscode
+**/build
+**/path_manager.h
 
 # Results
-/**/.ipynb_checkpoints
-/**/*.csv
+**/.ipynb_checkpoints
+**/*.csv
+
+# Visual Studio Code
+.vscode
 
 # Temp
 */rendering
