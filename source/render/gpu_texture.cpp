@@ -134,9 +134,10 @@ namespace Lotus
   {
     if (ID)
     {
+      LOTUS_LOG_INFO("[Texture Log] Deleted GPU texture with ID {0}", ID);
+      
       glDeleteTextures(1, &ID);
       ID = 0;
-      LOTUS_LOG_INFO("[Texture Log] Deleted GPU texture with ID {0}", ID);
     }
     else
     {
