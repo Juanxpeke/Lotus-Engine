@@ -32,11 +32,13 @@ namespace Lotus {
 }
 
 #if NDEBUG
-  #define LOTUS_LOG_INFO(...)     (void(0))
-  #define LOTUS_LOG_ERROR(...)    (void(0))
-  #define LOTUS_ASSERT(expr, ...) (void(0))
+  #define LOTUS_LOG_INFO(...)        (void(0))
+  #define LOTUS_LOG_WARN(...)        (void(0))
+  #define LOTUS_LOG_ERROR(...)       (void(0))
+  #define LOTUS_ASSERT(expr, ...)    (void(0))
 #else
   #define LOTUS_LOG_INFO(...)   ::Lotus::Log::getLogger()->info(__VA_ARGS__)
+  #define LOTUS_LOG_WARN(...)   ::Lotus::Log::getLogger()->warn(__VA_ARGS__)
   #define LOTUS_LOG_ERROR(...)  ::Lotus::Log::getLogger()->error(__VA_ARGS__)
 
 	#ifndef WIN32
