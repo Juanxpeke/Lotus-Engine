@@ -46,7 +46,7 @@ namespace Lotus
    
     glm::mat4 viewMatrix = camera.getViewMatrix();
     glm::mat4 projectionMatrix = camera.getProjectionMatrix();
-    glm::vec3 cameraPosition = glm::vec3(-301.0, 0, 157);// camera.getLocalTranslation();
+    glm::vec3 cameraPosition = camera.getLocalTranslation();
 
     glUseProgram(clipmapProgram.getProgramID());
 
@@ -67,7 +67,7 @@ namespace Lotus
       glUniform1fv(LevelScaleBinding, 1, &scale);
       glUniformMatrix4fv(ModelBinding, 1, GL_FALSE, glm::value_ptr(rotationModels[0]));
       glUniform2fv(OffsetBinding, 1, glm::value_ptr(snappedPos));
-          glUniform3fv(DebugColorBinding, 1, glm::value_ptr(debugColors[GeoClipmap::CROSS]));
+      glUniform3fv(DebugColorBinding, 1, glm::value_ptr(debugColors[GeoClipmap::CROSS]));
       
       glBindVertexArray(meshes[GeoClipmap::CROSS]->getVertexArrayID());
       
@@ -138,6 +138,8 @@ namespace Lotus
       
       // Draw trim
       {
+        glUniform1fv(LevelScaleBinding, 1, &scale);
+
         glm::vec2 tileCentre = snappedPos + glm::vec2(int(scale) >> 1);
         glm::vec2 d = glm::vec2(cameraPosition.x, cameraPosition.z) - nextSnappedPos;
 
