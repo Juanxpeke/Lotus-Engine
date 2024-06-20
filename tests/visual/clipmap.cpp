@@ -7,7 +7,7 @@
 
 #include "util/path_manager.h"
 #include "scene/camera.h"
-#include "terrain/clipmap.h"
+#include "terrain/terrain.h"
 
 int width = 720;
 int height = 720;
@@ -82,7 +82,7 @@ int main()
 	Lotus::Camera camera;
   
   glEnable(GL_DEPTH_TEST);
-  Lotus::Clipmap clipmap;
+  Lotus::Terrain clipmap;
 	
 	double lastTime = glfwGetTime();
 

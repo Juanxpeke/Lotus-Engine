@@ -10,6 +10,7 @@ namespace Lotus
   class GPUMesh
   {
   public:
+    GPUMesh(const MeshPrimitive& mesh);
     GPUMesh(const std::vector<Lotus::Vertex>& vertices, const std::vector<unsigned int>& indices);
     ~GPUMesh();
 

@@ -1,11 +1,10 @@
-#include "clipmap.h"
+#include "geoclipmap.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glad/glad.h>
+#include "../util/log.h"
 
 namespace Lotus
 {
+
   struct Tile : MeshPrimitive
   {
     Tile(uint32_t quadsPerSide)
@@ -178,125 +177,137 @@ namespace Lotus
     }
   };
 
-  Clipmap::Clipmap(uint32_t clipmapLevels, uint32_t clipmapTileResolution) :
-    levels(clipmapLevels),
-    tileResolution(clipmapTileResolution)
+  struct Cross : MeshPrimitive
   {
+    Cross(uint32_t quadsPerTileSide)
+    {
+      uint32_t verticesPerTileSide = quadsPerTileSide + 1;
 
+      vertices.reserve(verticesPerTileSide * 8);
+      
+      Vertex vertex;
+
+      // Horizontal vertices
+      for (uint32_t i = 0; i < verticesPerTileSide * 2; i++)
+      {
+        vertex.position = { i - float(quadsPerTileSide), 0, 0 };
+        vertices.push_back(vertex);
+        vertex.position = { i - float(quadsPerTileSide), 0, 1 };
+        vertices.push_back(vertex);
+      }
+
+      // Vertical vertices
+      for (uint32_t i = 0; i < verticesPerTileSide * 2; i++)
+      {
+        vertex.position = { 0, 0, i - float(quadsPerTileSide) };
+        vertices.push_back(vertex);
+        vertex.position = { 1, 0, i - float(quadsPerTileSide) };
+        vertices.push_back(vertex);
+      }
+
+      indices.reserve(quadsPerTileSide * 24 + 6);
+
+      for (uint32_t i = 0; i < quadsPerTileSide * 2 + 1; i++)
+      {
+        uint32_t bl = i * 2 + 0;
+        uint32_t br = i * 2 + 1;
+        uint32_t tl = i * 2 + 2;
+        uint32_t tr = i * 2 + 3;
+
+        indices.push_back(br);
+        indices.push_back(bl);
+        indices.push_back(tr);
+        indices.push_back(bl);
+        indices.push_back(tl);
+        indices.push_back(tr);
+      }
+
+      uint32_t startOfVertical = verticesPerTileSide * 4;
+
+      for (uint32_t i = 0; i < quadsPerTileSide * 2 + 1; i++)
+      {
+        if (i == quadsPerTileSide)
+        {
+          continue;
+        }
+
+        uint32_t bl = i * 2 + 0;
+        uint32_t br = i * 2 + 1;
+        uint32_t tl = i * 2 + 2;
+        uint32_t tr = i * 2 + 3;
+
+        indices.push_back(startOfVertical + br);
+        indices.push_back(startOfVertical + tr);
+        indices.push_back(startOfVertical + bl);
+        indices.push_back(startOfVertical + bl);
+        indices.push_back(startOfVertical + tr);
+        indices.push_back(startOfVertical + tl);
+      }
+    }
+  };
+
+  struct Seam : MeshPrimitive
+  {
+    Seam(uint32_t quadsPerTileSide)
+    {
+      uint32_t quadsPerLevelSide = quadsPerTileSide * 4 + 1;
+      uint32_t verticesPerLevelSide = quadsPerLevelSide + 1;
+
+      vertices.reserve(verticesPerLevelSide * 4);
+
+      Vertex vertex;
+
+      vertices.resize(verticesPerLevelSide * 4);
+
+      for (uint32_t i = 0; i < verticesPerLevelSide; i++)
+      {
+        vertex.position = { i, 0, 0 };
+        vertices[verticesPerLevelSide * 0 + i] = vertex;
+        vertex.position = { verticesPerLevelSide, 0, i };
+        vertices[verticesPerLevelSide * 1 + i] = vertex;
+        vertex.position = { verticesPerLevelSide - i, 0, verticesPerLevelSide };
+        vertices[verticesPerLevelSide * 2 + i] = vertex;
+        vertex.position = { 0, 0, verticesPerLevelSide - i };
+        vertices[verticesPerLevelSide * 3 + i] = vertex;
+      }
+
+      indices.reserve(verticesPerLevelSide * 6);
+
+      for (uint32_t i = 0; i < verticesPerLevelSide * 4; i += 2)
+      {
+        indices.push_back(i + 1);
+        indices.push_back(i);
+        indices.push_back(i + 2);
+      }
+
+      indices.push_back(0);
+    }
+  };
+
+  std::vector<std::shared_ptr<GPUMesh>> GeoClipmap::generate(uint32_t tileResolution)
+  {
     Tile tile(tileResolution);
     Filler filler(tileResolution);
     Trim trim(tileResolution);
+    Cross cross(tileResolution);
+    Seam seam(tileResolution);
     
-    tileMesh = std::make_shared<GPUMesh>(tile.vertices, tile.indices);
-    fillerMesh = std::make_shared<GPUMesh>(filler.vertices, filler.indices);
-    trimMesh = std::make_shared<GPUMesh>(trim.vertices, trim.indices);
-    
-    Lotus::TextureLoader& textureLoader = Lotus::TextureLoader::getInstance();
-    heightmapTexture = textureLoader.generatePerlinTexture(720, 720);
+    std::shared_ptr<GPUMesh> tileMesh = std::make_shared<GPUMesh>(tile);
+    std::shared_ptr<GPUMesh> fillerMesh = std::make_shared<GPUMesh>(filler);
+    std::shared_ptr<GPUMesh> trimMesh = std::make_shared<GPUMesh>(trim);
+    std::shared_ptr<GPUMesh> crossMesh = std::make_shared<GPUMesh>(cross);
+    std::shared_ptr<GPUMesh> seamMesh = std::make_shared<GPUMesh>(seam);
 
-    clipmapProgram = ShaderProgram(shaderPath("terrain/clipmap.vert"), shaderPath("terrain/clipmap.frag"));
-
-    rotationModels[0] = glm::mat4(1.0f);
-    rotationModels[1] = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    rotationModels[2] = glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    rotationModels[3] = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-  }
-
-  void Clipmap::render(const Camera& camera)
-  {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    uint16_t quadSize = 1;
-
-    
-    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    glEnable( GL_POLYGON_OFFSET_LINE );
-    glPolygonOffset( -1, -1 );
-    
-   
-    glm::mat4 viewMatrix = camera.getViewMatrix();
-    glm::mat4 projectionMatrix = camera.getProjectionMatrix();
-    glm::vec3 cameraPosition = camera.getLocalTranslation();
-
-    glUseProgram(clipmapProgram.getProgramID());
-
-    glUniformMatrix4fv(ViewBinding, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-    glUniformMatrix4fv(ProjectionBinding, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-    glUniform1i(HeightmapTextureBinding, HeightmapTextureUnit);
-
-    glBindTextureUnit(HeightmapTextureUnit, heightmapTexture->getID());
-
-    for (uint32_t level = 0; level < levels; level++)
+    std::vector<std::shared_ptr<GPUMesh>> meshes =
     {
-      float scale = static_cast<float>(1 << level);
+      tileMesh,
+      fillerMesh,
+      trimMesh,
+      crossMesh,
+      seamMesh
+    };
 
-      glm::vec2 snappedPos;
-      snappedPos.x = std::floorf(cameraPosition.x / scale) * scale;
-      snappedPos.y = std::floorf(cameraPosition.z / scale) * scale;
-
-      glm::vec2 tileSize((tileResolution * quadSize) << level);
-      glm::vec2 levelOrigin = snappedPos - glm::vec2((tileResolution * quadSize) << (level + 1));
-
-      glUniform1fv(LevelScaleBinding, 1, &scale);
-      glUniformMatrix4fv(ModelBinding, 1, GL_FALSE, glm::value_ptr(rotationModels[0]));
-
-      glBindVertexArray(tileMesh->getVertexArrayID());
-
-      for (int x = 0; x < 4; x++)
-      {
-        for (int y = 0; y < 4; y++)
-        {
-          if (level != 0 && (x == 1 || x == 2) && (y == 1 || y == 2))
-          {
-            continue;
-          }
-
-          glm::vec2 fill = glm::vec2((x >= 2 ? quadSize : 0), (y >= 2 ? quadSize : 0)) * scale;
-          glm::vec2 tileOffset = levelOrigin + glm::vec2(x, y) * tileSize + fill;
-
-
-          glUniform2fv(OffsetBinding, 1, glm::value_ptr(tileOffset));
-
-          glDrawElements(GL_TRIANGLES, tileMesh->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
-        }
-      }
-
-
-      // Draw filler
-      glBindVertexArray(fillerMesh->getVertexArrayID());
-
-      glUniform2fv(OffsetBinding, 1, glm::value_ptr(snappedPos));
-
-      glDrawElements(GL_TRIANGLES, fillerMesh->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
-
-      if (level == levels - 1)
-      {
-        continue;
-      }
-
-      float nextScale = scale * 2.0f;
-
-      glm::vec2 nextSnappedPos;
-      nextSnappedPos.x = std::floorf(cameraPosition.x / nextScale) * nextScale;
-      nextSnappedPos.y = std::floorf(cameraPosition.z / nextScale) * nextScale;
-      
-      // Draw trim
-      glm::vec2 tileCentre = snappedPos + glm::vec2(scale * 0.5f);
-      glm::vec2 d = glm::vec2(cameraPosition.x, cameraPosition.z) - nextSnappedPos;
-
-      uint32_t rotationIndex = 0;
-      rotationIndex |= (d.x >= scale ? 0 : 2);
-      rotationIndex |= (d.y >= scale ? 0 : 1);
-
-      glBindVertexArray(trimMesh->getVertexArrayID());
-
-      glUniformMatrix4fv(ModelBinding, 1, GL_FALSE, glm::value_ptr(rotationModels[rotationIndex]));
-      glUniform2fv(OffsetBinding, 1, glm::value_ptr(tileCentre));
-      
-      glDrawElements(GL_TRIANGLES, trimMesh->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
-    }
-
-    glBindVertexArray(0);
+    return meshes;
   }
 
 }

@@ -15,7 +15,7 @@
 #include "../../scene/camera.h"
 #include "../../lighting/directional_light.h"
 #include "../../lighting/point_light.h"
-#include "../../terrain/terrain.h"
+#include "../../terrain/terrainfake.h"
 #include "../gpu_buffer.h"
 #include "mesh.h"
 #include "../shader.h"
@@ -58,7 +58,7 @@ namespace Lotus
 
     std::shared_ptr<Material> createMaterial(MaterialType type);
 
-    std::shared_ptr<Terrain> createTerrain();
+    std::shared_ptr<TerrainFake> createTerrain();
 
     void setAmbientLight(glm::vec3 color);
     std::shared_ptr<DirectionalLight> createDirectionalLight();
@@ -154,6 +154,6 @@ namespace Lotus
     // Terrains
     ShaderProgram terrainShader;
 
-    std::shared_ptr<Terrain> terrain;
+    std::shared_ptr<TerrainFake> terrain;
   };
 }

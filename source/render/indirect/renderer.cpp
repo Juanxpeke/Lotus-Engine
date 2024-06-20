@@ -151,9 +151,9 @@ namespace Lotus {
     }
   }
 
-  std::shared_ptr<Terrain> Renderer::createTerrain()
+  std::shared_ptr<TerrainFake> Renderer::createTerrain()
   {
-    terrain = std::make_shared<Terrain>(64);
+    terrain = std::make_shared<TerrainFake>(64);
     
     return terrain;
   }

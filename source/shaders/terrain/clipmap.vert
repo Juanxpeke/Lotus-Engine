@@ -16,7 +16,7 @@ void main()
 {
   vec2 xz = offset + (model * vec4(position, 1.0)).xz * levelScale;
 
-  float y = 32.0 * texelFetch(heightmap, ivec2(xz), 0).r;
+  float y = 64.0 * texelFetch(heightmap, ivec2(xz), 0).r;
 
   vec3 worldPosition = vec3(y);
   worldPosition.xz = xz;

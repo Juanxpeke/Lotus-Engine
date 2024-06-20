@@ -5,6 +5,7 @@
 
 namespace Lotus
 {
+  GPUMesh::GPUMesh(const MeshPrimitive& mesh) : GPUMesh(mesh.vertices, mesh.indices) {}
 
   GPUMesh::GPUMesh(const std::vector<Lotus::Vertex>& vertices, const std::vector<unsigned int>& indices)
   {
