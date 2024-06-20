@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include "PerlinNoise.hpp"
 
-namespace LotusMath
+namespace Lotus
 {
 
   class Perlin2DArray
@@ -15,9 +15,9 @@ namespace LotusMath
     Perlin2DArray(
         int dataWidth,
         int dataHeight,
+        glm::vec2 dataOffset = { 0, 0 },
         double dataFrequency = 8.0,
         int dataOctaves = 8,
-        glm::vec2 dataOffset = { 0, 0 },
         uint32_t seed = 0) :
       width(dataWidth),
       height(dataHeight),
@@ -51,7 +51,7 @@ namespace LotusMath
       delete[] data;
     }
 
-    float* getData()
+    const float* getData() const
     {
       return data;
     }

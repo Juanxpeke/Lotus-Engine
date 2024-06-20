@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace LotusMath
+namespace Lotus
 {
     inline uint64_t szudzikPair(uint32_t x, uint32_t y)
     {

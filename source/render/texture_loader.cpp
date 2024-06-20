@@ -90,7 +90,7 @@ namespace Lotus
 
   std::shared_ptr<GPUTexture> TextureLoader::generatePerlinTexture(int width, int height)
   {
-    LotusMath::Perlin2DArray perlin2DArray(width, height);
+    Lotus::Perlin2DArray perlin2DArray(width, height);
 
     TextureConfig textureConfig;
     textureConfig.data = perlin2DArray.getData();
