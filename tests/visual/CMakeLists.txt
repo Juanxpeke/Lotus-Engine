@@ -8,8 +8,10 @@ function(add_visual_test TARGET_NAME)
 	target_include_directories(${TARGET_NAME} PRIVATE ${LOTUS_INCLUDE_DIRECTORY} ${THIRD_PARTY_INCLUDE_DIRECTORIES})
 endfunction(add_visual_test)
 
-# Perlin noise
+# Textures
 add_visual_test(texture_loader)
+add_visual_test(texture_array)
+add_visual_test(texture_full)
 
 # Objects with different parameters
 add_visual_test(different_meshes)

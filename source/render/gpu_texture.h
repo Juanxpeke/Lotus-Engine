@@ -8,17 +8,14 @@ namespace Lotus
   enum class TextureFormat
   {
     Invalid,
-    Red,
-    RGB,
-    RGBA
+    RUnsigned,
+    RFloat,
+    RGBUnsigned,
+    RGBFloat,
+    RGBAUnsigned,
+    RGBAFloat
   };
 
-  enum class TextureDataType
-  {
-    UnsignedByte,
-    Float
-  };
-  
   enum class TextureMagnificationFilter
   {
     Nearest,
@@ -46,12 +43,12 @@ namespace Lotus
   {
     uint32_t width;
     uint32_t height;
+    uint32_t depth;
 
     const void* data = nullptr;
     size_t dataSize = 0;
 
     TextureFormat format = TextureFormat::Invalid;
-    TextureDataType dataType = TextureDataType::UnsignedByte;
     TextureMagnificationFilter magFilter = TextureMagnificationFilter::Linear;
     TextureMinificationFilter minFilter = TextureMinificationFilter::LinearMipmapLinear;
     TextureWrapMode sWrapMode = TextureWrapMode::Repeat;
@@ -66,9 +63,13 @@ namespace Lotus
     GPUTexture(TextureConfig textureConfig);
     ~GPUTexture();
     
+    GPUTexture& operator=(const GPUTexture& other) = delete;
+
     uint32_t getID() const { return ID; }
     uint32_t getWidth() const { return width; }
     uint32_t getHeight() const { return height; }
+
+    void setData(const void* data);
 
     void setSWrapMode(TextureWrapMode wrapMode) noexcept;
     void setTWrapMode(TextureWrapMode wrapMode) noexcept;
@@ -79,6 +80,37 @@ namespace Lotus
     uint32_t ID;
     uint32_t width;
     uint32_t height;
+
+    const TextureFormat format;
+  };
+
+  class GPUTextureArray
+  {
+  public:
+    GPUTextureArray(TextureConfig textureConfig);
+    ~GPUTextureArray();
+    
+    GPUTextureArray& operator=(const GPUTextureArray& other) = delete;
+
+    uint32_t getID() const { return ID; }
+    uint32_t getWidth() const { return width; }
+    uint32_t getHeight() const { return height; }
+    uint32_t getLayers() const { return layers; }
+
+    void setLayerData(uint16_t layer, const void* data);
+
+    void setSWrapMode(TextureWrapMode wrapMode) noexcept;
+    void setTWrapMode(TextureWrapMode wrapMode) noexcept;
+    void setMagnificationFilter(TextureMagnificationFilter magFilter) noexcept;
+    void setMinificationFilter(TextureMinificationFilter minFilter) noexcept;
+
+  private:
+    uint32_t ID;
+    uint32_t width;
+    uint32_t height;
+    uint16_t layers;
+
+    const TextureFormat format;
   };
 
 }

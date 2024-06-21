@@ -32,15 +32,15 @@ namespace Lotus
 
     if (stbChannels == 1)
     {
-      textureConfig.format = TextureFormat::Red;
+      textureConfig.format = TextureFormat::RUnsigned;
     }
     else if (stbChannels == 4)
     {
-      textureConfig.format = TextureFormat::RGBA;
+      textureConfig.format = TextureFormat::RGBAUnsigned;
     }
     else if (stbChannels == 3)
     {
-      textureConfig.format = TextureFormat::RGB;
+      textureConfig.format = TextureFormat::RGBUnsigned;
     }
     else
     {
@@ -48,7 +48,6 @@ namespace Lotus
       LOTUS_ASSERT(false, "Exiting");
     }
 
-    textureConfig.dataType = TextureDataType::UnsignedByte;
     textureConfig.magFilter = magFilter;
     textureConfig.minFilter = minFilter;
     textureConfig.sWrapMode = sWrapMode;
@@ -96,8 +95,7 @@ namespace Lotus
     textureConfig.data = perlin2DArray.getData();
     textureConfig.width = width;
     textureConfig.height = height;
-    textureConfig.dataType = TextureDataType::Float;
-    textureConfig.format = TextureFormat::Red;
+    textureConfig.format = TextureFormat::RFloat;
 
     GPUTexture* texture = new GPUTexture(textureConfig);
     std::shared_ptr<GPUTexture> textureSharedPtr = std::shared_ptr<GPUTexture>(texture);

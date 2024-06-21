@@ -3,79 +3,84 @@
 namespace Lotus
 {
 
-  TerrainChunkGenerator::TerrainChunkGenerator(uint8_t terrainChunkSize) : 
+  TerrainChunkGenerator::TerrainChunkGenerator(uint16_t terrainChunkSize) : 
       chunkSize(terrainChunkSize),
       originX(0),
       originY(0),
-      topLeftChunkX(0),
-      topLeftChunkY(0)
+      left(0),
+      up(0)
   {
     chunks2DArrays.fill(nullptr);
 
-    for (int x = 0; x < chunksPerSide; x++)
+    for (int x = 0; x < ChunksPerSide; x++)
     {
-      for (int y = 0; y < chunksPerSide; y++)
+      for (int y = 0; y < ChunksPerSide; y++)
       {
-        generateChunk(x, y);
+        generateChunk(x, y, x, y);
       }
     }
-  } 
+  }
 
-  void TerrainChunkGenerator::updateTop()
+  const float* TerrainChunkGenerator::getChunkData(int x, int y) const
+  {
+    return (chunks2DArrays[y * ChunksPerSide + x])->getData();
+  }
+
+  void TerrainChunkGenerator::updateUp()
   {
     originY -= chunkSize;
-    topLeftChunkY = (topLeftChunkY + chunksPerSide - 1) % chunksPerSide;
+    up = (up + ChunksPerSide - 1) % ChunksPerSide;
     
-    for (int x = 0; x < chunksPerSide; x++)
+    for (int x = 0; x < ChunksPerSide; x++)
     {
-      generateChunk(x, topLeftChunkY);
+      generateChunk(x, getUp(), (x + ChunksPerSide - getLeft()) % ChunksPerSide, 0);
     }
   }
 
   void TerrainChunkGenerator::updateRight()
   {
     originX += chunkSize;
-    topLeftChunkX = (topLeftChunkX + 1) % chunksPerSide;
+    left = (left + 1) % ChunksPerSide;
 
-    for (int y = 0; y < chunksPerSide; y++)
+    for (int y = 0; y < ChunksPerSide; y++)
     {
-      generateChunk((topLeftChunkX + chunksPerSide - 1) % chunksPerSide, y);
+      generateChunk(getRight(), y, ChunksPerSide - 1, (y + ChunksPerSide - getUp()) % ChunksPerSide);
     }
   }
 
   void TerrainChunkGenerator::updateDown()
   {
     originY += chunkSize;
-    topLeftChunkY = (topLeftChunkY + 1) % chunksPerSide;
+    up = (up + 1) % ChunksPerSide;
 
-    for (int x = 0; x < chunksPerSide; x++)
+    for (int x = 0; x < ChunksPerSide; x++)
     {
-      generateChunk(x, (topLeftChunkY + chunksPerSide - 1) % chunksPerSide);
+      generateChunk(x, getDown(), (x + ChunksPerSide - getLeft()) % ChunksPerSide, ChunksPerSide - 1);
     }
   }
 
   void TerrainChunkGenerator::updateLeft()
   {
     originX -= chunkSize;
-    topLeftChunkX = (topLeftChunkX + chunksPerSide - 1) % chunksPerSide;
+    left = (left + ChunksPerSide - 1) % ChunksPerSide;
     
-    for (int y = 0; y < chunksPerSide; y++)
+    for (int y = 0; y < ChunksPerSide; y++)
     {
-      generateChunk(topLeftChunkX, y);
+      generateChunk(getLeft(), y, 0, (y + ChunksPerSide - getUp()) % ChunksPerSide);
     }
   }
 
-  void TerrainChunkGenerator::generateChunk(int x, int y)
+  void TerrainChunkGenerator::generateChunk(int x, int y, int worldX, int worldY)
   {
-    int64_t offsetX = originX - static_cast<int64_t>((chunksPerSide * chunkSize) * 0.5) + x * chunkSize;
-    int64_t offsetY = originY - static_cast<int64_t>((chunksPerSide * chunkSize) * 0.5) + y * chunkSize;
+    int64_t offsetX = originX - static_cast<int64_t>((ChunksPerSide * chunkSize) * 0.5) + worldX * chunkSize;
+    int64_t offsetY = originY - static_cast<int64_t>((ChunksPerSide * chunkSize) * 0.5) + worldY * chunkSize;
 
     glm::vec2 offset = { offsetX, offsetY };
 
     Perlin2DArray* perlin2DArray = new Perlin2DArray(chunkSize, chunkSize, offset);
-    Perlin2DArray* oldPerlin2DArray = chunks2DArrays[y * chunksPerSide + x];
+    Perlin2DArray* oldPerlin2DArray = chunks2DArrays[y * ChunksPerSide + x];
     
-    chunks2DArrays[y * chunksPerSide + x] = perlin2DArray;
+    chunks2DArrays[y * ChunksPerSide + x] = perlin2DArray;
     
     if (oldPerlin2DArray)
     {

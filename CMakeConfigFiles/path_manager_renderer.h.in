@@ -14,14 +14,19 @@ namespace Lotus
 {
   static const std::string directoryPath = "${CMAKE_CURRENT_SOURCE_DIR}/";
 
-  static std::filesystem::path assetPath(const std::string& assetFilename)
+  static std::filesystem::path assetPath(const std::string& assetRelativePath)
   {
-    return directoryPath + "assets/" + assetFilename;
+    return directoryPath + "assets/" + assetRelativePath;
   }
 
-  static std::filesystem::path shaderPath(const std::string& shaderFilename)
+  static std::filesystem::path shaderPath(const std::string& shaderRelativePath)
   {
-    return directoryPath + "source/shaders/" + shaderFilename;
+    return directoryPath + "source/shaders/" + shaderRelativePath;
+  }
+
+  static std::filesystem::path testPath(const std::string& relativePath)
+  {
+    return directoryPath + "tests/" + relativePath;
   }
 }
 

@@ -11,12 +11,18 @@ namespace Lotus
     {
       case TextureFormat::Invalid:
         break;
-      case TextureFormat::Red:
+      case TextureFormat::RUnsigned:
         return GL_R8;
-      case TextureFormat::RGB:
+      case TextureFormat::RFloat:
+        return GL_R32F;
+      case TextureFormat::RGBUnsigned:
         return GL_RGB8;
-      case TextureFormat::RGBA:
+      case TextureFormat::RGBFloat:
+        return GL_RGB32F;
+      case TextureFormat::RGBAUnsigned:
         return GL_RGBA8;
+      case TextureFormat::RGBAFloat:
+        return GL_RGBA32F;
       default:
         return GL_RGB8;
     }
@@ -30,11 +36,14 @@ namespace Lotus
     {
       case TextureFormat::Invalid:
         break;
-      case TextureFormat::Red:
+      case TextureFormat::RUnsigned:
+      case TextureFormat::RFloat:
         return GL_RED;
-      case TextureFormat::RGB:
+      case TextureFormat::RGBUnsigned:
+      case TextureFormat::RGBFloat:
         return GL_RGB;
-      case TextureFormat::RGBA:
+      case TextureFormat::RGBAUnsigned:
+      case TextureFormat::RGBAFloat:
         return GL_RGBA;
       default:
         return GL_RGB;
@@ -43,17 +52,25 @@ namespace Lotus
     return GL_INVALID_ENUM;
   }
 
-  GLenum dataTypeEnumToOpenGLEnum(TextureDataType type)
+  GLenum dataTypeEnumToOpenGLEnum(TextureFormat format)
   {
-    switch(type)
+    switch(format)
     {
-      case TextureDataType::UnsignedByte:
+      case TextureFormat::Invalid:
+        break;
+      case TextureFormat::RUnsigned:
+      case TextureFormat::RGBUnsigned:
+      case TextureFormat::RGBAUnsigned:
         return GL_UNSIGNED_BYTE;
-      case TextureDataType::Float:
+      case TextureFormat::RFloat:
+      case TextureFormat::RGBFloat:
+      case TextureFormat::RGBAFloat:
         return GL_FLOAT;
       default:
         return GL_UNSIGNED_BYTE; 
     }
+
+    return GL_INVALID_ENUM;
   }
 
   GLenum wrapEnumToOpenGLEnum(TextureWrapMode wrapMode)
@@ -108,20 +125,25 @@ namespace Lotus
   GPUTexture::GPUTexture(TextureConfig textureConfig) :
     ID(0),
     width(textureConfig.width),
-    height(textureConfig.height)
+    height(textureConfig.height),
+    format(textureConfig.format)
   {
-    GLenum type = dataTypeEnumToOpenGLEnum(textureConfig.dataType);
-    GLenum internalFormat = internalFormatEnumToOpenGLEnum(textureConfig.format);
-    GLenum dataFormat = dataFormatEnumToOpenGLEnum(textureConfig.format);
+    GLenum internalFormat = internalFormatEnumToOpenGLEnum(format);
+    GLenum dataFormat = dataFormatEnumToOpenGLEnum(format);
+    GLenum dataType = dataTypeEnumToOpenGLEnum(format);
 
     glCreateTextures(GL_TEXTURE_2D, 1, &ID);
-    glTextureStorage2D(ID, 1, internalFormat, textureConfig.width, textureConfig.height);
+    glTextureStorage2D(ID, 1, internalFormat, width, height);
+
     glTextureParameteri(ID, GL_TEXTURE_WRAP_S, wrapEnumToOpenGLEnum(textureConfig.sWrapMode));
     glTextureParameteri(ID, GL_TEXTURE_WRAP_T, wrapEnumToOpenGLEnum(textureConfig.tWrapMode));
     glTextureParameteri(ID, GL_TEXTURE_MAG_FILTER, magnificationFilterEnumToOpenGLEnum(textureConfig.magFilter));
     glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, minificationFilterEnumToOpenGLEnum(textureConfig.minFilter));
-    glTextureSubImage2D(ID, 0, 0, 0, textureConfig.width, textureConfig.height, dataFormat, type, textureConfig.data);
     
+    if (textureConfig.data)
+    {
+      glTextureSubImage2D(ID, 0, 0, 0, width, height, dataFormat, dataType, textureConfig.data);
+    }
     if (textureConfig.genMipmaps)
     {
       glGenerateTextureMipmap(ID);
@@ -145,6 +167,14 @@ namespace Lotus
     }
   }
 
+  void GPUTexture::setData(const void* data)
+  {
+    GLenum dataFormat = dataFormatEnumToOpenGLEnum(format);
+    GLenum dataType = dataTypeEnumToOpenGLEnum(format);
+
+    glTextureSubImage2D(ID, 0, 0, 0, width, height, dataFormat, dataType, data);
+  }
+
   void GPUTexture::setSWrapMode(TextureWrapMode wrapMode) noexcept
   {
     glTextureParameteri(ID, GL_TEXTURE_WRAP_S, wrapEnumToOpenGLEnum(wrapMode));
@@ -161,6 +191,81 @@ namespace Lotus
   }
 
   void GPUTexture::setMinificationFilter(TextureMinificationFilter minFilter) noexcept
+  {
+    glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, minificationFilterEnumToOpenGLEnum(minFilter));
+  }
+
+
+  GPUTextureArray::GPUTextureArray(TextureConfig textureConfig) :
+    ID(0),
+    width(textureConfig.width),
+    height(textureConfig.height),
+    layers(textureConfig.depth),
+    format(textureConfig.format)
+  {
+    GLenum internalFormat = internalFormatEnumToOpenGLEnum(format);
+    GLenum dataFormat = dataFormatEnumToOpenGLEnum(format);
+    GLenum dataType = dataTypeEnumToOpenGLEnum(format);
+
+    glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &ID);
+    glTextureStorage3D(ID, 1, internalFormat, width, height, layers);
+
+    glTextureParameteri(ID, GL_TEXTURE_WRAP_S, wrapEnumToOpenGLEnum(textureConfig.sWrapMode));
+    glTextureParameteri(ID, GL_TEXTURE_WRAP_T, wrapEnumToOpenGLEnum(textureConfig.tWrapMode));
+    glTextureParameteri(ID, GL_TEXTURE_MAG_FILTER, magnificationFilterEnumToOpenGLEnum(textureConfig.magFilter));
+    glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, minificationFilterEnumToOpenGLEnum(textureConfig.minFilter));
+    
+    if (textureConfig.data)
+    {
+      glTextureSubImage3D(ID, 0, 0, 0, 0, width, height, layers, dataFormat, dataType, textureConfig.data);
+    }
+    if (textureConfig.genMipmaps)
+    {
+      glGenerateTextureMipmap(ID);
+    }
+
+    LOTUS_LOG_INFO("[Texture Log] Created GPU texture array with ID {0}", ID);
+  }
+
+  GPUTextureArray::~GPUTextureArray()
+  {
+    if (ID)
+    {
+      LOTUS_LOG_INFO("[Texture Log] Deleted GPU texture array with ID {0}", ID);
+      
+      glDeleteTextures(1, &ID);
+      ID = 0;
+    }
+    else
+    {
+      LOTUS_LOG_ERROR("[Texture Error] Tried to delete already deleted texture array");
+    }
+  }
+
+  void GPUTextureArray::setLayerData(uint16_t layer, const void* data)
+  {
+    GLenum dataFormat = dataFormatEnumToOpenGLEnum(format);
+    GLenum dataType = dataTypeEnumToOpenGLEnum(format);
+
+    glTextureSubImage3D(ID, 0, 0, 0, layer, width, height, 1, dataFormat, dataType, data);
+  }
+
+  void GPUTextureArray::setSWrapMode(TextureWrapMode wrapMode) noexcept
+  {
+    glTextureParameteri(ID, GL_TEXTURE_WRAP_S, wrapEnumToOpenGLEnum(wrapMode));
+  }
+
+  void GPUTextureArray::setTWrapMode(TextureWrapMode wrapMode) noexcept
+  {
+    glTextureParameteri(ID, GL_TEXTURE_WRAP_T, wrapEnumToOpenGLEnum(wrapMode));
+  }
+
+  void GPUTextureArray::setMagnificationFilter(TextureMagnificationFilter magFilter) noexcept
+  {
+    glTextureParameteri(ID, GL_TEXTURE_MAG_FILTER, magnificationFilterEnumToOpenGLEnum(magFilter));
+  }
+
+  void GPUTextureArray::setMinificationFilter(TextureMinificationFilter minFilter) noexcept
   {
     glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, minificationFilterEnumToOpenGLEnum(minFilter));
   }

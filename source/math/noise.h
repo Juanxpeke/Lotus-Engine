@@ -38,10 +38,10 @@ namespace Lotus
       {
         for (int x = 0; x < width; ++x)
         {
-          float sampleX = (x * fx) + offset.x;
-          float sampleY = (y * fy) + offset.y;
+          float sampleX = (x * fx) + offset.x * fx;
+          float sampleY = (y * fy) + offset.y * fy;
 
-          data[y * width + x] = perlin.normalizedOctave2D_01(sampleX, sampleY, octaves);
+          data[y * width + x] = perlin.noise2D_01(sampleX, sampleY);//perlin.normalizedOctave2D_01(sampleX, sampleY, octaves);
         }
       }
     }
