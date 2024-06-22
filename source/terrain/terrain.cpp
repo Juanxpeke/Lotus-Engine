@@ -13,7 +13,29 @@ namespace Lotus
   Terrain::Terrain(uint32_t levelsOfDetail, uint32_t resolution) :
     levels(levelsOfDetail),
     tileResolution(resolution),
-    chunkGenerator(256)
+    chunkGenerator(nullptr),
+    heightmapTextures(nullptr)
+  {
+    meshes = GeoClipmap::generate(resolution);
+
+    clipmapProgram = ShaderProgram(shaderPath("terrain/clipmap.vert"), shaderPath("terrain/clipmap.frag"));
+
+    rotationModels[0] = glm::mat4(1.0f);
+    rotationModels[1] = glm::rotate(glm::mat4(1.0f), glm::radians( 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    rotationModels[2] = glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    rotationModels[3] = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    debugColors[0] = glm::vec3(1.0, 1.0, 1.0);
+    debugColors[1] = glm::vec3(0.0, 1.0, 1.0);
+    debugColors[2] = glm::vec3(0.0, 1.0, 0.0);
+    debugColors[3] = glm::vec3(0.0, 0.0, 1.0);
+    debugColors[4] = glm::vec3(1.0, 0.0, 0.0);
+  }
+
+  Terrain::Terrain(uint32_t levelsOfDetail, uint32_t resolution, std::shared_ptr<TerrainChunkGenerator> s) :
+    levels(levelsOfDetail),
+    tileResolution(resolution),
+    chunkGenerator(s)
   {
     meshes = GeoClipmap::generate(resolution);
 
@@ -30,7 +52,7 @@ namespace Lotus
       for (int y = 0; y < Lotus::TerrainChunkGenerator::ChunksPerSide; y++)
       {
         uint16_t layer = y * Lotus::TerrainChunkGenerator::ChunksPerSide + x;
-        heightmapTextures->setLayerData(layer, chunkGenerator.getChunkData(x, y));
+        heightmapTextures->setLayerData(layer, chunkGenerator->getChunkData(x, y));
       }
     }
 
@@ -48,6 +70,11 @@ namespace Lotus
     debugColors[4] = glm::vec3(1.0, 0.0, 0.0);
   }
 
+  void Terrain::setChunkGenerator(std::shared_ptr<TerrainChunkGenerator> s)
+  {
+    chunkGenerator = s;
+  }
+
   void Terrain::render(const Camera& camera)
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -63,12 +90,91 @@ namespace Lotus
 
     glUseProgram(clipmapProgram.getProgramID());
 
+    glUniform1i(DataPerChunkSideBinding, 256);
+    glUniform1i(ChunksPerSideBinding, TerrainChunkGenerator::ChunksPerSide);
+
     glUniformMatrix4fv(ViewBinding, 1, GL_FALSE, glm::value_ptr(viewMatrix));
     glUniformMatrix4fv(ProjectionBinding, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-    glUniform3fv(9, 1, glm::value_ptr(cameraPosition));
-    glUniform1i(HeightmapTextureBinding, HeightmapTextureUnit);
+    glUniform1i(HeightmapTextureArrayBinding, HeightmapTextureUnit);
 
     glBindTextureUnit(HeightmapTextureUnit, heightmapTextures->getID());
+
+    glm::vec3 movement = firstTimeCamera ? glm::vec3(0) : (cameraPosition - lastCameraPosition);
+
+    if (firstTimeCamera) {
+      lastCameraPosition = cameraPosition;
+      firstTimeCamera = false;
+      LOTUS_LOG_INFO("NOT FIRST TIME CAMERA");
+    }
+
+    if (movement.x > 256)
+    {
+      chunkGenerator->updateRight();
+
+      for (int y = 0; y < Lotus::TerrainChunkGenerator::ChunksPerSide; y++)
+      {
+        uint16_t layer = y * Lotus::TerrainChunkGenerator::ChunksPerSide + chunkGenerator->getRight();
+        heightmapTextures->setLayerData(layer, chunkGenerator->getChunkData(chunkGenerator->getRight(), y));
+      }
+
+      glUniform2i(ChunksDataOrigin, chunkGenerator->getDataOriginX(), chunkGenerator->getDataOriginY());
+      glUniform2i(ChunksOrigin, chunkGenerator->getLeft(), chunkGenerator->getUp());
+
+      LOTUS_LOG_INFO("UPDATED RIGHT");
+
+      lastCameraPosition.x = cameraPosition.x;
+    }
+    else if (movement.x < -256)
+    {
+      chunkGenerator->updateLeft();
+
+      for (int y = 0; y < Lotus::TerrainChunkGenerator::ChunksPerSide; y++)
+      {
+        uint16_t layer = y * Lotus::TerrainChunkGenerator::ChunksPerSide + chunkGenerator->getLeft();
+        heightmapTextures->setLayerData(layer, chunkGenerator->getChunkData(chunkGenerator->getLeft(), y));
+      }
+
+      glUniform2i(ChunksDataOrigin, chunkGenerator->getDataOriginX(), chunkGenerator->getDataOriginY());
+      glUniform2i(ChunksOrigin, chunkGenerator->getLeft(), chunkGenerator->getUp());
+
+      LOTUS_LOG_INFO("UPDATED LEFT");
+
+      lastCameraPosition.x = cameraPosition.x;
+    }
+
+    if (movement.z < -256)
+    {
+      chunkGenerator->updateUp();
+
+      for (int x = 0; x < Lotus::TerrainChunkGenerator::ChunksPerSide; x++)
+      {
+        uint16_t layer = chunkGenerator->getUp() * Lotus::TerrainChunkGenerator::ChunksPerSide + x;
+        heightmapTextures->setLayerData(layer, chunkGenerator->getChunkData(x, chunkGenerator->getUp()));
+      }
+      LOTUS_LOG_INFO("UPDATED TOP");
+
+      glUniform2i(ChunksDataOrigin, chunkGenerator->getDataOriginX(), chunkGenerator->getDataOriginY());
+      glUniform2i(ChunksOrigin, chunkGenerator->getLeft(), chunkGenerator->getUp());
+
+      lastCameraPosition.z = cameraPosition.z;
+    }
+    else if (movement.z > 256)
+    {
+      chunkGenerator->updateDown();
+
+      for (int x = 0; x < Lotus::TerrainChunkGenerator::ChunksPerSide; x++)
+      {
+        uint16_t layer = chunkGenerator->getDown() * Lotus::TerrainChunkGenerator::ChunksPerSide + x;
+        heightmapTextures->setLayerData(layer, chunkGenerator->getChunkData(x, chunkGenerator->getDown()));
+      }
+
+      glUniform2i(ChunksDataOrigin, chunkGenerator->getDataOriginX(), chunkGenerator->getDataOriginY());
+      glUniform2i(ChunksOrigin, chunkGenerator->getLeft(), chunkGenerator->getUp());
+
+      LOTUS_LOG_INFO("UPDATED DOWN");
+
+      lastCameraPosition.z = cameraPosition.z;
+    }
 
     // Draw cross
     {

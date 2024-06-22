@@ -20,14 +20,24 @@ namespace Lotus
     static constexpr unsigned int ModelBinding = 0;
     static constexpr unsigned int ViewBinding = 1;
     static constexpr unsigned int ProjectionBinding = 2;
-    static constexpr unsigned int LevelScaleBinding = 3;
-    static constexpr unsigned int OffsetBinding = 4;
-    static constexpr unsigned int HeightmapTextureBinding = 5;
-    static constexpr unsigned int DebugColorBinding = 6;
+
+    static constexpr unsigned int DataPerChunkSideBinding = 3;
+    static constexpr unsigned int ChunksPerSideBinding = 4;
+    static constexpr unsigned int ChunksDataOrigin = 5;
+    static constexpr unsigned int ChunksOrigin = 6;
+
+    static constexpr unsigned int LevelScaleBinding = 7;
+    static constexpr unsigned int OffsetBinding = 8;
+    static constexpr unsigned int HeightmapTextureArrayBinding = 9;
+
+    static constexpr unsigned int DebugColorBinding = 10;
     
     static constexpr unsigned int HeightmapTextureUnit = 0;
 
-    Terrain(uint32_t levelsOfDetail = 7, uint32_t resolution = 32);
+    Terrain(uint32_t levelsOfDetail = 7, uint32_t resolution = 128);
+    Terrain(uint32_t levelsOfDetail = 7, uint32_t resolution = 128, std::shared_ptr<TerrainChunkGenerator> chunkGenerator);
+
+    void setChunkGenerator(std::shared_ptr<TerrainChunkGenerator> chunkGenerator);
 
     void render(const Camera& camera);
 
@@ -41,10 +51,13 @@ namespace Lotus
 
     glm::mat4 rotationModels[4];
 
-    glm::vec3 debugColors[5];
+    glm::vec3 lastCameraPosition;
+    bool firstTimeCamera = true;
     
-    TerrainChunkGenerator chunkGenerator;
+    std::shared_ptr<TerrainChunkGenerator> chunkGenerator;
     
     std::shared_ptr<GPUTextureArray> heightmapTextures;
+
+    glm::vec3 debugColors[5];
   };
 }

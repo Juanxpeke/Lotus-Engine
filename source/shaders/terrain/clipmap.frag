@@ -1,6 +1,6 @@
 #version 460 core
 
-layout(location = 6) uniform vec3 debugColor;
+layout(location = 10) uniform vec3 debugColor;
 
 
 out vec4 outColor;

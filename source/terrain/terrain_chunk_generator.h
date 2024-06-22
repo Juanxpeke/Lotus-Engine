@@ -17,6 +17,9 @@ namespace Lotus
 
     const float* getChunkData(int x, int y) const;
 
+    int64_t getDataOriginX() const { return dataOriginX; }
+    int64_t getDataOriginY() const { return dataOriginY; }
+
     unsigned int getLeft() const { return left; };
     unsigned int getUp() const { return up; };
     unsigned int getRight() const { return (left + ChunksPerSide - 1) % ChunksPerSide; }
@@ -34,8 +37,8 @@ namespace Lotus
     uint16_t chunkSize;
     std::array<Perlin2DArray*, ChunksAmount> chunks2DArrays;
 
-    int64_t originX;
-    int64_t originY;
+    int64_t dataOriginX;
+    int64_t dataOriginY;
 
     unsigned int left;
     unsigned int up;

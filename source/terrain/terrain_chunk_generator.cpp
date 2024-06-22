@@ -5,8 +5,8 @@ namespace Lotus
 
   TerrainChunkGenerator::TerrainChunkGenerator(uint16_t terrainChunkSize) : 
       chunkSize(terrainChunkSize),
-      originX(0),
-      originY(0),
+      dataOriginX(0),
+      dataOriginY(0),
       left(0),
       up(0)
   {
@@ -28,7 +28,7 @@ namespace Lotus
 
   void TerrainChunkGenerator::updateUp()
   {
-    originY -= chunkSize;
+    dataOriginY -= chunkSize;
     up = (up + ChunksPerSide - 1) % ChunksPerSide;
     
     for (int x = 0; x < ChunksPerSide; x++)
@@ -39,7 +39,7 @@ namespace Lotus
 
   void TerrainChunkGenerator::updateRight()
   {
-    originX += chunkSize;
+    dataOriginX += chunkSize;
     left = (left + 1) % ChunksPerSide;
 
     for (int y = 0; y < ChunksPerSide; y++)
@@ -50,7 +50,7 @@ namespace Lotus
 
   void TerrainChunkGenerator::updateDown()
   {
-    originY += chunkSize;
+    dataOriginY += chunkSize;
     up = (up + 1) % ChunksPerSide;
 
     for (int x = 0; x < ChunksPerSide; x++)
@@ -61,7 +61,7 @@ namespace Lotus
 
   void TerrainChunkGenerator::updateLeft()
   {
-    originX -= chunkSize;
+    dataOriginX -= chunkSize;
     left = (left + ChunksPerSide - 1) % ChunksPerSide;
     
     for (int y = 0; y < ChunksPerSide; y++)
@@ -72,8 +72,8 @@ namespace Lotus
 
   void TerrainChunkGenerator::generateChunk(int x, int y, int worldX, int worldY)
   {
-    int64_t offsetX = originX - static_cast<int64_t>((ChunksPerSide * chunkSize) * 0.5) + worldX * chunkSize;
-    int64_t offsetY = originY - static_cast<int64_t>((ChunksPerSide * chunkSize) * 0.5) + worldY * chunkSize;
+    int64_t offsetX = dataOriginX - static_cast<int64_t>((ChunksPerSide * chunkSize) * 0.5) + worldX * chunkSize;
+    int64_t offsetY = dataOriginY - static_cast<int64_t>((ChunksPerSide * chunkSize) * 0.5) + worldY * chunkSize;
 
     glm::vec2 offset = { offsetX, offsetY };
 

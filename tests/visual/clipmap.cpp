@@ -13,7 +13,7 @@ int width = 720;
 int height = 720;
 char title[256];
 
-const float cameraSpeed = 32.0f;
+const float cameraSpeed = 64.0f;
 const float cameraAngularSpeed = 2.0f;
 
 void updateFromInputs(GLFWwindow* window, float dt, Lotus::Camera* cameraPtr)
