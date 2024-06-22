@@ -10,6 +10,7 @@
 #include "../render/texture_loader.h"
 #include "../render/shader.h"
 #include "../util/path_manager.h"
+#include "terrain_chunk_generator.h"
 
 namespace Lotus
 {
@@ -38,10 +39,12 @@ namespace Lotus
 
     std::vector<std::shared_ptr<GPUMesh>> meshes;
 
-    std::shared_ptr<GPUTexture> heightmapTexture;
-
     glm::mat4 rotationModels[4];
 
     glm::vec3 debugColors[5];
+    
+    TerrainChunkGenerator chunkGenerator;
+    
+    std::shared_ptr<GPUTextureArray> heightmapTextures;
   };
 }

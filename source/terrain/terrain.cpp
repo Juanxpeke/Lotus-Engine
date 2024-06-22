@@ -12,14 +12,27 @@ namespace Lotus
 
   Terrain::Terrain(uint32_t levelsOfDetail, uint32_t resolution) :
     levels(levelsOfDetail),
-    tileResolution(resolution)
+    tileResolution(resolution),
+    chunkGenerator(256)
   {
     meshes = GeoClipmap::generate(resolution);
 
-    LOTUS_LOG_INFO("Meshes size {0}", meshes.size());
+    Lotus::TextureConfig textureConfig;
+    textureConfig.format = Lotus::TextureFormat::RFloat;
+    textureConfig.width = 256;
+    textureConfig.height = 256;
+    textureConfig.depth = Lotus::TerrainChunkGenerator::ChunksAmount;
+
+    heightmapTextures = std::make_shared<GPUTextureArray>(textureConfig);
     
-    Lotus::TextureLoader& textureLoader = Lotus::TextureLoader::getInstance();
-    heightmapTexture = textureLoader.generatePerlinTexture(720, 720);
+    for (int x = 0; x < Lotus::TerrainChunkGenerator::ChunksPerSide; x++)
+    {
+      for (int y = 0; y < Lotus::TerrainChunkGenerator::ChunksPerSide; y++)
+      {
+        uint16_t layer = y * Lotus::TerrainChunkGenerator::ChunksPerSide + x;
+        heightmapTextures->setLayerData(layer, chunkGenerator.getChunkData(x, y));
+      }
+    }
 
     clipmapProgram = ShaderProgram(shaderPath("terrain/clipmap.vert"), shaderPath("terrain/clipmap.frag"));
 
@@ -52,9 +65,10 @@ namespace Lotus
 
     glUniformMatrix4fv(ViewBinding, 1, GL_FALSE, glm::value_ptr(viewMatrix));
     glUniformMatrix4fv(ProjectionBinding, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+    glUniform3fv(9, 1, glm::value_ptr(cameraPosition));
     glUniform1i(HeightmapTextureBinding, HeightmapTextureUnit);
 
-    glBindTextureUnit(HeightmapTextureUnit, heightmapTexture->getID());
+    glBindTextureUnit(HeightmapTextureUnit, heightmapTextures->getID());
 
     // Draw cross
     {
