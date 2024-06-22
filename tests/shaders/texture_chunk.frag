@@ -10,6 +10,11 @@ in vec2 fragTexCoord;
 
 out vec4 outColor;
 
+int cmod(float x, int N)
+{
+  return int(mod(mod(x, N) + N, N));
+}
+
 void main()
 {
   int offsetX = 1;
@@ -19,8 +24,8 @@ void main()
   int sizeY = 2;
   
   // [0 : 1) * 2 + 0.41 -> [0 : 2) + 0.41 -> [0.41 : 2.41)
-  int chunkX = int(fragTexCoord.x * sizeX + userOffsetX + offsetX) % 4;
-  int chunkY = int(fragTexCoord.y * sizeY + userOffsetY + offsetY) % 4;
+  int chunkX = cmod(fragTexCoord.x * sizeX + userOffsetX + offsetX, 4); // int(fragTexCoord.x * sizeX + userOffsetX + offsetX) % 4;
+  int chunkY = cmod(fragTexCoord.y * sizeY + userOffsetY + offsetY, 4);// int(fragTexCoord.y * sizeY + userOffsetY + offsetY) % 4;
 
   int layer = chunkY * 4 + chunkX;
   

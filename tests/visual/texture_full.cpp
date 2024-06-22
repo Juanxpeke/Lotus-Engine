@@ -23,6 +23,8 @@ float posY = 0.0;
 float movementX = 0.0;
 float movementY = 0.0;
 
+float speed = 0.008;
+
 int main()
 {
 	glfwInit();
@@ -92,23 +94,23 @@ int main()
 
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
     {
-      posY += 0.004;
-      movementY += 0.004;
+      posY += speed;
+      movementY += speed;
     }
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
     {
-      posY -= 0.004;
-      movementY -= 0.004;
+      posY -= speed;
+      movementY -= speed;
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
     {
-      posX -= 0.004;
-      movementX -= 0.004;
+      posX -= speed;
+      movementX -= speed;
     }
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
     {
-      posX += 0.004;
-      movementX += 0.004;
+      posX += speed;
+      movementX += speed;
     }
 
     if (movementX > 1.0)
