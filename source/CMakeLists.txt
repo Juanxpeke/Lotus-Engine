@@ -62,13 +62,6 @@ set(RENDER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/texture_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/renderer.cpp)
 
-#add_subdirectory(render/indirect)
-
-#add_subdirectory(traditional)
-#add_subdirectory(instanced)
-
-#===================
-
 set(ENGINE_NAME
     LotusEngine)
 
