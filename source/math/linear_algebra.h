@@ -293,6 +293,8 @@ namespace Lotus
 
     constexpr Vec2<T> operator/(const Vec2& rhs) const { return {x / rhs.x , y / rhs.y}; }
 
+    constexpr inline Vec2<T> operator/(const float& rhs) const { return Vec2(x / rhs, y / rhs); }
+
     /// Returns a copy of this vector normalized
     constexpr inline Vec2<T> normalize() const
     {
@@ -305,6 +307,9 @@ namespace Lotus
 
     /// Length of the vector
     constexpr inline double length() const { return std::sqrt(std::pow(x, 2) + std::pow(y, 2)); }
+
+    /// Squared length of the vector
+    constexpr inline T sqrLength() const { return x * x + y * y; }
 
     friend std::ostream &operator<<(std::ostream& os, const Vec2& v) { return os << "(x: " << v.x << ", y: " << v.y << ")" << std::endl; }
   };
