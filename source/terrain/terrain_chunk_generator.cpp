@@ -6,11 +6,13 @@ namespace Lotus
   ProceduralDataGenerator::ProceduralDataGenerator(
       uint16_t generatorDataPerChunkSide,
       uint16_t generatorChunksPerSide,
+      const PerlinNoiseConfig& generatorNoiseConfig,
       const Vec2i& generatorDataOrigin) : 
     dataPerChunkSide(generatorDataPerChunkSide),
     chunksPerSide(generatorChunksPerSide),
     dataOrigin(generatorDataOrigin),
-    chunksOrigin({ 0 , 0 })
+    chunksOrigin({ 0 , 0 }),
+    noiseConfig(generatorNoiseConfig)
   {
     chunksData.reserve(chunksPerSide * chunksPerSide);
 
@@ -104,10 +106,9 @@ namespace Lotus
     
     float* chunkData = chunksData[y * chunksPerSide + x];
 
-    PerlinNoiseConfig p;
-    p.offset = offset;
+    noiseConfig.offset = offset;
 
-    Perlin2DArray::fill(chunkData, dataPerChunkSide, dataPerChunkSide, p);
+    Perlin2DArray::fill(chunkData, dataPerChunkSide, dataPerChunkSide, noiseConfig);
   }
 
 }

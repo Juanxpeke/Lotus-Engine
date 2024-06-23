@@ -15,6 +15,7 @@ namespace Lotus
     ProceduralDataGenerator(
         uint16_t dataPerChunkSide,
         uint16_t chunksPerSide,
+        const PerlinNoiseConfig& noiseConfig,
         const Vec2i& dataOrigin = { 0, 0 });
     ~ProceduralDataGenerator();
 
@@ -48,8 +49,9 @@ namespace Lotus
     Vec2i dataOrigin;
     Vec2u chunksOrigin;
 
-    std::vector<float*> chunksData;
+    PerlinNoiseConfig noiseConfig;
 
+    std::vector<float*> chunksData;
   };
 
 }
