@@ -9,23 +9,29 @@
 namespace Lotus
 {
 
+  struct PerlinNoiseConfig
+  {
+    uint32_t seed = 0;
+    double frequency = 8.0;
+    int octaves = 8;
+    Vec2i offset = { 0, 0 };
+  };
+
   class Perlin2DArray
   {
   public:
 
     static void fill(
-      float* destination,
-      int width,
-      int height,
-      Vec2i offset = { 0, 0 },
-      double frequency = 8.0,
-      int octaves = 8,
-      uint32_t seed = 0)
+        float* destination,
+        int width,
+        int height,
+        const PerlinNoiseConfig& noiseConfig)
     {
-      frequency = std::clamp(frequency, 0.1, 64.0);
-      octaves = std::clamp(octaves, 1, 16);
+      double frequency = std::clamp(noiseConfig.frequency, 0.1, 64.0);
+      int octaves = std::clamp(noiseConfig.octaves, 1, 16);
 
-      const siv::PerlinNoise perlin(seed);
+      const siv::PerlinNoise perlin(noiseConfig.seed);
+      
       const double fx = (frequency / width);
       const double fy = (frequency / height);
 
@@ -33,10 +39,10 @@ namespace Lotus
       {
         for (int x = 0; x < width; ++x)
         {
-          float sampleX = (x * fx) + offset.x * fx;
-          float sampleY = (y * fy) + offset.y * fy;
+          float xSample = (x * fx) + noiseConfig.offset.x * fx;
+          float ySample = (y * fy) + noiseConfig.offset.y * fy;
 
-          destination[y * width + x] = perlin.noise2D_01(sampleX, sampleY);
+          destination[y * width + x] = perlin.noise2D_01(xSample, ySample);
         }
       }
     }

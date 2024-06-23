@@ -104,7 +104,10 @@ namespace Lotus
     
     float* chunkData = chunksData[y * chunksPerSide + x];
 
-    Perlin2DArray::fill(chunkData, dataPerChunkSide, dataPerChunkSide, offset);
+    PerlinNoiseConfig p;
+    p.offset = offset;
+
+    Perlin2DArray::fill(chunkData, dataPerChunkSide, dataPerChunkSide, p);
   }
 
 }
