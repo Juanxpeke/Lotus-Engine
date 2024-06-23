@@ -19,8 +19,9 @@ namespace Lotus
         const Vec2i& dataOrigin = { 0, 0 });
     ~ProceduralDataGenerator();
 
+    uint16_t getDataPerChunkSide() const { return dataPerChunkSide; }
     uint16_t getChunksPerSide() const { return chunksPerSide; };
-    uint16_t getChunksAmount() const { return chunksPerSide * chunksPerSide; };
+    uint32_t getChunksAmount() const { return chunksPerSide * chunksPerSide; };
 
     const float* getChunkData(const Vec2i& chunk) const;
     const float* getChunkData(int x, int y) const;

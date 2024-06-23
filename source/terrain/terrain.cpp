@@ -19,8 +19,8 @@ namespace Lotus
 
     Lotus::TextureConfig textureConfig;
     textureConfig.format = Lotus::TextureFormat::RFloat;
-    textureConfig.width = 256;
-    textureConfig.height = 256;
+    textureConfig.width = dataGenerator->getDataPerChunkSide();
+    textureConfig.height = dataGenerator->getDataPerChunkSide();
     textureConfig.depth = dataGenerator->getChunksAmount();
 
     heightmapTextures = std::make_shared<GPUTextureArray>(textureConfig);
@@ -68,7 +68,7 @@ namespace Lotus
 
     glUseProgram(clipmapProgram.getProgramID());
 
-    glUniform1i(DataPerChunkSideBinding, 256);
+    glUniform1i(DataPerChunkSideBinding, dataGenerator->getDataPerChunkSide());
     glUniform1i(ChunksPerSideBinding, dataGenerator->getChunksPerSide());
 
     glUniformMatrix4fv(ViewBinding, 1, GL_FALSE, glm::value_ptr(viewMatrix));
@@ -208,7 +208,7 @@ namespace Lotus
       initialCameraPositionSetted = true;
     }
 
-    if (movement.x > 256)
+    if (movement.x > dataGenerator->getDataPerChunkSide())
     {
       dataGenerator->updateRightChunks();
 
@@ -221,11 +221,9 @@ namespace Lotus
       glUniform2i(ChunksDataOrigin, dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
       glUniform2i(ChunksOrigin, dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
 
-      LOTUS_LOG_INFO("UPDATED RIGHT");
-
       lastCameraPosition.x = cameraPosition.x;
     }
-    else if (movement.x < -256)
+    else if (movement.x < -dataGenerator->getDataPerChunkSide())
     {
       dataGenerator->updateLeftChunks();
 
@@ -238,12 +236,10 @@ namespace Lotus
       glUniform2i(ChunksDataOrigin, dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
       glUniform2i(ChunksOrigin, dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
 
-      LOTUS_LOG_INFO("UPDATED LEFT");
-
       lastCameraPosition.x = cameraPosition.x;
     }
 
-    if (movement.z < -256)
+    if (movement.z < -dataGenerator->getDataPerChunkSide())
     {
       dataGenerator->updateTopChunks();
 
@@ -252,14 +248,13 @@ namespace Lotus
         uint16_t layer = dataGenerator->getChunksTop() * dataGenerator->getChunksPerSide() + x;
         heightmapTextures->setLayerData(layer, dataGenerator->getChunkData(x, dataGenerator->getChunksTop()));
       }
-      LOTUS_LOG_INFO("UPDATED TOP");
 
       glUniform2i(ChunksDataOrigin, dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
       glUniform2i(ChunksOrigin, dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
 
       lastCameraPosition.z = cameraPosition.z;
     }
-    else if (movement.z > 256)
+    else if (movement.z > dataGenerator->getDataPerChunkSide())
     {
       dataGenerator->updateBottomChunks();
 
@@ -271,8 +266,6 @@ namespace Lotus
 
       glUniform2i(ChunksDataOrigin, dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
       glUniform2i(ChunksOrigin, dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
-
-      LOTUS_LOG_INFO("UPDATED DOWN");
 
       lastCameraPosition.z = cameraPosition.z;
     }

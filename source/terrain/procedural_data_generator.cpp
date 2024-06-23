@@ -1,5 +1,7 @@
 #include "procedural_data_generator.h"
 
+#include "../util/log.h"
+
 namespace Lotus
 {
 
@@ -58,6 +60,8 @@ namespace Lotus
     {
       generateChunkData(x, getChunksTop());
     }
+
+    LOTUS_LOG_INFO("[Procedural Data Generator Log] Updated top chunks");
   }
 
   void ProceduralDataGenerator::updateRightChunks()
@@ -69,6 +73,8 @@ namespace Lotus
     {
       generateChunkData(getChunksRight(), y);
     }
+
+    LOTUS_LOG_INFO("[Procedural Data Generator Log] Updated right chunks");
   }
 
   void ProceduralDataGenerator::updateBottomChunks()
@@ -80,6 +86,8 @@ namespace Lotus
     {
       generateChunkData(x, getChunksBottom());
     }
+
+    LOTUS_LOG_INFO("[Procedural Data Generator Log] Updated bottom chunks");
   }
 
   void ProceduralDataGenerator::updateLeftChunks()
@@ -91,6 +99,8 @@ namespace Lotus
     {
       generateChunkData(getChunksLeft(), y);
     }
+
+    LOTUS_LOG_INFO("[Procedural Data Generator Log] Updated left chunks");
   }
 
   void ProceduralDataGenerator::generateChunkData(const Vec2i& chunk)
