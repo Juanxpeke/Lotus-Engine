@@ -6,8 +6,7 @@ namespace Lotus
   ProceduralDataGenerator::ProceduralDataGenerator(
       uint16_t generatorDataPerChunkSide,
       uint16_t generatorChunksPerSide,
-      Vec2i generatorDataOrigin,
-      uint32_t generatorSeed) : 
+      const Vec2i& generatorDataOrigin) : 
     dataPerChunkSide(generatorDataPerChunkSide),
     chunksPerSide(generatorChunksPerSide),
     dataOrigin(generatorDataOrigin),
@@ -25,7 +24,7 @@ namespace Lotus
     {
       for (int y = 0; y < chunksPerSide; y++)
       {
-        generateChunkData(x, y, x, y);
+        generateChunkData(x, y);
       }
     }
   }
@@ -38,61 +37,70 @@ namespace Lotus
     }
   }
 
+  const float* ProceduralDataGenerator::getChunkData(const Vec2i& chunk) const
+  {
+    return getChunkData(chunk.x, chunk.y);
+  }
+
   const float* ProceduralDataGenerator::getChunkData(int x, int y) const
   {
     return chunksData[y * chunksPerSide + x];
   }
 
-  void ProceduralDataGenerator::updateUp()
+  void ProceduralDataGenerator::updateTopChunks()
   {
     dataOrigin.y -= dataPerChunkSide;
     chunksOrigin.y = (chunksOrigin.y + chunksPerSide - 1) % chunksPerSide;
     
     for (int x = 0; x < chunksPerSide; x++)
     {
-      generateChunkData(x, getUp(), (x + chunksPerSide - getLeft()) % chunksPerSide, 0);
+      generateChunkData(x, getChunksTop());
     }
   }
 
-  void ProceduralDataGenerator::updateRight()
+  void ProceduralDataGenerator::updateRightChunks()
   {
     dataOrigin.x += dataPerChunkSide;
     chunksOrigin.x = (chunksOrigin.x + 1) % chunksPerSide;
 
     for (int y = 0; y < chunksPerSide; y++)
     {
-      generateChunkData(getRight(), y, chunksPerSide - 1, (y + chunksPerSide - getUp()) % chunksPerSide);
+      generateChunkData(getChunksRight(), y);
     }
   }
 
-  void ProceduralDataGenerator::updateDown()
+  void ProceduralDataGenerator::updateBottomChunks()
   {
     dataOrigin.y += dataPerChunkSide;
     chunksOrigin.y = (chunksOrigin.y + 1) % chunksPerSide;
 
     for (int x = 0; x < chunksPerSide; x++)
     {
-      generateChunkData(x, getDown(), (x + chunksPerSide - getLeft()) % chunksPerSide, chunksPerSide - 1);
+      generateChunkData(x, getChunksBottom());
     }
   }
 
-  void ProceduralDataGenerator::updateLeft()
+  void ProceduralDataGenerator::updateLeftChunks()
   {
     dataOrigin.x -= dataPerChunkSide;
     chunksOrigin.x = (chunksOrigin.x + chunksPerSide - 1) % chunksPerSide;
     
     for (int y = 0; y < chunksPerSide; y++)
     {
-      generateChunkData(getLeft(), y, 0, (y + chunksPerSide - getUp()) % chunksPerSide);
+      generateChunkData(getChunksLeft(), y);
     }
   }
 
-  void ProceduralDataGenerator::generateChunkData(int x, int y, int worldX, int worldY)
+  void ProceduralDataGenerator::generateChunkData(const Vec2i& chunk)
   {
-    int64_t offsetX = dataOrigin.x - static_cast<int64_t>((chunksPerSide * dataPerChunkSide) * 0.5) + worldX * dataPerChunkSide;
-    int64_t offsetY = dataOrigin.y - static_cast<int64_t>((chunksPerSide * dataPerChunkSide) * 0.5) + worldY * dataPerChunkSide;
+    generateChunkData(chunk.x, chunk.y);
+  }
 
-    glm::vec2 offset = { offsetX, offsetY };
+  void ProceduralDataGenerator::generateChunkData(int x, int y)
+  {
+    Vec2i dataChunk((x - getChunksLeft() + chunksPerSide) % chunksPerSide, (y - getChunksTop() + chunksPerSide) % chunksPerSide);
+
+    Vec2i offset = dataOrigin - Vec2i((chunksPerSide * dataPerChunkSide) / 2) + dataChunk * dataPerChunkSide;
     
     float* chunkData = chunksData[y * chunksPerSide + x];
 

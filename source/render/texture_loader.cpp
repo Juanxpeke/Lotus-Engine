@@ -87,20 +87,4 @@ namespace Lotus
     return textureSharedPtr;
   }
 
-  std::shared_ptr<GPUTexture> TextureLoader::generatePerlinTexture(int width, int height)
-  {
-    Lotus::Perlin2DArray perlin2DArray(width, height);
-
-    TextureConfig textureConfig;
-    textureConfig.data = perlin2DArray.getData();
-    textureConfig.width = width;
-    textureConfig.height = height;
-    textureConfig.format = TextureFormat::RFloat;
-
-    GPUTexture* texture = new GPUTexture(textureConfig);
-    std::shared_ptr<GPUTexture> textureSharedPtr = std::shared_ptr<GPUTexture>(texture);
-
-    return textureSharedPtr;
-  };
-
 }

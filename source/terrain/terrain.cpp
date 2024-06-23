@@ -87,16 +87,16 @@ namespace Lotus
 
     if (movement.x > 256)
     {
-      chunkGenerator->updateRight();
+      chunkGenerator->updateRightChunks();
 
       for (int y = 0; y < chunkGenerator->getChunksPerSide(); y++)
       {
-        uint16_t layer = y * chunkGenerator->getChunksPerSide() + chunkGenerator->getRight();
-        heightmapTextures->setLayerData(layer, chunkGenerator->getChunkData(chunkGenerator->getRight(), y));
+        uint16_t layer = y * chunkGenerator->getChunksPerSide() + chunkGenerator->getChunksRight();
+        heightmapTextures->setLayerData(layer, chunkGenerator->getChunkData(chunkGenerator->getChunksRight(), y));
       }
 
       glUniform2i(ChunksDataOrigin, chunkGenerator->getDataOrigin().x, chunkGenerator->getDataOrigin().y);
-      glUniform2i(ChunksOrigin, chunkGenerator->getLeft(), chunkGenerator->getUp());
+      glUniform2i(ChunksOrigin, chunkGenerator->getChunksLeft(), chunkGenerator->getChunksTop());
 
       LOTUS_LOG_INFO("UPDATED RIGHT");
 
@@ -104,16 +104,16 @@ namespace Lotus
     }
     else if (movement.x < -256)
     {
-      chunkGenerator->updateLeft();
+      chunkGenerator->updateLeftChunks();
 
       for (int y = 0; y < chunkGenerator->getChunksPerSide(); y++)
       {
-        uint16_t layer = y * chunkGenerator->getChunksPerSide() + chunkGenerator->getLeft();
-        heightmapTextures->setLayerData(layer, chunkGenerator->getChunkData(chunkGenerator->getLeft(), y));
+        uint16_t layer = y * chunkGenerator->getChunksPerSide() + chunkGenerator->getChunksLeft();
+        heightmapTextures->setLayerData(layer, chunkGenerator->getChunkData(chunkGenerator->getChunksLeft(), y));
       }
 
       glUniform2i(ChunksDataOrigin, chunkGenerator->getDataOrigin().x, chunkGenerator->getDataOrigin().y);
-      glUniform2i(ChunksOrigin, chunkGenerator->getLeft(), chunkGenerator->getUp());
+      glUniform2i(ChunksOrigin, chunkGenerator->getChunksLeft(), chunkGenerator->getChunksTop());
 
       LOTUS_LOG_INFO("UPDATED LEFT");
 
@@ -122,32 +122,32 @@ namespace Lotus
 
     if (movement.z < -256)
     {
-      chunkGenerator->updateUp();
+      chunkGenerator->updateTopChunks();
 
       for (int x = 0; x < chunkGenerator->getChunksPerSide(); x++)
       {
-        uint16_t layer = chunkGenerator->getUp() * chunkGenerator->getChunksPerSide() + x;
-        heightmapTextures->setLayerData(layer, chunkGenerator->getChunkData(x, chunkGenerator->getUp()));
+        uint16_t layer = chunkGenerator->getChunksTop() * chunkGenerator->getChunksPerSide() + x;
+        heightmapTextures->setLayerData(layer, chunkGenerator->getChunkData(x, chunkGenerator->getChunksTop()));
       }
       LOTUS_LOG_INFO("UPDATED TOP");
 
       glUniform2i(ChunksDataOrigin, chunkGenerator->getDataOrigin().x, chunkGenerator->getDataOrigin().y);
-      glUniform2i(ChunksOrigin, chunkGenerator->getLeft(), chunkGenerator->getUp());
+      glUniform2i(ChunksOrigin, chunkGenerator->getChunksLeft(), chunkGenerator->getChunksTop());
 
       lastCameraPosition.z = cameraPosition.z;
     }
     else if (movement.z > 256)
     {
-      chunkGenerator->updateDown();
+      chunkGenerator->updateBottomChunks();
 
       for (int x = 0; x < chunkGenerator->getChunksPerSide(); x++)
       {
-        uint16_t layer = chunkGenerator->getDown() * chunkGenerator->getChunksPerSide() + x;
-        heightmapTextures->setLayerData(layer, chunkGenerator->getChunkData(x, chunkGenerator->getDown()));
+        uint16_t layer = chunkGenerator->getChunksBottom() * chunkGenerator->getChunksPerSide() + x;
+        heightmapTextures->setLayerData(layer, chunkGenerator->getChunkData(x, chunkGenerator->getChunksBottom()));
       }
 
       glUniform2i(ChunksDataOrigin, chunkGenerator->getDataOrigin().x, chunkGenerator->getDataOrigin().y);
-      glUniform2i(ChunksOrigin, chunkGenerator->getLeft(), chunkGenerator->getUp());
+      glUniform2i(ChunksOrigin, chunkGenerator->getChunksLeft(), chunkGenerator->getChunksTop());
 
       LOTUS_LOG_INFO("UPDATED DOWN");
 

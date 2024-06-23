@@ -280,19 +280,17 @@ namespace Lotus
     constexpr inline T dot(Vec2<T> u) const { return x * u.x + y * u.y; }
 
     /************ Operators ************/
-    /// Element-wise addition
+
     constexpr Vec2<T> operator+(const Vec2& rhs) const { return {x + rhs.x, y + rhs.y}; }
 
-    /// Element-wise multiplication
     constexpr Vec2<T> operator*(const Vec2& rhs) const { return {x * rhs.x, y * rhs.y}; }
 
-    /// Element-wise subtraction
+    constexpr Vec2<T> operator*(const T s) const { return {x * s, y * s}; }
+
     constexpr Vec2<T> operator-(const Vec2& rhs) const { return {x - rhs.x, y - rhs.y}; }
 
-    /// Element-wise equality
     constexpr bool operator==(const Vec2& rhs) const { return x == rhs.x && y == rhs.y; }
 
-    /// Element-wise division
     constexpr Vec2<T> operator/(const Vec2& rhs) const { return {x / rhs.x , y / rhs.y}; }
 
     /// Returns a copy of this vector normalized
@@ -451,6 +449,10 @@ namespace Lotus
   using Vec2u = Vec2<unsigned int>;
   using Vec3u = Vec3<unsigned int>;
   using Vec4u = Vec4<unsigned int>;
+
+  using Vec2l = Vec2<long int>;
+  using Vec3l = Vec3<long int>;
+  using Vec4l = Vec4<long int>;
 
   using Vec2f = Vec2<float>;
   using Vec3f = Vec3<float>;
