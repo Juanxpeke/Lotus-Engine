@@ -33,6 +33,11 @@ namespace Lotus
       return dist(rng);
     }
 
+    int getIntRange(int max)
+    {
+      getIntRange(0, max);
+    }
+
     int getIntRange(int min, int max)
     {
       std::uniform_int_distribution<int> dist(min, max);
