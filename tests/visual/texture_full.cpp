@@ -58,17 +58,17 @@ int main()
   textureConfig.format = Lotus::TextureFormat::RFloat;
   textureConfig.width = width;
   textureConfig.height = height;
-  textureConfig.depth = Lotus::TerrainChunkGenerator::ChunksAmount;
+  textureConfig.depth = Lotus::ProceduralDataGenerator::ChunksAmount;
 
-  Lotus::TerrainChunkGenerator terrainChunkGenerator(width);
+  Lotus::ProceduralDataGenerator terrainChunkGenerator(width);
 
   Lotus::GPUTextureArray textureArray(textureConfig);
 
-  for (int x = 0; x < Lotus::TerrainChunkGenerator::ChunksPerSide; x++)
+  for (int x = 0; x < Lotus::ProceduralDataGenerator::ChunksPerSide; x++)
   {
-    for (int y = 0; y < Lotus::TerrainChunkGenerator::ChunksPerSide; y++)
+    for (int y = 0; y < Lotus::ProceduralDataGenerator::ChunksPerSide; y++)
     {
-      uint16_t layer = y * Lotus::TerrainChunkGenerator::ChunksPerSide + x;
+      uint16_t layer = y * Lotus::ProceduralDataGenerator::ChunksPerSide + x;
       textureArray.setLayerData(layer, terrainChunkGenerator.getChunkData(x, y));
     }
   }
@@ -117,9 +117,9 @@ int main()
     {
       terrainChunkGenerator.updateRight();
       
-      for (int y = 0; y < Lotus::TerrainChunkGenerator::ChunksPerSide; y++)
+      for (int y = 0; y < Lotus::ProceduralDataGenerator::ChunksPerSide; y++)
       {
-        uint16_t layer = y * Lotus::TerrainChunkGenerator::ChunksPerSide + terrainChunkGenerator.getRight();
+        uint16_t layer = y * Lotus::ProceduralDataGenerator::ChunksPerSide + terrainChunkGenerator.getRight();
         textureArray.setLayerData(layer, terrainChunkGenerator.getChunkData(terrainChunkGenerator.getRight(), y));
       }
       
@@ -133,9 +133,9 @@ int main()
     {
       terrainChunkGenerator.updateLeft();
 
-      for (int y = 0; y < Lotus::TerrainChunkGenerator::ChunksPerSide; y++)
+      for (int y = 0; y < Lotus::ProceduralDataGenerator::ChunksPerSide; y++)
       {
-        uint16_t layer = y * Lotus::TerrainChunkGenerator::ChunksPerSide + terrainChunkGenerator.getLeft();
+        uint16_t layer = y * Lotus::ProceduralDataGenerator::ChunksPerSide + terrainChunkGenerator.getLeft();
         textureArray.setLayerData(layer, terrainChunkGenerator.getChunkData(terrainChunkGenerator.getLeft(), y));
       }
 
@@ -149,9 +149,9 @@ int main()
     {
       terrainChunkGenerator.updateUp();
       
-      for (int x = 0; x < Lotus::TerrainChunkGenerator::ChunksPerSide; x++)
+      for (int x = 0; x < Lotus::ProceduralDataGenerator::ChunksPerSide; x++)
       {
-        uint16_t layer = terrainChunkGenerator.getUp() * Lotus::TerrainChunkGenerator::ChunksPerSide + x;
+        uint16_t layer = terrainChunkGenerator.getUp() * Lotus::ProceduralDataGenerator::ChunksPerSide + x;
         textureArray.setLayerData(layer, terrainChunkGenerator.getChunkData(x, terrainChunkGenerator.getUp()));
       }
       
@@ -165,9 +165,9 @@ int main()
     {
       terrainChunkGenerator.updateDown();
       
-      for (int x = 0; x < Lotus::TerrainChunkGenerator::ChunksPerSide; x++)
+      for (int x = 0; x < Lotus::ProceduralDataGenerator::ChunksPerSide; x++)
       {
-        uint16_t layer = terrainChunkGenerator.getDown() * Lotus::TerrainChunkGenerator::ChunksPerSide + x;
+        uint16_t layer = terrainChunkGenerator.getDown() * Lotus::ProceduralDataGenerator::ChunksPerSide + x;
         textureArray.setLayerData(layer, terrainChunkGenerator.getChunkData(x, terrainChunkGenerator.getDown()));
       }
       

@@ -82,7 +82,9 @@ int main()
 	Lotus::Camera camera;
   
   glEnable(GL_DEPTH_TEST);
-  Lotus::Terrain clipmap;
+
+  std::shared_ptr<Lotus::ProceduralDataGenerator> chunkGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(256);
+  Lotus::Terrain clipmap(chunkGenerator);
 	
 	double lastTime = glfwGetTime();
 

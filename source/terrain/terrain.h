@@ -34,10 +34,9 @@ namespace Lotus
     
     static constexpr unsigned int HeightmapTextureUnit = 0;
 
-    Terrain(uint32_t levelsOfDetail = 7, uint32_t resolution = 128);
-    Terrain(uint32_t levelsOfDetail = 7, uint32_t resolution = 128, std::shared_ptr<TerrainChunkGenerator> chunkGenerator);
+    Terrain(std::shared_ptr<ProceduralDataGenerator> chunkGenerator, uint32_t levelsOfDetail = 7, uint32_t resolution = 128);
 
-    void setChunkGenerator(std::shared_ptr<TerrainChunkGenerator> chunkGenerator);
+    void setChunkGenerator(std::shared_ptr<ProceduralDataGenerator> chunkGenerator);
 
     void render(const Camera& camera);
 
@@ -54,7 +53,7 @@ namespace Lotus
     glm::vec3 lastCameraPosition;
     bool firstTimeCamera = true;
     
-    std::shared_ptr<TerrainChunkGenerator> chunkGenerator;
+    std::shared_ptr<ProceduralDataGenerator> chunkGenerator;
     
     std::shared_ptr<GPUTextureArray> heightmapTextures;
 

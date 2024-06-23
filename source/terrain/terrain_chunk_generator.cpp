@@ -3,89 +3,100 @@
 namespace Lotus
 {
 
-  TerrainChunkGenerator::TerrainChunkGenerator(uint16_t terrainChunkSize) : 
-      chunkSize(terrainChunkSize),
-      dataOriginX(0),
-      dataOriginY(0),
-      left(0),
-      up(0)
+  ProceduralDataGenerator::ProceduralDataGenerator(
+      uint16_t generatorDataPerChunkSide,
+      uint16_t generatorChunksPerSide,
+      Vec2i generatorDataOrigin,
+      uint32_t generatorSeed) : 
+    dataPerChunkSide(generatorDataPerChunkSide),
+    chunksPerSide(generatorChunksPerSide),
+    dataOrigin(generatorDataOrigin),
+    chunksOrigin({ 0 , 0 })
   {
-    chunks2DArrays.fill(nullptr);
+    chunksData.reserve(chunksPerSide * chunksPerSide);
 
-    for (int x = 0; x < ChunksPerSide; x++)
+    for (int i = 0; i < chunksPerSide * chunksPerSide; i++)
     {
-      for (int y = 0; y < ChunksPerSide; y++)
+      float* chunkData = new float[dataPerChunkSide * dataPerChunkSide];
+      chunksData.push_back(chunkData);
+    }
+
+    for (int x = 0; x < chunksPerSide; x++)
+    {
+      for (int y = 0; y < chunksPerSide; y++)
       {
-        generateChunk(x, y, x, y);
+        generateChunkData(x, y, x, y);
       }
     }
   }
 
-  const float* TerrainChunkGenerator::getChunkData(int x, int y) const
+  ProceduralDataGenerator::~ProceduralDataGenerator()
   {
-    return (chunks2DArrays[y * ChunksPerSide + x])->getData();
+    for (int i = 0; i < chunksPerSide * chunksPerSide; i++)
+    {
+      delete chunksData[i];
+    }
   }
 
-  void TerrainChunkGenerator::updateUp()
+  const float* ProceduralDataGenerator::getChunkData(int x, int y) const
   {
-    dataOriginY -= chunkSize;
-    up = (up + ChunksPerSide - 1) % ChunksPerSide;
+    return chunksData[y * chunksPerSide + x];
+  }
+
+  void ProceduralDataGenerator::updateUp()
+  {
+    dataOrigin.y -= dataPerChunkSide;
+    chunksOrigin.y = (chunksOrigin.y + chunksPerSide - 1) % chunksPerSide;
     
-    for (int x = 0; x < ChunksPerSide; x++)
+    for (int x = 0; x < chunksPerSide; x++)
     {
-      generateChunk(x, getUp(), (x + ChunksPerSide - getLeft()) % ChunksPerSide, 0);
+      generateChunkData(x, getUp(), (x + chunksPerSide - getLeft()) % chunksPerSide, 0);
     }
   }
 
-  void TerrainChunkGenerator::updateRight()
+  void ProceduralDataGenerator::updateRight()
   {
-    dataOriginX += chunkSize;
-    left = (left + 1) % ChunksPerSide;
+    dataOrigin.x += dataPerChunkSide;
+    chunksOrigin.x = (chunksOrigin.x + 1) % chunksPerSide;
 
-    for (int y = 0; y < ChunksPerSide; y++)
+    for (int y = 0; y < chunksPerSide; y++)
     {
-      generateChunk(getRight(), y, ChunksPerSide - 1, (y + ChunksPerSide - getUp()) % ChunksPerSide);
+      generateChunkData(getRight(), y, chunksPerSide - 1, (y + chunksPerSide - getUp()) % chunksPerSide);
     }
   }
 
-  void TerrainChunkGenerator::updateDown()
+  void ProceduralDataGenerator::updateDown()
   {
-    dataOriginY += chunkSize;
-    up = (up + 1) % ChunksPerSide;
+    dataOrigin.y += dataPerChunkSide;
+    chunksOrigin.y = (chunksOrigin.y + 1) % chunksPerSide;
 
-    for (int x = 0; x < ChunksPerSide; x++)
+    for (int x = 0; x < chunksPerSide; x++)
     {
-      generateChunk(x, getDown(), (x + ChunksPerSide - getLeft()) % ChunksPerSide, ChunksPerSide - 1);
+      generateChunkData(x, getDown(), (x + chunksPerSide - getLeft()) % chunksPerSide, chunksPerSide - 1);
     }
   }
 
-  void TerrainChunkGenerator::updateLeft()
+  void ProceduralDataGenerator::updateLeft()
   {
-    dataOriginX -= chunkSize;
-    left = (left + ChunksPerSide - 1) % ChunksPerSide;
+    dataOrigin.x -= dataPerChunkSide;
+    chunksOrigin.x = (chunksOrigin.x + chunksPerSide - 1) % chunksPerSide;
     
-    for (int y = 0; y < ChunksPerSide; y++)
+    for (int y = 0; y < chunksPerSide; y++)
     {
-      generateChunk(getLeft(), y, 0, (y + ChunksPerSide - getUp()) % ChunksPerSide);
+      generateChunkData(getLeft(), y, 0, (y + chunksPerSide - getUp()) % chunksPerSide);
     }
   }
 
-  void TerrainChunkGenerator::generateChunk(int x, int y, int worldX, int worldY)
+  void ProceduralDataGenerator::generateChunkData(int x, int y, int worldX, int worldY)
   {
-    int64_t offsetX = dataOriginX - static_cast<int64_t>((ChunksPerSide * chunkSize) * 0.5) + worldX * chunkSize;
-    int64_t offsetY = dataOriginY - static_cast<int64_t>((ChunksPerSide * chunkSize) * 0.5) + worldY * chunkSize;
+    int64_t offsetX = dataOrigin.x - static_cast<int64_t>((chunksPerSide * dataPerChunkSide) * 0.5) + worldX * dataPerChunkSide;
+    int64_t offsetY = dataOrigin.y - static_cast<int64_t>((chunksPerSide * dataPerChunkSide) * 0.5) + worldY * dataPerChunkSide;
 
     glm::vec2 offset = { offsetX, offsetY };
+    
+    float* chunkData = chunksData[y * chunksPerSide + x];
 
-    Perlin2DArray* perlin2DArray = new Perlin2DArray(chunkSize, chunkSize, offset);
-    Perlin2DArray* oldPerlin2DArray = chunks2DArrays[y * ChunksPerSide + x];
-    
-    chunks2DArrays[y * ChunksPerSide + x] = perlin2DArray;
-    
-    if (oldPerlin2DArray)
-    {
-      delete oldPerlin2DArray;
-    }
+    Perlin2DArray::fill(chunkData, dataPerChunkSide, dataPerChunkSide, offset);
   }
 
 }
