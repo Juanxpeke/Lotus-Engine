@@ -10,7 +10,7 @@
 #include "../render/texture_loader.h"
 #include "../render/shader.h"
 #include "../util/path_manager.h"
-#include "terrain_chunk_generator.h"
+#include "procedural_data_generator.h"
 
 namespace Lotus
 {
@@ -34,29 +34,28 @@ namespace Lotus
     
     static constexpr unsigned int HeightmapTextureUnit = 0;
 
-    Terrain(std::shared_ptr<ProceduralDataGenerator> chunkGenerator, uint32_t levelsOfDetail = 7, uint32_t resolution = 128);
+    Terrain(const std::shared_ptr<ProceduralDataGenerator>& dataGenerator, uint32_t levels = 7, uint32_t tileResolution = 128);
 
-    void setChunkGenerator(std::shared_ptr<ProceduralDataGenerator> chunkGenerator);
+    void setDataGenerator(std::shared_ptr<ProceduralDataGenerator> chunkGenerator);
 
     void render(const Camera& camera);
 
   private:
+    void updateHeightmapTextures(const glm::vec3& cameraPosition);
+
     uint32_t levels;
     uint32_t tileResolution;
+    std::shared_ptr<ProceduralDataGenerator> dataGenerator;
 
     ShaderProgram clipmapProgram;
 
     std::vector<std::shared_ptr<GPUMesh>> meshes;
-
-    glm::mat4 rotationModels[4];
-
-    glm::vec3 lastCameraPosition;
-    bool firstTimeCamera = true;
-    
-    std::shared_ptr<ProceduralDataGenerator> chunkGenerator;
-    
     std::shared_ptr<GPUTextureArray> heightmapTextures;
-
+    
+    glm::vec3 lastCameraPosition;
+    bool initialCameraPositionSetted = false;
+    
+    glm::mat4 rotationModels[4];
     glm::vec3 debugColors[5];
   };
 }

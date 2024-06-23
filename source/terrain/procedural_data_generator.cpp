@@ -1,4 +1,4 @@
-#include "terrain_chunk_generator.h"
+#include "procedural_data_generator.h"
 
 namespace Lotus
 {

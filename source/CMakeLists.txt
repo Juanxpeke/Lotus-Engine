@@ -18,8 +18,8 @@ set(LIGHTING_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/lighting/point_light.h)
 
 set(TERRAIN_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/procedural_data_generator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/geoclipmap.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/terrain_chunk_generator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/terrain.h)
 
 set(RENDER_HEADERS
@@ -44,8 +44,8 @@ set(RENDER_HEADERS
 # Source files
 
 set(TERRAIN_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/procedural_data_generator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/geoclipmap.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/terrain_chunk_generator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/terrain.cpp)
 
 set(RENDER_SOURCES
