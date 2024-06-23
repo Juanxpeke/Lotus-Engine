@@ -4,11 +4,11 @@
 
 namespace Lotus
 {
-  class RNG
+  class Randomizer
   {
   public:
 
-    RNG(unsigned int seed = 0) : rng(seed) {}
+    Randomizer(unsigned int seed = 0) : rng(seed) {}
 
     float getFloat()
     {

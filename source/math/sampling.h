@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include "linear_algebra.h"
-#include "rng.h"
+#include "randomizer.h"
 
 namespace Lotus
 {
@@ -14,7 +14,7 @@ namespace Lotus
 
     static std::vector<Vec2f> samplePoints(float radius, float sampleRegionWidth, float sampleRegionHeight, uint8_t samplesBeforeRejection)
     {
-      RNG rng;
+      Randomizer randomizer;
 
       float cellSize = radius / std::sqrt(2);
       int cellsWidth = std::ceil(sampleRegionWidth / cellSize);
@@ -27,24 +27,24 @@ namespace Lotus
       std::vector<Vec2f> points;
       std::vector<Vec2f> spawnPoints;
 
-      Vec2f initialPoint(rng.getFloatRange(sampleRegionWidth), rng.getFloatRange(sampleRegionHeight));
+      Vec2f initialPoint(randomizer.getFloatRange(sampleRegionWidth), randomizer.getFloatRange(sampleRegionHeight));
       addPointToGrid(points.size(), initialPoint, cellSize, cellsWidth, grid);
       points.push_back(initialPoint);
       spawnPoints.push_back(initialPoint);
 
       while (!spawnPoints.empty())
       {
-        int spawnIndex = rng.getIntRange(0, spawnPoints.size() - 1);
+        int spawnIndex = randomizer.getIntRange(0, spawnPoints.size() - 1);
         const Vec2f& spawnCentre = spawnPoints[spawnIndex];
 
         bool foundValidPoint = false;
 
         for (uint8_t i = 0; i < samplesBeforeRejection; i++)
         {
-          float angle = rng.getFloat() * 2 * 3.1415;
+          float angle = randomizer.getFloat() * 2 * 3.1415;
 
           Vec2f direction(std::sin(angle), std::cos(angle));
-          Vec2f candidate = spawnCentre + direction * rng.getFloatRange(radius, 2 * radius);
+          Vec2f candidate = spawnCentre + direction * randomizer.getFloatRange(radius, 2 * radius);
 
           if (isValidPoint(candidate, radius, sampleRegionWidth, sampleRegionHeight, cellSize, cellsWidth, cellsHeight, points, grid))
           {
