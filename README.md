@@ -25,6 +25,12 @@ There are tests inside the ```tests``` folder, the tests are divided into visual
 You can find examples showing most of the functionalities of the engine in the ```examples``` folder.
 
 
+## Setup
+
+If you want to have the project in your device:
+
+- Clone the project with ```git clone https://github.com/Juanxpeke/Lotus-Engine```
+- Update the third party modules with ```git submodule update --init --recursive```
 
 ## Building
 
