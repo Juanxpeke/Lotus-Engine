@@ -30,5 +30,4 @@ add_visual_test(modify_material_values)
 add_visual_test(random_generation)
 
 # Terrain generation
-add_visual_test(terrain)
 add_visual_test(clipmap)

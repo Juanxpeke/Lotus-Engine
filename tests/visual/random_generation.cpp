@@ -141,7 +141,7 @@ int main()
 		
 		updateFromInputs(window, dt, &camera);
 
-		std::cout << "FPS: " << 1.0f / dt << std::endl;
+		LOTUS_LOG_INFO("FPS: {0}", 1 / dt);
 
 		renderer.render(camera);
 
