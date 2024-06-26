@@ -55,11 +55,6 @@ namespace Lotus
 
   void Terrain::render(const Camera& camera)
   {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
-
     uint16_t quadSize = 1;
    
     glm::mat4 viewMatrix = camera.getViewMatrix();
@@ -136,7 +131,6 @@ namespace Lotus
           glDrawElements(GL_TRIANGLES, meshes[GeoClipmap::TILE]->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
         }
       }
-
 
       // Draw filler
       {

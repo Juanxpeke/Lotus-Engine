@@ -16,6 +16,8 @@ namespace Lotus
 {
   class Terrain
   {
+  friend class RenderingServer;
+
   public:
     static constexpr unsigned int ModelBinding = 0;
     static constexpr unsigned int ViewBinding = 1;
@@ -38,9 +40,11 @@ namespace Lotus
 
     void setDataGenerator(std::shared_ptr<ProceduralDataGenerator> dataGenerator);
 
-    void render(const Camera& camera);
+
 
   private:
+    
+    void render(const Camera& camera);
     void updateHeightmapTextures(const glm::vec3& cameraPosition);
 
     uint32_t levels;

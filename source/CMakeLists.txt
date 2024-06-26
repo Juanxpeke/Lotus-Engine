@@ -15,7 +15,8 @@ set(SCENE_HEADERS
 
 set(LIGHTING_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/lighting/directional_light.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/lighting/point_light.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/lighting/point_light.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/lighting/light_manager.h)
 
 set(TERRAIN_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/procedural_data_generator.h
@@ -28,6 +29,7 @@ set(RENDER_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_texture.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/shader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/texture_loader.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/rendering_server.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh_manager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/material.h
@@ -43,6 +45,9 @@ set(RENDER_HEADERS
 
 # Source files
 
+set(LIGHTING_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/lighting/light_manager.cpp)
+
 set(TERRAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/procedural_data_generator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/geoclipmap.cpp
@@ -53,6 +58,7 @@ set(RENDER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/texture_loader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/rendering_server.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/renderer.cpp
@@ -73,6 +79,7 @@ set(ENGINE_HEADERS
     ${RENDER_HEADERS})
 
 set(ENGINE_SOURCES
+    ${LIGHTING_SOURCES}
     ${TERRAIN_SOURCES}
     ${RENDER_SOURCES})
 
