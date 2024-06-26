@@ -36,7 +36,7 @@ namespace Lotus
 
     Terrain(const std::shared_ptr<ProceduralDataGenerator>& dataGenerator, uint32_t levels = 7, uint32_t tileResolution = 128);
 
-    void setDataGenerator(std::shared_ptr<ProceduralDataGenerator> chunkGenerator);
+    void setDataGenerator(std::shared_ptr<ProceduralDataGenerator> dataGenerator);
 
     void render(const Camera& camera);
 

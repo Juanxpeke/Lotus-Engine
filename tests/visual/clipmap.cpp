@@ -85,8 +85,8 @@ int main()
 
   Lotus::PerlinNoiseConfig p;
 
-  std::shared_ptr<Lotus::ProceduralDataGenerator> chunkGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(256, 8, p);
-  Lotus::Terrain clipmap(chunkGenerator);
+  std::shared_ptr<Lotus::ProceduralDataGenerator> dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(256, 8, p);
+  Lotus::Terrain clipmap(dataGenerator);
 	
 	double lastTime = glfwGetTime();
 
