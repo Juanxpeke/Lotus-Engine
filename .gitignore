@@ -9,8 +9,3 @@
 
 # Visual Studio Code
 .vscode
-
-# Temp
-*/rendering
-*/traditional/inst
-*/traditional/indt
