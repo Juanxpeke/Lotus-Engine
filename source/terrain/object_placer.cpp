@@ -64,8 +64,8 @@ namespace Lotus
       return;
     }
 
-    int chunkX = 0;
-    int chunkY = 0;
+    int chunkX = 4;
+    int chunkY = 4;
 
     if (x != chunkX || y != chunkY)
     {
