@@ -21,7 +21,8 @@ set(LIGHTING_HEADERS
 set(TERRAIN_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/procedural_data_generator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/geoclipmap.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/terrain.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/terrain.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/object_placer.h)
 
 set(RENDER_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_buffer.h
@@ -52,7 +53,8 @@ set(LIGHTING_SOURCES
 set(TERRAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/procedural_data_generator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/geoclipmap.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/terrain.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/terrain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/object_placer.cpp)
 
 set(RENDER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_mesh.cpp

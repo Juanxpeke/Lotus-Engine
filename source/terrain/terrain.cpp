@@ -92,13 +92,15 @@ namespace Lotus
       glDrawElements(GL_TRIANGLES, meshes[GeoClipmap::CROSS]->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
     }
 
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    glEnable( GL_POLYGON_OFFSET_LINE );
+    glPolygonOffset( -1, -1 );    
+    
     for (uint32_t level = 0; level < levels; level++)
     {
       float scale = static_cast<float>(1 << level);
 
-      glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-      glEnable( GL_POLYGON_OFFSET_LINE );
-      glPolygonOffset( -1, -1 );    
+
       
       glm::vec2 snappedPos;
       snappedPos.x = std::floorf(cameraPosition.x / scale) * scale;
@@ -188,7 +190,10 @@ namespace Lotus
         glDrawElements(GL_TRIANGLES, meshes[GeoClipmap::SEAM]->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
       }
     }
-
+    
+    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+    glDisable( GL_POLYGON_OFFSET_LINE );
+    
     glBindVertexArray(0);
   }
 

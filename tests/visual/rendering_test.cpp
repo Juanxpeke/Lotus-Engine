@@ -9,6 +9,7 @@
 #include "scene/camera.h"
 #include "lighting/light_manager.h"
 #include "terrain/terrain.h"
+#include "terrain/object_placer.h"
 #include "render/indirect/indirect_scene.h"
 #include "render/rendering_server.h"
 
@@ -18,7 +19,7 @@ int width = 720;
 int height = 720;
 char title[256];
 
-const float cameraSpeed = 14.4f;
+const float cameraSpeed = 64.0f;
 const float cameraAngularSpeed = 2.0f;
 
 const int objectsCount = 32000;
@@ -88,30 +89,33 @@ int main()
 
   Lotus::Camera camera;
   
-  std::shared_ptr<Lotus::LightManager> lightManager  = std::make_shared<Lotus::LightManager>();
-
-  std::shared_ptr<Lotus::IndirectScene> indirectScene = std::make_shared<Lotus::IndirectScene>();
-
   Lotus::PerlinNoiseConfig perlinConfiguration;
   std::shared_ptr<Lotus::ProceduralDataGenerator> dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(256, 8, perlinConfiguration);
-
+  
+  std::shared_ptr<Lotus::LightManager> lightManager  = std::make_shared<Lotus::LightManager>();
+  std::shared_ptr<Lotus::IndirectScene> indirectScene = std::make_shared<Lotus::IndirectScene>();
   std::shared_ptr<Lotus::Terrain> clipmap = std::make_shared<Lotus::Terrain>(dataGenerator);
 
-
-
   Lotus::RenderingServer renderingServer(lightManager, indirectScene, clipmap);
-
-  std::shared_ptr<Lotus::DiffuseFlatMaterial> ma = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(indirectScene->createMaterial(Lotus::MaterialType::DiffuseFlat));
 
   Lotus::MeshManager& meshManager = Lotus::MeshManager::getInstance();
 
   std::shared_ptr<Lotus::Mesh> me = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
+  std::shared_ptr<Lotus::DiffuseFlatMaterial> ma = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(indirectScene->createMaterial(Lotus::MaterialType::DiffuseFlat));
+  ma->setDiffuseColor({ 1.0, 0.0, 0.0 });
 
-  std::shared_ptr<Lotus::MeshInstance> object = indirectScene->createObject(me, ma);
+  //std::shared_ptr<Lotus::MeshInstance> object = indirectScene->createObject(me, ma);
+
+  Lotus::ObjectPlacer objectPlacer(dataGenerator, indirectScene, 10.0);
+
+  objectPlacer.addObject(me, ma, 30.0);
+
+  objectPlacer.generateAllObjects();
+
 
 	renderingServer.startUp();
 
-	lightManager->setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
+	//lightManager->setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
 	
 	double lastTime = glfwGetTime();
 

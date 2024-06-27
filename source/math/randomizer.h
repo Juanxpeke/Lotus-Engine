@@ -18,7 +18,7 @@ namespace Lotus
 
     float getFloatRange(float max)
     {
-      getFloatRange(0, max);
+      return getFloatRange(0, max);
     }
 
     float getFloatRange(float min, float max)
@@ -35,7 +35,7 @@ namespace Lotus
 
     int getIntRange(int max)
     {
-      getIntRange(0, max);
+      return getIntRange(0, max);
     }
 
     int getIntRange(int min, int max)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <cmath>
 #include <algorithm>
 #include <vector>
@@ -28,6 +29,7 @@ namespace Lotus
       std::vector<Vec2f> spawnPoints;
 
       Vec2f initialPoint(randomizer.getFloatRange(sampleRegionWidth), randomizer.getFloatRange(sampleRegionHeight));
+
       addPointToGrid(points.size(), initialPoint, cellSize, cellsWidth, grid);
       points.push_back(initialPoint);
       spawnPoints.push_back(initialPoint);
@@ -48,7 +50,7 @@ namespace Lotus
 
           if (isValidPoint(candidate, radius, sampleRegionWidth, sampleRegionHeight, cellSize, cellsWidth, cellsHeight, points, grid))
           {
-            addPointToGrid(points.size(), initialPoint, cellSize, cellsWidth, grid);
+            addPointToGrid(points.size(), candidate, cellSize, cellsWidth, grid);
             points.push_back(candidate);
             spawnPoints.push_back(candidate);
 
@@ -99,7 +101,7 @@ namespace Lotus
 
       Vec2i cell(point.x / cellSize, point.y / cellSize);
       Vec2i startCell(std::max(cell.x - 1, 0), std::max(cell.y - 1, 0));
-      Vec2i endCell(std::min(cell.x + 1, cellsWidth - 1), std::max(cell.y + 1, cellsHeight - 1));
+      Vec2i endCell(std::min(cell.x + 1, cellsWidth - 1), std::min(cell.y + 1, cellsHeight - 1));
 
       for (int x = startCell.x; x <= endCell.x; x++)
       {
@@ -116,6 +118,5 @@ namespace Lotus
 
       return true;
     }
- 
   };
 }
