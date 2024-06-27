@@ -35,6 +35,7 @@ set(RENDER_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/diffuse_flat_material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh_instance.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_scene.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/diffuse_flat_material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/diffuse_textured_material.h
@@ -62,6 +63,7 @@ set(RENDER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_scene.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/material.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/mesh_instance.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/texture.cpp

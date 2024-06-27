@@ -14,7 +14,7 @@ namespace Lotus
   friend class RenderingServer;
 
   public:
-    LightManager() = default;
+    LightManager();
 
     void setAmbientLight(const glm::vec3& light);
     std::shared_ptr<DirectionalLight> createDirectionalLight();

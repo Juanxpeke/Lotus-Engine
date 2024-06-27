@@ -7,6 +7,7 @@ namespace Lotus
 {
   class Transform
   {
+  friend class IndirectScene;
   friend class Renderer;
 
   public:

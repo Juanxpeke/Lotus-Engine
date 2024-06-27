@@ -5,6 +5,7 @@
 #include "../scene/transform.h"
 #include "../scene/camera.h"
 #include "../lighting/light_manager.h"
+#include "../render/indirect/indirect_scene.h"
 #include "../terrain/terrain.h"
 
 namespace Lotus
@@ -15,6 +16,7 @@ namespace Lotus
   public:
     RenderingServer(
         const std::shared_ptr<LightManager>& renderingLightManager,
+        const std::shared_ptr<IndirectScene>& renderingIndirectScene,
         const std::shared_ptr<Terrain>& renderingTerrain);
 
     void startUp();
@@ -56,15 +58,17 @@ namespace Lotus
 
     struct LightsData
     {
-      DirectionalLightData directionalLights[2 * 2];
-      PointLightData pointLights[2 * 2];
+      DirectionalLightData directionalLights[2];
+      PointLightData pointLights[2];
       glm::vec3 ambientLight;
       int directionalLightsCount;
       int pointLightsCount;
     };
     
     unsigned int lightsDataBufferID = 0;
+
     std::shared_ptr<LightManager> lightManager;
+    std::shared_ptr<IndirectScene> indirectScene;
     std::shared_ptr<Terrain> terrain;
   };
 

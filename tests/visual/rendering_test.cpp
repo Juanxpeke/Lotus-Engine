@@ -9,7 +9,10 @@
 #include "scene/camera.h"
 #include "lighting/light_manager.h"
 #include "terrain/terrain.h"
+#include "render/indirect/indirect_scene.h"
 #include "render/rendering_server.h"
+
+#include "render/indirect/mesh_manager.h"
 
 int width = 720;
 int height = 720;
@@ -87,6 +90,8 @@ int main()
   
   std::shared_ptr<Lotus::LightManager> lightManager  = std::make_shared<Lotus::LightManager>();
 
+  std::shared_ptr<Lotus::IndirectScene> indirectScene = std::make_shared<Lotus::IndirectScene>();
+
   Lotus::PerlinNoiseConfig perlinConfiguration;
   std::shared_ptr<Lotus::ProceduralDataGenerator> dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(256, 8, perlinConfiguration);
 
@@ -94,7 +99,15 @@ int main()
 
 
 
-  Lotus::RenderingServer renderingServer(lightManager, clipmap);
+  Lotus::RenderingServer renderingServer(lightManager, indirectScene, clipmap);
+
+  std::shared_ptr<Lotus::DiffuseFlatMaterial> ma = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(indirectScene->createMaterial(Lotus::MaterialType::DiffuseFlat));
+
+  Lotus::MeshManager& meshManager = Lotus::MeshManager::getInstance();
+
+  std::shared_ptr<Lotus::Mesh> me = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
+
+  std::shared_ptr<Lotus::MeshInstance> object = indirectScene->createObject(me, ma);
 
 	renderingServer.startUp();
 

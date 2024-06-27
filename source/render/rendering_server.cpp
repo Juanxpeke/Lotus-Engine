@@ -8,11 +8,17 @@ namespace Lotus
 
   RenderingServer::RenderingServer(
       const std::shared_ptr<LightManager>& renderingLightManager,
+      const std::shared_ptr<IndirectScene>& renderingIndirectScene,
       const std::shared_ptr<Terrain>& renderingTerrain) :
     lightManager(renderingLightManager),
+    indirectScene(renderingIndirectScene),
     terrain(renderingTerrain)
   {
-    
+    glGenBuffers(1, &lightsDataBufferID);
+    glBindBuffer(GL_UNIFORM_BUFFER, lightsDataBufferID);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(LightsData), NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightsDataBufferID);
   }
 
   void RenderingServer::startUp()
@@ -88,7 +94,7 @@ namespace Lotus
 
   void RenderingServer::renderIndirectScene(const Camera& camera)
   {
-
+    indirectScene->render(camera);
   }
 
   void RenderingServer::renderTerrain(const Camera& camera)

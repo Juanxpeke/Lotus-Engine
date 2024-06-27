@@ -2,6 +2,10 @@
 
 namespace Lotus
 {
+  LightManager::LightManager()
+  {
+    ambientLight = { 1.0, 1.0, 1.0 };
+  }
 
   void LightManager::setAmbientLight(const glm::vec3& light)
   {
