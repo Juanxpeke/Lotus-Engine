@@ -1,0 +1,120 @@
+#pragma once
+
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <array>
+#include <vector>
+#include <unordered_map>
+#include <glm/glm.hpp>
+#include "../../math/render_primitives.h"
+#include "../../math/gpu_primitives.h"
+#include "../../scene/transform.h"
+#include "../../scene/camera.h"
+#include "../gpu_buffer.h"
+#include "mesh.h"
+#include "../shader.h"
+#include "material.h"
+#include "unlit_flat_material.h"
+#include "diffuse_flat_material.h"
+#include "mesh_instance.h"
+
+
+namespace Lotus
+{
+  class IndirectScene
+  {
+  public:
+    static constexpr unsigned int ViewMatrixLocation = 0;
+    static constexpr unsigned int ProjectionMatrixLocation = 1;
+
+    static constexpr unsigned int ObjectBufferBindingPoint = 0;
+    static constexpr unsigned int ObjectHandleBufferBindingPoint = 1;
+    static constexpr unsigned int MaterialBufferBindingPoint = 2;
+
+    static constexpr unsigned int VertexBufferInitialAllocationSize = 1 << 16; 
+    static constexpr unsigned int IndexBufferInitialAllocationSize = 1 << 16;
+    static constexpr unsigned int IndirectBufferInitialAllocationSize = 1 << 10;
+    static constexpr unsigned int ObjectBufferInitialAllocationSize = 1 << 10;
+    static constexpr unsigned int MaterialBufferInitialAllocationSize = 1 << 8;
+
+    IndirectScene();
+    ~IndirectScene();
+
+    std::shared_ptr<MeshInstance> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+    void deleteObject(std::shared_ptr<MeshInstance> meshInstance);
+
+    std::shared_ptr<Material> createMaterial(MaterialType type);
+
+    void render(const Camera& camera);
+
+    // Update Functions
+    void update();
+    void updateObjects();
+    void updateMaterials();
+
+    // Batches Functions
+    void buildBatches();
+    void buildObjectBatches();
+    void buildDrawBatches();
+    void buildShaderBatches();
+
+    // Buffers Functions
+    void refreshBuffers();
+    void refreshIndirectBuffer();
+    void refreshObjectBuffer();
+    void refreshObjectHandleBuffer();
+    void refreshMaterialBuffer();
+
+    void refreshInstancesBuffer(); // TODO
+
+  private:
+
+
+    // Util Functions
+    Handle<RenderMesh> getMeshHandle(std::shared_ptr<Mesh> mesh);
+    Handle<RenderMaterial> getMaterialHandle(std::shared_ptr<Material> material);
+
+    // Shaders
+    std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount)> shaders;
+
+    // Maps
+	  std::unordered_map<std::shared_ptr<Mesh>, Handle<RenderMesh>> meshMap;
+	  std::unordered_map<std::shared_ptr<Material>, Handle<RenderMaterial>> materialMap;
+
+    // Objects
+    std::vector<std::shared_ptr<MeshInstance>> meshInstances;
+    std::vector<RenderObject> renderObjects;
+    std::vector<Handle<RenderObject>> dirtyObjectsHandles;
+    std::vector<RenderObject> toUnbatchObjects;
+    std::vector<Handle<RenderObject>> unbatchedObjectsHandles;
+    
+    // Materials
+    std::vector<std::shared_ptr<Material>> materials;
+    std::vector<RenderMaterial> renderMaterials;
+    std::vector<Handle<RenderMaterial>> dirtyMaterialsHandles;
+
+    // Meshes
+    std::vector<RenderMesh> renderMeshes;
+
+    // Batches
+    std::vector<ObjectBatch> objectBatches;
+    std::vector<DrawBatch> drawBatches;
+    std::vector<ShaderBatch> shaderBatches;
+
+    // Buffers
+    uint32_t vertexArrayID;
+
+    VertexBuffer GPUVertexBuffer;
+    IndexBuffer GPUIndexBuffer;
+
+    DrawIndirectBuffer GPUIndirectBuffer;
+    ShaderStorageBuffer<GPUObjectData> GPUObjectBuffer;
+    ShaderStorageBuffer<uint32_t> GPUObjectHandleBuffer;
+    ShaderStorageBuffer<GPUMaterialData> GPUMaterialBuffer;
+
+    // TODO
+    GPUInstance* CPU_GPUInstanceBuffer;
+    size_t CPU_GPUInstanceBufferSize;
+  };
+}
