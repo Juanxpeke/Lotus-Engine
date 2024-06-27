@@ -7,11 +7,40 @@
 
 namespace Lotus
 {
-  ObjectPlacer::ObjectPlacer(const std::shared_ptr<ProceduralDataGenerator>& placerHeightsGenerator, float placerRadius, uint8_t placerSamplesBeforeRejection, uint32_t seed) :
+  ObjectPlacer::ObjectPlacer(
+      const std::shared_ptr<ProceduralDataGenerator>& placerHeightsGenerator,
+      const std::shared_ptr<IndirectScene>& indirectScene,
+      float placerRadius,
+      uint8_t placerSamplesBeforeRejection,
+      uint32_t seed) :
     radius(placerRadius),
     samplesBeforeRejection(placerSamplesBeforeRejection),
     randomizer(seed),
-    heightsGenerator(placerHeightsGenerator)
+    heightsGenerator(placerHeightsGenerator),
+    scene(indirectScene)
+  {}
+
+  void ObjectPlacer::addObject(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Material>& material, float weight)
+  {
+    meshesPool.push_back(mesh);
+    materialsPool.push_back(material);
+    objectsWeights.push_back(weight);
+  }
+
+  void ObjectPlacer::removeObject(int objectIndex)
+  {
+    meshesPool[objectIndex] = meshesPool.back();
+    materialsPool[objectIndex] = materialsPool.back();
+    objectsWeights[objectIndex] = objectsWeights.back();
+
+    meshesPool.pop_back();
+    materialsPool.pop_back();
+    objectsWeights.pop_back();
+
+    // TODO: Solve indexing problem
+  }
+
+  void ObjectPlacer::generateAllObjects()
   {
     for (int x = 0; x < heightsGenerator->getChunksPerSide(); x++)
     {
@@ -35,18 +64,34 @@ namespace Lotus
       return;
     }
 
-    const float totalMeshesWeight = std::accumulate(meshesWeights.begin(), meshesWeights.end(), 0.0f);
+    int chunkX = 0;
+    int chunkY = 0;
+
+    if (x != chunkX || y != chunkY)
+    {
+      return;
+    }
+
+    const float totalObjectsWeight = std::accumulate(objectsWeights.begin(), objectsWeights.end(), 0.0f);
     const float* heightData = heightsGenerator->getChunkData(x ,y);
 
+    LOTUS_LOG_INFO("[Object Placer Info] Generating points");
     std::vector<Vec2f> points = PoissonDiscSampler::samplePoints(radius, heightsGenerator->getDataPerChunkSide(), heightsGenerator->getDataPerChunkSide(), samplesBeforeRejection);
+    LOTUS_LOG_INFO("[Object Placer Info] Finished points generation");
 
     for (const Vec2f& point : points)
     {
       Vec2i dataPoint(point.x, point.y);
-
       Vec3f translation = { point.x, heightData[dataPoint.y * heightsGenerator->getDataPerChunkSide() + dataPoint.x] , point.y };
+      translation.y *= 64;
 
+      int objectIndex = randomizer.getIntRange(meshesPool.size() - 1);
 
+      const std::shared_ptr<Mesh>& mesh = meshesPool[objectIndex];
+      const std::shared_ptr<Material>& material = materialsPool[objectIndex];
+
+      std::shared_ptr<MeshInstance> object = scene->createObject(mesh, material);
+      object->setTranslation(glm::vec3(translation.x, translation.y, translation.z));
     }
   }
 
