@@ -67,10 +67,9 @@ namespace Lotus
     int chunkX = 4;
     int chunkY = 4;
 
-    if (x != chunkX || y != chunkY)
-    {
-      return;
-    }
+    Vec2i chunkOffset(x - heightsGenerator->getChunksPerSide() / 2, y - heightsGenerator->getChunksPerSide() / 2);
+    Vec2i offset = heightsGenerator->getDataOrigin() + chunkOffset * heightsGenerator->getDataPerChunkSide();
+    Vec3f worldOffset(offset.x, 0, offset.y);
 
     const float totalObjectsWeight = std::accumulate(objectsWeights.begin(), objectsWeights.end(), 0.0f);
     const float* heightData = heightsGenerator->getChunkData(x ,y);
@@ -84,6 +83,8 @@ namespace Lotus
       Vec2i dataPoint(point.x, point.y);
       Vec3f translation = { point.x, heightData[dataPoint.y * heightsGenerator->getDataPerChunkSide() + dataPoint.x] , point.y };
       translation.y *= 64;
+
+      translation += worldOffset;
 
       int objectIndex = randomizer.getIntRange(meshesPool.size() - 1);
 
