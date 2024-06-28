@@ -21,36 +21,62 @@ layout(location = 8) uniform vec2 offset;
 
 layout(location = 9) uniform sampler2DArray heightmaps;
 
-// Inputs
+/*
+  Inputs
+*/
 layout(location = 0) in vec3 position;
+
+/*
+  Outputs
+*/
+out vec3 fragPosition;
+out vec3 fragNormal;
+
+/*
+  Functions
+*/
+
+float height(ivec2 dataCoord)
+{
+  int dataPerSide = dataPerChunkSide * chunksPerSide; 
+
+  if (dataCoord.x < 0 || dataCoord.y < 0 || dataCoord.x > dataPerSide || dataCoord.y > dataPerSide)
+  {
+    return 0.0;
+  }
+
+  ivec2 texCoord = ivec2(dataCoord.x % dataPerChunkSide, dataCoord.y % dataPerChunkSide);
+
+  int chunkX = (dataCoord.x / dataPerChunkSide + chunksOrigin.x) % chunksPerSide;
+  int chunkY = (dataCoord.y / dataPerChunkSide + chunksOrigin.y) % chunksPerSide;
+  int layer = chunkY * chunksPerSide + chunkX;
+
+  return 64.0 * texelFetch(heightmaps, ivec3(texCoord, layer), 0).r;
+}
 
 void main()
 {
+
   vec2 xz = offset + (model * vec4(position, 1.0)).xz * levelScale;
 
   int dataPerSide = dataPerChunkSide * chunksPerSide; 
   int dataPerHalfSide = dataPerSide / 2;
 
   ivec2 dataOrigin = chunksDataOrigin - ivec2(dataPerHalfSide, dataPerHalfSide);
-
   ivec2 dataCoord = ivec2(xz) - dataOrigin;
 
-  int texCoordX = dataCoord.x % dataPerChunkSide;
-  int texCoordY = dataCoord.y % dataPerChunkSide;
+  float y = height(dataCoord);
 
-  int chunkX = (dataCoord.x / dataPerChunkSide + chunksOrigin.x) % chunksPerSide;
-  int chunkY = (dataCoord.y / dataPerChunkSide + chunksOrigin.y) % chunksPerSide;
-  int layer = chunkY * chunksPerSide + chunkX;
-
-  float y = 64.0 * texelFetch(heightmaps, ivec3(texCoordX, texCoordY, layer), 0).r;
-
-  if (dataCoord.x < 0 || dataCoord.y < 0 || dataCoord.x > dataPerSide || dataCoord.y > dataPerSide)
-  {
-    y = 0;
-  }
+  fragNormal = vec3(
+    y - height(dataCoord + ivec2(1, 0)),
+    1,
+    y - height(dataCoord + ivec2(0, 1))
+  );
 
   vec3 worldPosition = vec3(y);
   worldPosition.xz = xz;
+
+  fragPosition = worldPosition;
 
 	gl_Position = projection * view * vec4(worldPosition, 1.0);
 }
