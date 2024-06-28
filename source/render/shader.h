@@ -47,8 +47,10 @@ namespace Lotus
 
     static constexpr int DiffuseTextureUnit = 0;
     
+    ShaderProgram(const Shader& computeShader);
     ShaderProgram(const Shader& vertexShader, const Shader& fragmentShader);
-    ShaderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath) noexcept;
+    ShaderProgram(const std::filesystem::path& computeShaderPath);
+    ShaderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath);
     ShaderProgram() : programID(0) {}
     ShaderProgram(const ShaderProgram& program) = delete;
     ShaderProgram(ShaderProgram&& program) noexcept;
@@ -62,7 +64,8 @@ namespace Lotus
     uint32_t getProgramID() const noexcept { return programID; }
 
   private:
-    void linkProgram(const Shader& vertexShader, const Shader& fragmentShader);
+    void linkComputeProgram(const Shader& computeShader);
+    void linkRenderProgram(const Shader& vertexShader, const Shader& fragmentShader);
     
     uint32_t programID;
   };

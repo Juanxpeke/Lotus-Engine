@@ -48,6 +48,10 @@ namespace Lotus
     return "invalid";
   }
 
+  /*
+    Shader
+  */
+
   Shader::Shader(const std::filesystem::path& shaderPath, ShaderType shaderType) :
     path(shaderPath),
     type(shaderType)
@@ -191,14 +195,33 @@ namespace Lotus
     ID = shader;
   }
 
-  ShaderProgram::ShaderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath) noexcept
-  {
-    programID = 0;
+  /*
+    Shader Program
+  */
 
+  ShaderProgram::ShaderProgram(const Shader& computeShader) : programID(0)
+  {
+    linkComputeProgram(computeShader);
+  }
+
+  ShaderProgram::ShaderProgram(const Shader& vertexShader, const Shader& fragmentShader) : programID(0)
+  {
+    linkRenderProgram(vertexShader, fragmentShader);
+  }
+
+  ShaderProgram::ShaderProgram(const std::filesystem::path& computeShaderPath) : programID(0)
+  {
+    Shader computeShader(computeShaderPath, ShaderType::Compute);
+
+    linkComputeProgram(computeShader);
+  }
+
+  ShaderProgram::ShaderProgram(const std::filesystem::path& vertexShaderPath, const std::filesystem::path& fragmentShaderPath) : programID(0)
+  {
     Shader vertexShader(vertexShaderPath, ShaderType::Vertex);
     Shader fragmentShader(fragmentShaderPath, ShaderType::Fragment);
     
-    linkProgram(vertexShader, fragmentShader);
+    linkRenderProgram(vertexShader, fragmentShader);
   }
 
   ShaderProgram::ShaderProgram(ShaderProgram&& program) noexcept
@@ -233,7 +256,40 @@ namespace Lotus
     return *this;
   }
 
-  void ShaderProgram::linkProgram(const Shader& vertexShader, const Shader& fragmentShader)
+  void ShaderProgram::linkComputeProgram(const Shader& computeShader)
+  {
+    unsigned int program = glCreateProgram();
+    glAttachShader(program, computeShader.getID());
+    glLinkProgram(program);
+
+    // Error handling
+    GLint linked = 0;
+    glGetProgramiv(program, GL_LINK_STATUS, &linked);
+
+    if (linked == GL_FALSE)
+    {
+      GLint length = 0;
+      glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+
+      char* message = new char[length];
+      glGetProgramInfoLog(program, length, &length, message);
+
+      glDeleteProgram(program);
+      glDeleteShader(computeShader.getID());
+
+      std::string messageString = message;
+      delete[] message;
+
+      LOTUS_LOG_ERROR("[Shader Error] Failed to link compute program");
+      LOTUS_LOG_ERROR("[Shader Error] Compute shader file at {0}", computeShader.getPath().string());
+      LOTUS_LOG_ERROR("[Shader Error] GLSL error message\n\n{0}", messageString);
+      LOTUS_ASSERT(false, "Exiting");
+    }
+    
+    programID = program;
+  }
+
+  void ShaderProgram::linkRenderProgram(const Shader& vertexShader, const Shader& fragmentShader)
   {
     unsigned int program = glCreateProgram();
     glAttachShader(program, vertexShader.getID());
@@ -259,7 +315,7 @@ namespace Lotus
       std::string messageString = message;
       delete[] message;
 
-      LOTUS_LOG_ERROR("[Shader Error] Failed to link vertex and fragment shaders");
+      LOTUS_LOG_ERROR("[Shader Error] Failed to link render program");
       LOTUS_LOG_ERROR("[Shader Error] Vertex shader file at {0}", vertexShader.getPath().string());
       LOTUS_LOG_ERROR("[Shader Error] Fragment shader file at {0}", fragmentShader.getPath().string());
       LOTUS_LOG_ERROR("[Shader Error] GLSL error message\n\n{0}", messageString);
