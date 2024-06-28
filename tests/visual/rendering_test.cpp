@@ -19,7 +19,7 @@ int width = 720;
 int height = 720;
 char title[256];
 
-const float cameraSpeed = 64.0f;
+const float cameraSpeed = 128.0f;
 const float cameraAngularSpeed = 2.0f;
 
 const int objectsCount = 32000;
@@ -90,7 +90,7 @@ int main()
   Lotus::Camera camera;
   
   Lotus::PerlinNoiseConfig perlinConfiguration;
-  std::shared_ptr<Lotus::ProceduralDataGenerator> dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(256, 8, perlinConfiguration);
+  std::shared_ptr<Lotus::ProceduralDataGenerator> dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(512, 6, perlinConfiguration);
   
   std::shared_ptr<Lotus::LightManager> lightManager  = std::make_shared<Lotus::LightManager>();
   std::shared_ptr<Lotus::IndirectScene> indirectScene = std::make_shared<Lotus::IndirectScene>();
@@ -108,7 +108,7 @@ int main()
   std::shared_ptr<Lotus::DiffuseFlatMaterial> blueMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(indirectScene->createMaterial(Lotus::MaterialType::DiffuseFlat));
   blueMaterial->setDiffuseColor({ 0.0, 0.0, 1.0 });
 
-  Lotus::ObjectPlacer objectPlacer(dataGenerator, indirectScene, 10.0);
+  Lotus::ObjectPlacer objectPlacer(dataGenerator, indirectScene, 36.0);
 
   objectPlacer.addObject(cubeMesh, redMaterial, 30.0);
   objectPlacer.addObject(sphereMesh, blueMaterial, 30.0);
@@ -116,6 +116,19 @@ int main()
 
   objectPlacer.generateAllObjects();
 
+  lightManager->setAmbientLight({ 0.1, 0.1, 0.1 });
+
+  std::shared_ptr<Lotus::DirectionalLight> directionalLight = lightManager->createDirectionalLight();
+  directionalLight->setLightColor({ 0.2, 0.1, 0.01 });
+  directionalLight->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::pi<float>() * 0.5f);
+  directionalLight->rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::pi<float>() * 0.25f);
+
+  std::shared_ptr<Lotus::PointLight> pointLight = lightManager->createPointLight();
+  pointLight->setLightColor({ 1.0, 1.0, 1.0 });
+  pointLight->setLightRadius(80.0);
+  pointLight->setLightIntensity(200.0);
+
+  pointLight->translate({ 0, 75, 0 });
 
 	renderingServer.startUp();
 

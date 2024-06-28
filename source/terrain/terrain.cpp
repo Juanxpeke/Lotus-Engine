@@ -92,9 +92,9 @@ namespace Lotus
       glDrawElements(GL_TRIANGLES, meshes[GeoClipmap::CROSS]->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
     }
 
-    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    glEnable( GL_POLYGON_OFFSET_LINE );
-    glPolygonOffset( -1, -1 );    
+    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    //glEnable( GL_POLYGON_OFFSET_LINE );
+    //glPolygonOffset( -1, -1 );    
     
     for (uint32_t level = 0; level < levels; level++)
     {
@@ -139,7 +139,7 @@ namespace Lotus
         glBindVertexArray(meshes[GeoClipmap::FILLER]->getVertexArrayID());
 
         glUniform2fv(OffsetBinding, 1, glm::value_ptr(snappedPos));
-          glUniform3fv(DebugColorBinding, 1, glm::value_ptr(debugColors[GeoClipmap::FILLER]));
+        glUniform3fv(DebugColorBinding, 1, glm::value_ptr(debugColors[GeoClipmap::FILLER]));
 
         glDrawElements(GL_TRIANGLES, meshes[GeoClipmap::FILLER]->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
       }
@@ -176,16 +176,13 @@ namespace Lotus
       }
       // Draw seam
       {
-        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-        glDisable( GL_POLYGON_OFFSET_LINE );
-        
         glm::vec2 nextBase = nextSnappedPos - glm::vec2(static_cast<float>(tileResolution << (level + 1)));
 
         glBindVertexArray(meshes[GeoClipmap::SEAM]->getVertexArrayID());
 
         glUniformMatrix4fv(ModelBinding, 1, GL_FALSE, glm::value_ptr(rotationModels[0]));
         glUniform2fv(OffsetBinding, 1, glm::value_ptr(nextBase));
-          glUniform3fv(DebugColorBinding, 1, glm::value_ptr(debugColors[GeoClipmap::SEAM]));
+        glUniform3fv(DebugColorBinding, 1, glm::value_ptr(debugColors[GeoClipmap::SEAM]));
 
         glDrawElements(GL_TRIANGLES, meshes[GeoClipmap::SEAM]->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
       }
