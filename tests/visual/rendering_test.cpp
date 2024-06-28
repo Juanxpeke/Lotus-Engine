@@ -100,15 +100,19 @@ int main()
 
   Lotus::MeshManager& meshManager = Lotus::MeshManager::getInstance();
 
-  std::shared_ptr<Lotus::Mesh> me = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
-  std::shared_ptr<Lotus::DiffuseFlatMaterial> ma = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(indirectScene->createMaterial(Lotus::MaterialType::DiffuseFlat));
-  ma->setDiffuseColor({ 1.0, 0.0, 0.0 });
+  std::shared_ptr<Lotus::Mesh> cubeMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
+  std::shared_ptr<Lotus::Mesh> sphereMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
 
-  //std::shared_ptr<Lotus::MeshInstance> object = indirectScene->createObject(me, ma);
+  std::shared_ptr<Lotus::DiffuseFlatMaterial> redMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(indirectScene->createMaterial(Lotus::MaterialType::DiffuseFlat));
+  redMaterial->setDiffuseColor({ 1.0, 0.0, 0.0 });
+  std::shared_ptr<Lotus::DiffuseFlatMaterial> blueMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(indirectScene->createMaterial(Lotus::MaterialType::DiffuseFlat));
+  blueMaterial->setDiffuseColor({ 0.0, 0.0, 1.0 });
 
   Lotus::ObjectPlacer objectPlacer(dataGenerator, indirectScene, 10.0);
 
-  objectPlacer.addObject(me, ma, 30.0);
+  objectPlacer.addObject(cubeMesh, redMaterial, 30.0);
+  objectPlacer.addObject(sphereMesh, blueMaterial, 30.0);
+
 
   objectPlacer.generateAllObjects();
 

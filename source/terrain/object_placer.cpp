@@ -64,9 +64,6 @@ namespace Lotus
       return;
     }
 
-    int chunkX = 4;
-    int chunkY = 4;
-
     Vec2i chunkOffset(x - heightsGenerator->getChunksPerSide() / 2, y - heightsGenerator->getChunksPerSide() / 2);
     Vec2i offset = heightsGenerator->getDataOrigin() + chunkOffset * heightsGenerator->getDataPerChunkSide();
     Vec3f worldOffset(offset.x, 0, offset.y);
