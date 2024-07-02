@@ -113,7 +113,6 @@ int main()
   objectPlacer.addObject(cubeMesh, redMaterial, 30.0);
   objectPlacer.addObject(sphereMesh, blueMaterial, 30.0);
 
-
   objectPlacer.generateAllObjects();
 
   lightManager->setAmbientLight({ 0.1, 0.1, 0.1 });
@@ -124,19 +123,18 @@ int main()
   directionalLight->rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::pi<float>() * 0.25f);
 
   std::shared_ptr<Lotus::PointLight> pointLight = lightManager->createPointLight();
+  pointLight->translate({ 0, 75, 0 });
   pointLight->setLightColor({ 1.0, 1.0, 1.0 });
   pointLight->setLightRadius(80.0);
   pointLight->setLightIntensity(200.0);
 
-  pointLight->translate({ 0, 75, 0 });
-
 	renderingServer.startUp();
-
-	//lightManager->setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
 	
 	double lastTime = glfwGetTime();
 
-	while (!glfwWindowShouldClose(window))
+  glm::vec3 cameraPosition = camera.getLocalTranslation();
+	
+  while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
 		
@@ -146,7 +144,10 @@ int main()
 		
 		updateFromInputs(window, dt, &camera);
 
-		renderingServer.render(camera);
+    cameraPosition = camera.getLocalTranslation();
+    dataGenerator->registerObserverPosition(Lotus::Vec2f(cameraPosition.x, cameraPosition.z));
+		
+    renderingServer.render(camera);
 
     glfwSwapBuffers(window);
 	}

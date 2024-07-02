@@ -23,7 +23,7 @@ namespace Lotus
     textureConfig.height = dataGenerator->getDataPerChunkSide();
     textureConfig.depth = dataGenerator->getChunksAmount();
 
-    heightmapTextures = std::make_shared<GPUTextureArray>(textureConfig);
+    heightmapTextures = std::make_shared<GPUArrayTexture>(textureConfig);
     
     for (int x = 0; x < dataGenerator->getChunksPerSide(); x++)
     {
@@ -55,8 +55,6 @@ namespace Lotus
 
   void Terrain::render(const Camera& camera)
   {
-    uint16_t quadSize = 1;
-   
     glm::mat4 viewMatrix = camera.getViewMatrix();
     glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     glm::vec3 cameraPosition = camera.getLocalTranslation();
@@ -92,10 +90,6 @@ namespace Lotus
       glDrawElements(GL_TRIANGLES, meshes[GeoClipmap::CROSS]->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
     }
 
-    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    //glEnable( GL_POLYGON_OFFSET_LINE );
-    //glPolygonOffset( -1, -1 );    
-    
     for (uint32_t level = 0; level < levels; level++)
     {
       float scale = static_cast<float>(1 << level);
@@ -106,8 +100,8 @@ namespace Lotus
       snappedPos.x = std::floorf(cameraPosition.x / scale) * scale;
       snappedPos.y = std::floorf(cameraPosition.z / scale) * scale;
 
-      glm::vec2 tileSize((tileResolution * quadSize) << level);
-      glm::vec2 levelOrigin = snappedPos - glm::vec2((tileResolution * quadSize) << (level + 1));
+      glm::vec2 tileSize(tileResolution << level);
+      glm::vec2 levelOrigin = snappedPos - glm::vec2(tileResolution << (level + 1));
 
       glUniform1fv(LevelScaleBinding, 1, &scale);
       glUniformMatrix4fv(ModelBinding, 1, GL_FALSE, glm::value_ptr(rotationModels[0]));
@@ -123,7 +117,7 @@ namespace Lotus
             continue;
           }
 
-          glm::vec2 fill = glm::vec2((x >= 2 ? quadSize : 0), (y >= 2 ? quadSize : 0)) * scale;
+          glm::vec2 fill = glm::vec2((x >= 2 ? 1 : 0), (y >= 2 ? 1 : 0)) * scale;
           glm::vec2 tileOffset = levelOrigin + glm::vec2(x, y) * tileSize + fill;
 
 
@@ -188,57 +182,13 @@ namespace Lotus
       }
     }
     
-    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-    glDisable( GL_POLYGON_OFFSET_LINE );
-    
     glBindVertexArray(0);
   }
 
   void Terrain::updateHeightmapTextures(const glm::vec3& cameraPosition)
   {
-    glm::vec3 movement = (!initialCameraPositionSetted) ? glm::vec3(0) : (cameraPosition - lastCameraPosition);
-
-    if (!initialCameraPositionSetted)
+    if (dataGenerator->updatedSincePreviousFrame(ProceduralDataDirection::Top))
     {
-      lastCameraPosition = cameraPosition;
-      initialCameraPositionSetted = true;
-    }
-
-    if (movement.x > dataGenerator->getDataPerChunkSide())
-    {
-      dataGenerator->updateRightChunks();
-
-      for (int y = 0; y < dataGenerator->getChunksPerSide(); y++)
-      {
-        uint16_t layer = y * dataGenerator->getChunksPerSide() + dataGenerator->getChunksRight();
-        heightmapTextures->setLayerData(layer, dataGenerator->getChunkData(dataGenerator->getChunksRight(), y));
-      }
-
-      glUniform2i(ChunksDataOrigin, dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
-      glUniform2i(ChunksOrigin, dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
-
-      lastCameraPosition.x = cameraPosition.x;
-    }
-    else if (movement.x < -dataGenerator->getDataPerChunkSide())
-    {
-      dataGenerator->updateLeftChunks();
-
-      for (int y = 0; y < dataGenerator->getChunksPerSide(); y++)
-      {
-        uint16_t layer = y * dataGenerator->getChunksPerSide() + dataGenerator->getChunksLeft();
-        heightmapTextures->setLayerData(layer, dataGenerator->getChunkData(dataGenerator->getChunksLeft(), y));
-      }
-
-      glUniform2i(ChunksDataOrigin, dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
-      glUniform2i(ChunksOrigin, dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
-
-      lastCameraPosition.x = cameraPosition.x;
-    }
-
-    if (movement.z < -dataGenerator->getDataPerChunkSide())
-    {
-      dataGenerator->updateTopChunks();
-
       for (int x = 0; x < dataGenerator->getChunksPerSide(); x++)
       {
         uint16_t layer = dataGenerator->getChunksTop() * dataGenerator->getChunksPerSide() + x;
@@ -247,13 +197,20 @@ namespace Lotus
 
       glUniform2i(ChunksDataOrigin, dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
       glUniform2i(ChunksOrigin, dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
-
-      lastCameraPosition.z = cameraPosition.z;
     }
-    else if (movement.z > dataGenerator->getDataPerChunkSide())
+    if (dataGenerator->updatedSincePreviousFrame(ProceduralDataDirection::Right))
     {
-      dataGenerator->updateBottomChunks();
+      for (int y = 0; y < dataGenerator->getChunksPerSide(); y++)
+      {
+        uint16_t layer = y * dataGenerator->getChunksPerSide() + dataGenerator->getChunksRight();
+        heightmapTextures->setLayerData(layer, dataGenerator->getChunkData(dataGenerator->getChunksRight(), y));
+      }
 
+      glUniform2i(ChunksDataOrigin, dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
+      glUniform2i(ChunksOrigin, dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
+    }
+    if (dataGenerator->updatedSincePreviousFrame(ProceduralDataDirection::Bottom))
+    {
       for (int x = 0; x < dataGenerator->getChunksPerSide(); x++)
       {
         uint16_t layer = dataGenerator->getChunksBottom() * dataGenerator->getChunksPerSide() + x;
@@ -262,8 +219,25 @@ namespace Lotus
 
       glUniform2i(ChunksDataOrigin, dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
       glUniform2i(ChunksOrigin, dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
-
-      lastCameraPosition.z = cameraPosition.z;
     }
+    if (dataGenerator->updatedSincePreviousFrame(ProceduralDataDirection::Left))
+    {
+      for (int y = 0; y < dataGenerator->getChunksPerSide(); y++)
+      {
+        uint16_t layer = y * dataGenerator->getChunksPerSide() + dataGenerator->getChunksLeft();
+        heightmapTextures->setLayerData(layer, dataGenerator->getChunkData(dataGenerator->getChunksLeft(), y));
+      }
+
+      glUniform2i(ChunksDataOrigin, dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
+      glUniform2i(ChunksOrigin, dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
+    }
+    
+
+
+
+
+
+
+
   }
 }

@@ -58,7 +58,7 @@ int main()
   Lotus::Perlin2DArray perlin2DArrayW2(width, height, glm::vec2(2 * width, 0));
   Lotus::Perlin2DArray perlin2DArrayW3(width, height, glm::vec2(3 * width, 0));
 
-  Lotus::GPUTextureArray textureArray(textureConfig);
+  Lotus::GPUArrayTexture textureArray(textureConfig);
 
   textureArray.setLayerData(0, perlin2DArrayW0.getData());
   textureArray.setLayerData(1, perlin2DArrayW1.getData());

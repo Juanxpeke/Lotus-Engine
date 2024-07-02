@@ -54,10 +54,7 @@ namespace Lotus
     ShaderProgram clipmapProgram;
 
     std::vector<std::shared_ptr<GPUMesh>> meshes;
-    std::shared_ptr<GPUTextureArray> heightmapTextures;
-    
-    glm::vec3 lastCameraPosition;
-    bool initialCameraPositionSetted = false;
+    std::shared_ptr<GPUArrayTexture> heightmapTextures;
     
     glm::mat4 rotationModels[4];
     glm::vec3 debugColors[5];

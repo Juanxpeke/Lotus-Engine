@@ -1,19 +1,24 @@
 #include "procedural_data_generator.h"
 
+#include <cmath>
 #include "../util/log.h"
 
 namespace Lotus
 {
+  constexpr char UnchangedFlag    = 0;
+  constexpr char LoadedTopFlag    = 0b0001;
+  constexpr char LoadedRightFlag  = 0b0010;
+  constexpr char LoadedBottomFlag = 0b0100;
+  constexpr char LoadedLeftFlag   = 0b1000;
+  constexpr char ReloadedFlag     = LoadedTopFlag | LoadedRightFlag | LoadedBottomFlag | LoadedLeftFlag;
 
   ProceduralDataGenerator::ProceduralDataGenerator(
       uint16_t generatorDataPerChunkSide,
-      uint16_t generatorChunksPerSide,
+      uint8_t generatorChunksPerSide,
       const PerlinNoiseConfig& generatorNoiseConfig,
-      const Vec2i& generatorDataOrigin) : 
+      const Vec2f& initialObserverPosition) : 
     dataPerChunkSide(generatorDataPerChunkSide),
     chunksPerSide(generatorChunksPerSide),
-    dataOrigin(generatorDataOrigin),
-    chunksOrigin({ 0 , 0 }),
     noiseConfig(generatorNoiseConfig)
   {
     chunksData.reserve(chunksPerSide * chunksPerSide);
@@ -24,91 +29,160 @@ namespace Lotus
       chunksData.push_back(chunkData);
     }
 
-    for (int x = 0; x < chunksPerSide; x++)
-    {
-      for (int y = 0; y < chunksPerSide; y++)
-      {
-        generateChunkData(x, y);
-      }
-    }
+    reload(initialObserverPosition);
   }
 
   ProceduralDataGenerator::~ProceduralDataGenerator()
   {
-    for (int i = 0; i < chunksPerSide * chunksPerSide; i++)
+    for (uint16_t i = 0; i < chunksPerSide * chunksPerSide; i++)
     {
-      delete chunksData[i];
+      delete[] chunksData[i];
     }
   }
 
-  const float* ProceduralDataGenerator::getChunkData(const Vec2i& chunk) const
+  const float* ProceduralDataGenerator::getChunkData(const Vec2u& chunk) const
   {
     return getChunkData(chunk.x, chunk.y);
   }
 
-  const float* ProceduralDataGenerator::getChunkData(int x, int y) const
+  const float* ProceduralDataGenerator::getChunkData(uint8_t x, uint8_t y) const
   {
     return chunksData[y * chunksPerSide + x];
   }
 
-  void ProceduralDataGenerator::updateTopChunks()
+  bool ProceduralDataGenerator::updatedSincePreviousFrame(ProceduralDataDirection direction) const
+  {
+    switch (direction)
+    {
+      case ProceduralDataDirection::Top:
+        return static_cast<bool>(stateSincePreviousFrame & LoadedTopFlag);
+      case ProceduralDataDirection::Right:
+        return static_cast<bool>(stateSincePreviousFrame & LoadedRightFlag);
+      case ProceduralDataDirection::Bottom:
+        return static_cast<bool>(stateSincePreviousFrame & LoadedBottomFlag);
+      case ProceduralDataDirection::Left:
+        return static_cast<bool>(stateSincePreviousFrame & LoadedLeftFlag);
+      default:
+        return false;
+    }
+  }
+
+  void ProceduralDataGenerator::registerObserverPosition(const Vec2f& observerPosition)
+  {
+    Vec2f difference;
+
+    difference.x = observerPosition.x - dataOrigin.x;
+    difference.y = observerPosition.y - dataOrigin.y;
+
+    stateSincePreviousFrame = UnchangedFlag;
+
+    if (std::fabsf(difference.x) > 2 * dataPerChunkSide || std::fabsf(difference.y) > 2 * dataPerChunkSide)
+    {
+      reload(observerPosition);
+      return;
+    }
+
+    if (difference.x > dataPerChunkSide)
+    {
+      loadRightChunks();
+    }
+    else if(difference.x < -dataPerChunkSide)
+    {
+      loadLeftChunks();
+    } 
+    
+    if (difference.y > dataPerChunkSide)
+    {
+      loadBottomChunks();
+    }
+    else if (difference.y < -dataPerChunkSide)
+    {
+      loadTopChunks();
+    }
+  }
+
+  void ProceduralDataGenerator::reload(const Vec2f& position)
+  {
+    dataOrigin.x = std::floorf(position.x);
+    dataOrigin.y = std::floorf(position.y);
+    
+    chunksOrigin.x = 0;
+    chunksOrigin.y = 0;
+
+    for (uint8_t x = 0; x < chunksPerSide; x++)
+    {
+      for (uint8_t y = 0; y < chunksPerSide; y++)
+      {
+        loadChunkData(x, y);
+      }
+    }
+
+    stateSincePreviousFrame = ReloadedFlag;
+    LOTUS_LOG_INFO("[Procedural Data Generator Log] All chunks reloaded");
+  }
+
+  void ProceduralDataGenerator::loadTopChunks()
   {
     dataOrigin.y -= dataPerChunkSide;
     chunksOrigin.y = (chunksOrigin.y + chunksPerSide - 1) % chunksPerSide;
     
     for (int x = 0; x < chunksPerSide; x++)
     {
-      generateChunkData(x, getChunksTop());
+      loadChunkData(x, getChunksTop());
     }
 
-    LOTUS_LOG_INFO("[Procedural Data Generator Log] Updated top chunks");
+    stateSincePreviousFrame |= LoadedTopFlag;
+    LOTUS_LOG_INFO("[Procedural Data Generator Log] Loaded top chunks");
   }
 
-  void ProceduralDataGenerator::updateRightChunks()
+  void ProceduralDataGenerator::loadRightChunks()
   {
     dataOrigin.x += dataPerChunkSide;
     chunksOrigin.x = (chunksOrigin.x + 1) % chunksPerSide;
 
     for (int y = 0; y < chunksPerSide; y++)
     {
-      generateChunkData(getChunksRight(), y);
+      loadChunkData(getChunksRight(), y);
     }
 
-    LOTUS_LOG_INFO("[Procedural Data Generator Log] Updated right chunks");
+    stateSincePreviousFrame |= LoadedRightFlag;
+    LOTUS_LOG_INFO("[Procedural Data Generator Log] Loaded right chunks");
   }
 
-  void ProceduralDataGenerator::updateBottomChunks()
+  void ProceduralDataGenerator::loadBottomChunks()
   {
     dataOrigin.y += dataPerChunkSide;
     chunksOrigin.y = (chunksOrigin.y + 1) % chunksPerSide;
 
     for (int x = 0; x < chunksPerSide; x++)
     {
-      generateChunkData(x, getChunksBottom());
+      loadChunkData(x, getChunksBottom());
     }
 
-    LOTUS_LOG_INFO("[Procedural Data Generator Log] Updated bottom chunks");
+    stateSincePreviousFrame |= LoadedBottomFlag;
+    LOTUS_LOG_INFO("[Procedural Data Generator Log] Loaded bottom chunks");
   }
 
-  void ProceduralDataGenerator::updateLeftChunks()
+  void ProceduralDataGenerator::loadLeftChunks()
   {
     dataOrigin.x -= dataPerChunkSide;
     chunksOrigin.x = (chunksOrigin.x + chunksPerSide - 1) % chunksPerSide;
     
     for (int y = 0; y < chunksPerSide; y++)
     {
-      generateChunkData(getChunksLeft(), y);
+      loadChunkData(getChunksLeft(), y);
     }
 
-    LOTUS_LOG_INFO("[Procedural Data Generator Log] Updated left chunks");
+    stateSincePreviousFrame |= LoadedLeftFlag;
+    LOTUS_LOG_INFO("[Procedural Data Generator Log] Loaded left chunks");
   }
 
-  void ProceduralDataGenerator::generateChunkData(const Vec2i& chunk)
+  void ProceduralDataGenerator::loadChunkData(const Vec2u& chunk)
   {
-    generateChunkData(chunk.x, chunk.y);
+    loadChunkData(chunk.x, chunk.y);
   }
 
-  void ProceduralDataGenerator::generateChunkData(int x, int y)
+  void ProceduralDataGenerator::loadChunkData(uint8_t x, uint8_t y)
   {
     Vec2i dataChunk((x - getChunksLeft() + chunksPerSide) % chunksPerSide, (y - getChunksTop() + chunksPerSide) % chunksPerSide);
 

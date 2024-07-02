@@ -84,13 +84,13 @@ namespace Lotus
     const TextureFormat format;
   };
 
-  class GPUTextureArray
+  class GPUArrayTexture
   {
   public:
-    GPUTextureArray(TextureConfig textureConfig);
-    ~GPUTextureArray();
+    GPUArrayTexture(TextureConfig textureConfig);
+    ~GPUArrayTexture();
     
-    GPUTextureArray& operator=(const GPUTextureArray& other) = delete;
+    GPUArrayTexture& operator=(const GPUArrayTexture& other) = delete;
 
     uint32_t getID() const { return ID; }
     uint32_t getWidth() const { return width; }

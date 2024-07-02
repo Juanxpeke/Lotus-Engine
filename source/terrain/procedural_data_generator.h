@@ -7,6 +7,13 @@
 
 namespace Lotus
 {
+  enum class ProceduralDataDirection
+  {
+    Top,
+    Right,
+    Bottom,
+    Left
+  };
 
   class ProceduralDataGenerator
   {
@@ -14,17 +21,17 @@ namespace Lotus
 
     ProceduralDataGenerator(
         uint16_t dataPerChunkSide,
-        uint16_t chunksPerSide,
+        uint8_t chunksPerSide,
         const PerlinNoiseConfig& noiseConfig,
-        const Vec2i& dataOrigin = { 0, 0 });
+        const Vec2f& initialObserverPosition = { 0, 0 });
     ~ProceduralDataGenerator();
 
     uint16_t getDataPerChunkSide() const { return dataPerChunkSide; }
-    uint16_t getChunksPerSide() const { return chunksPerSide; };
+    uint8_t getChunksPerSide() const { return chunksPerSide; };
     uint32_t getChunksAmount() const { return chunksPerSide * chunksPerSide; };
 
-    const float* getChunkData(const Vec2i& chunk) const;
-    const float* getChunkData(int x, int y) const;
+    const float* getChunkData(const Vec2u& chunk) const;
+    const float* getChunkData(uint8_t x, uint8_t y) const;
 
     Vec2i getDataOrigin() const { return dataOrigin; }
 
@@ -33,24 +40,30 @@ namespace Lotus
     unsigned int getChunksBottom() const { return (chunksOrigin.y + chunksPerSide - 1) % chunksPerSide; }
     unsigned int getChunksLeft() const { return chunksOrigin.x; };
 
-    void updateTopChunks();
-    void updateRightChunks();
-    void updateBottomChunks();
-    void updateLeftChunks();
+    bool updatedSincePreviousFrame(ProceduralDataDirection direction) const;
 
+    void registerObserverPosition(const Vec2f& observerPosition);
 
   private:
+    
+    void reload(const Vec2f& position);
+    void loadTopChunks();
+    void loadRightChunks();
+    void loadBottomChunks();
+    void loadLeftChunks();
 
-    void generateChunkData(const Vec2i& chunk);
-    void generateChunkData(int x, int y);
+    void loadChunkData(const Vec2u& chunk);
+    void loadChunkData(uint8_t x, uint8_t y);
 
     uint16_t dataPerChunkSide;
-    uint16_t chunksPerSide;
+    uint8_t chunksPerSide;
 
     Vec2i dataOrigin;
     Vec2u chunksOrigin;
 
     PerlinNoiseConfig noiseConfig;
+
+    char stateSincePreviousFrame;
 
     std::vector<float*> chunksData;
   };

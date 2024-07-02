@@ -196,7 +196,7 @@ namespace Lotus
   }
 
 
-  GPUTextureArray::GPUTextureArray(TextureConfig textureConfig) :
+  GPUArrayTexture::GPUArrayTexture(TextureConfig textureConfig) :
     ID(0),
     width(textureConfig.width),
     height(textureConfig.height),
@@ -227,7 +227,7 @@ namespace Lotus
     LOTUS_LOG_INFO("[Texture Log] Created GPU texture array with ID {0}", ID);
   }
 
-  GPUTextureArray::~GPUTextureArray()
+  GPUArrayTexture::~GPUArrayTexture()
   {
     if (ID)
     {
@@ -242,7 +242,7 @@ namespace Lotus
     }
   }
 
-  void GPUTextureArray::setLayerData(uint16_t layer, const void* data)
+  void GPUArrayTexture::setLayerData(uint16_t layer, const void* data)
   {
     GLenum dataFormat = dataFormatEnumToOpenGLEnum(format);
     GLenum dataType = dataTypeEnumToOpenGLEnum(format);
@@ -250,22 +250,22 @@ namespace Lotus
     glTextureSubImage3D(ID, 0, 0, 0, layer, width, height, 1, dataFormat, dataType, data);
   }
 
-  void GPUTextureArray::setSWrapMode(TextureWrapMode wrapMode) noexcept
+  void GPUArrayTexture::setSWrapMode(TextureWrapMode wrapMode) noexcept
   {
     glTextureParameteri(ID, GL_TEXTURE_WRAP_S, wrapEnumToOpenGLEnum(wrapMode));
   }
 
-  void GPUTextureArray::setTWrapMode(TextureWrapMode wrapMode) noexcept
+  void GPUArrayTexture::setTWrapMode(TextureWrapMode wrapMode) noexcept
   {
     glTextureParameteri(ID, GL_TEXTURE_WRAP_T, wrapEnumToOpenGLEnum(wrapMode));
   }
 
-  void GPUTextureArray::setMagnificationFilter(TextureMagnificationFilter magFilter) noexcept
+  void GPUArrayTexture::setMagnificationFilter(TextureMagnificationFilter magFilter) noexcept
   {
     glTextureParameteri(ID, GL_TEXTURE_MAG_FILTER, magnificationFilterEnumToOpenGLEnum(magFilter));
   }
 
-  void GPUTextureArray::setMinificationFilter(TextureMinificationFilter minFilter) noexcept
+  void GPUArrayTexture::setMinificationFilter(TextureMinificationFilter minFilter) noexcept
   {
     glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, minificationFilterEnumToOpenGLEnum(minFilter));
   }

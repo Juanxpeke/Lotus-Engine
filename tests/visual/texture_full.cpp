@@ -62,7 +62,7 @@ int main()
 
   Lotus::ProceduralDataGenerator terrainChunkGenerator(width);
 
-  Lotus::GPUTextureArray textureArray(textureConfig);
+  Lotus::GPUArrayTexture textureArray(textureConfig);
 
   for (int x = 0; x < Lotus::ProceduralDataGenerator::ChunksPerSide; x++)
   {
