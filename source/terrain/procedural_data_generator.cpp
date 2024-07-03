@@ -6,11 +6,11 @@
 namespace Lotus
 {
   constexpr char UnchangedFlag    = 0;
-  constexpr char LoadedTopFlag    = 0b0001;
-  constexpr char LoadedRightFlag  = 0b0010;
-  constexpr char LoadedBottomFlag = 0b0100;
-  constexpr char LoadedLeftFlag   = 0b1000;
-  constexpr char ReloadedFlag     = LoadedTopFlag | LoadedRightFlag | LoadedBottomFlag | LoadedLeftFlag;
+  constexpr char LoadedTopFlag    = 0b00001;
+  constexpr char LoadedRightFlag  = 0b00010;
+  constexpr char LoadedBottomFlag = 0b00100;
+  constexpr char LoadedLeftFlag   = 0b01000;
+  constexpr char ReloadedFlag     = 0b10000;
 
   ProceduralDataGenerator::ProceduralDataGenerator(
       uint16_t generatorDataPerChunkSide,
@@ -50,18 +50,20 @@ namespace Lotus
     return chunksData[y * chunksPerSide + x];
   }
 
-  bool ProceduralDataGenerator::updatedSincePreviousFrame(ProceduralDataDirection direction) const
+  bool ProceduralDataGenerator::updatedSincePreviousFrame(ProceduralDataUpdate update) const
   {
-    switch (direction)
+    switch (update)
     {
-      case ProceduralDataDirection::Top:
+      case ProceduralDataUpdate::Top:
         return static_cast<bool>(stateSincePreviousFrame & LoadedTopFlag);
-      case ProceduralDataDirection::Right:
+      case ProceduralDataUpdate::Right:
         return static_cast<bool>(stateSincePreviousFrame & LoadedRightFlag);
-      case ProceduralDataDirection::Bottom:
+      case ProceduralDataUpdate::Bottom:
         return static_cast<bool>(stateSincePreviousFrame & LoadedBottomFlag);
-      case ProceduralDataDirection::Left:
+      case ProceduralDataUpdate::Left:
         return static_cast<bool>(stateSincePreviousFrame & LoadedLeftFlag);
+      case ProceduralDataUpdate::Everything:
+        return static_cast<bool>(stateSincePreviousFrame & ReloadedFlag);
       default:
         return false;
     }

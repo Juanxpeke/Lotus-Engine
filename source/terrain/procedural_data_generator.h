@@ -7,12 +7,13 @@
 
 namespace Lotus
 {
-  enum class ProceduralDataDirection
+  enum class ProceduralDataUpdate
   {
     Top,
     Right,
     Bottom,
-    Left
+    Left,
+    Everything
   };
 
   class ProceduralDataGenerator
@@ -40,7 +41,7 @@ namespace Lotus
     unsigned int getChunksBottom() const { return (chunksOrigin.y + chunksPerSide - 1) % chunksPerSide; }
     unsigned int getChunksLeft() const { return chunksOrigin.x; };
 
-    bool updatedSincePreviousFrame(ProceduralDataDirection direction) const;
+    bool updatedSincePreviousFrame(ProceduralDataUpdate direction) const;
 
     void registerObserverPosition(const Vec2f& observerPosition);
 

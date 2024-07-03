@@ -112,8 +112,7 @@ int main()
 
   objectPlacer.addObject(cubeMesh, redMaterial, 30.0);
   objectPlacer.addObject(sphereMesh, blueMaterial, 30.0);
-
-  objectPlacer.generateAllObjects();
+  objectPlacer.initialize();
 
   lightManager->setAmbientLight({ 0.1, 0.1, 0.1 });
 
@@ -146,6 +145,8 @@ int main()
 
     cameraPosition = camera.getLocalTranslation();
     dataGenerator->registerObserverPosition(Lotus::Vec2f(cameraPosition.x, cameraPosition.z));
+
+    objectPlacer.update();
 		
     renderingServer.render(camera);
 
