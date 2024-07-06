@@ -50,19 +50,19 @@ namespace Lotus
     return chunksData[y * chunksPerSide + x];
   }
 
-  bool ProceduralDataGenerator::updatedSincePreviousFrame(ProceduralDataUpdate update) const
+  bool ProceduralDataGenerator::updatedSincePreviousFrame(ProceduralUpdateRegion region) const
   {
-    switch (update)
+    switch (region)
     {
-      case ProceduralDataUpdate::Top:
+      case ProceduralUpdateRegion::TopChunks:
         return static_cast<bool>(stateSincePreviousFrame & LoadedTopFlag);
-      case ProceduralDataUpdate::Right:
+      case ProceduralUpdateRegion::RightChunks:
         return static_cast<bool>(stateSincePreviousFrame & LoadedRightFlag);
-      case ProceduralDataUpdate::Bottom:
+      case ProceduralUpdateRegion::BottomChunks:
         return static_cast<bool>(stateSincePreviousFrame & LoadedBottomFlag);
-      case ProceduralDataUpdate::Left:
+      case ProceduralUpdateRegion::LeftChunks:
         return static_cast<bool>(stateSincePreviousFrame & LoadedLeftFlag);
-      case ProceduralDataUpdate::Everything:
+      case ProceduralUpdateRegion::Everything:
         return static_cast<bool>(stateSincePreviousFrame & ReloadedFlag);
       default:
         return false;

@@ -7,12 +7,12 @@
 
 namespace Lotus
 {
-  enum class ProceduralDataUpdate
+  enum class ProceduralUpdateRegion
   {
-    Top,
-    Right,
-    Bottom,
-    Left,
+    TopChunks,
+    RightChunks,
+    BottomChunks,
+    LeftChunks,
     Everything
   };
 
@@ -27,21 +27,22 @@ namespace Lotus
         const Vec2f& initialObserverPosition = { 0, 0 });
     ~ProceduralDataGenerator();
 
-    uint16_t getDataPerChunkSide() const { return dataPerChunkSide; }
-    uint8_t getChunksPerSide() const { return chunksPerSide; };
-    uint32_t getChunksAmount() const { return chunksPerSide * chunksPerSide; };
+    uint16_t getDataPerChunkSide() const { return dataPerChunkSide;                 }
+    uint8_t  getChunksPerSide()    const { return chunksPerSide;                    }
+    uint32_t getDataAmount()       const { return dataPerChunkSide * chunksPerSide; }
+    uint16_t getChunksAmount()     const { return chunksPerSide * chunksPerSide;    }
 
     const float* getChunkData(const Vec2u& chunk) const;
     const float* getChunkData(uint8_t x, uint8_t y) const;
 
     Vec2i getDataOrigin() const { return dataOrigin; }
 
-    unsigned int getChunksTop() const { return chunksOrigin.y; };
-    unsigned int getChunksRight() const { return (chunksOrigin.x + chunksPerSide - 1) % chunksPerSide; }
+    unsigned int getChunksTop()    const { return chunksOrigin.y;                                       }
+    unsigned int getChunksRight()  const { return (chunksOrigin.x + chunksPerSide - 1) % chunksPerSide; }
     unsigned int getChunksBottom() const { return (chunksOrigin.y + chunksPerSide - 1) % chunksPerSide; }
-    unsigned int getChunksLeft() const { return chunksOrigin.x; };
+    unsigned int getChunksLeft()   const { return chunksOrigin.x;                                       }
 
-    bool updatedSincePreviousFrame(ProceduralDataUpdate direction) const;
+    bool updatedSincePreviousFrame(ProceduralUpdateRegion region) const;
 
     void registerObserverPosition(const Vec2f& observerPosition);
 

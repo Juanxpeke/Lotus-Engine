@@ -44,7 +44,7 @@ namespace Lotus
 
   void ObjectPlacer::update(bool forced)
   {
-    if (dataGenerator->updatedSincePreviousFrame(ProceduralDataUpdate::Everything) || forced)
+    if (dataGenerator->updatedSincePreviousFrame(ProceduralUpdateRegion::Everything) || forced)
     {
       for (int x = 0; x < dataGenerator->getChunksPerSide(); x++)
       {
@@ -55,28 +55,28 @@ namespace Lotus
       }
     }
 
-    if (dataGenerator->updatedSincePreviousFrame(ProceduralDataUpdate::Top))
+    if (dataGenerator->updatedSincePreviousFrame(ProceduralUpdateRegion::TopChunks))
     {
       for (int x = 0; x < dataGenerator->getChunksPerSide(); x++)
       {
         generateObjects(x, dataGenerator->getChunksTop());
       }
     }
-    if (dataGenerator->updatedSincePreviousFrame(ProceduralDataUpdate::Right))
+    if (dataGenerator->updatedSincePreviousFrame(ProceduralUpdateRegion::RightChunks))
     {
       for (int y = 0; y < dataGenerator->getChunksPerSide(); y++)
       {
         generateObjects(dataGenerator->getChunksRight(), y);
       }
     }
-    if (dataGenerator->updatedSincePreviousFrame(ProceduralDataUpdate::Bottom))
+    if (dataGenerator->updatedSincePreviousFrame(ProceduralUpdateRegion::BottomChunks))
     {
       for (int x = 0; x < dataGenerator->getChunksPerSide(); x++)
       {
         generateObjects(x, dataGenerator->getChunksBottom());
       }
     }
-    if (dataGenerator->updatedSincePreviousFrame(ProceduralDataUpdate::Left))
+    if (dataGenerator->updatedSincePreviousFrame(ProceduralUpdateRegion::LeftChunks))
     {
       for (int y = 0; y < dataGenerator->getChunksPerSide(); y++)
       {
