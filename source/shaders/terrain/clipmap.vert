@@ -10,7 +10,7 @@ layout(location = 2) uniform mat4 projection;
 layout(location = 3) uniform int dataPerChunkSide; // This should be the texture width and height
 layout(location = 4) uniform int chunksPerSide;    // Layers in texture array should be chunksPerside to the square
 
-layout(location = 5) uniform ivec2 chunksDataOrigin;
+layout(location = 5) uniform ivec2 dataOrigin;
 layout(location = 6) uniform ivec2 chunksOrigin;
 
 /*
@@ -62,8 +62,8 @@ void main()
   int dataPerSide = dataPerChunkSide * chunksPerSide; 
   int dataPerHalfSide = dataPerSide / 2;
 
-  ivec2 dataOrigin = chunksDataOrigin - ivec2(dataPerHalfSide, dataPerHalfSide);
-  ivec2 dataCoord = ivec2(xz) - dataOrigin;
+  ivec2 topLeftDataOrigin = dataOrigin - ivec2(dataPerHalfSide, dataPerHalfSide);
+  ivec2 dataCoord = ivec2(xz) - topLeftDataOrigin;
 
   float y = height(dataCoord);
 
