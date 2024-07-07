@@ -85,7 +85,7 @@ namespace Lotus
     }
   }
 
-  void ObjectPlacer::generateObjects(const Vec2i& chunk)
+  void ObjectPlacer::generateObjects(const glm::ivec2& chunk)
   {
     generateObjects(chunk.x, chunk.y);
   }
@@ -98,23 +98,23 @@ namespace Lotus
       return;
     }
 
-    Vec2u worldChunk;
+    glm::uvec2 worldChunk;
     worldChunk.x = (x - dataGenerator->getChunksLeft() + dataGenerator->getChunksPerSide()) % dataGenerator->getChunksPerSide();
     worldChunk.y = (y - dataGenerator->getChunksTop() + dataGenerator->getChunksPerSide()) % dataGenerator->getChunksPerSide();
-    Vec2i chunkOffset(worldChunk.x - dataGenerator->getChunksPerSide() / 2, worldChunk.y - dataGenerator->getChunksPerSide() / 2);
-    Vec2i offset = dataGenerator->getDataOrigin() + chunkOffset * dataGenerator->getDataPerChunkSide();
-    Vec3f worldOffset(offset.x, 0, offset.y);
+    glm::ivec2 chunkOffset(worldChunk.x - dataGenerator->getChunksPerSide() / 2, worldChunk.y - dataGenerator->getChunksPerSide() / 2);
+    glm::ivec2 offset = dataGenerator->getDataOrigin() + chunkOffset * static_cast<int>(dataGenerator->getDataPerChunkSide());
+    glm::vec3 worldOffset(offset.x, 0, offset.y);
 
     LOTUS_LOG_INFO("[Object Placer Info] Generating objects on chunk ({0}, {1})", offset.x / dataGenerator->getDataPerChunkSide(), offset.y / dataGenerator->getDataPerChunkSide());
 
     const float* heightData = dataGenerator->getChunkData(x ,y);
 
-    std::vector<Vec2f> points = PoissonDiscSampler::samplePoints(radius, dataGenerator->getDataPerChunkSide(), dataGenerator->getDataPerChunkSide(), samplesBeforeRejection);
+    std::vector<glm::vec2> points = PoissonDiscSampler::samplePoints(radius, dataGenerator->getDataPerChunkSide(), dataGenerator->getDataPerChunkSide(), samplesBeforeRejection);
   
-    for (const Vec2f& point : points)
+    for (const glm::vec2& point : points)
     {
-      Vec2i dataPoint(point.x, point.y);
-      Vec3f translation = { point.x, heightData[dataPoint.y * dataGenerator->getDataPerChunkSide() + dataPoint.x] , point.y };
+      glm::ivec2 dataPoint(point.x, point.y);
+      glm::vec3 translation = { point.x, heightData[dataPoint.y * dataGenerator->getDataPerChunkSide() + dataPoint.x] , point.y };
       translation.y *= 64;
 
       translation += worldOffset;
@@ -124,7 +124,7 @@ namespace Lotus
       const ObjectPlacerItem& objectItem = objectItemsPool[objectIndex];
 
       std::shared_ptr<MeshInstance> object = scene->createObject(objectItem.mesh, objectItem.material);
-      object->setTranslation(glm::vec3(translation.x, translation.y, translation.z));
+      object->setTranslation(translation);
     }
   }
 

@@ -194,10 +194,10 @@ namespace Lotus
   {
     ProceduralData proceduralData;
 
-    proceduralData.dataPerChunkSide = static_cast<int>(dataGenerator->getDataPerChunkSide());
-    proceduralData.chunksPerSide = static_cast<int>(dataGenerator->getChunksPerSide());
-    proceduralData.dataOrigin = glm::ivec2(dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
-    proceduralData.chunksOrigin = glm::ivec2(dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
+    proceduralData.dataPerChunkSide = dataGenerator->getDataPerChunkSide();
+    proceduralData.chunksPerSide = dataGenerator->getChunksPerSide();
+    proceduralData.dataOrigin = dataGenerator->getDataOrigin();
+    proceduralData.chunksOrigin = dataGenerator->getChunksOrigin();
 
     proceduralBuffer.write(&proceduralData);
   }

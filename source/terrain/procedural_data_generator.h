@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <vector>
-#include "../math/linear_algebra.h"
+#include <glm/glm.hpp>
 #include "../math/noise.h"
 
 namespace Lotus
@@ -24,7 +24,7 @@ namespace Lotus
         uint16_t dataPerChunkSide,
         uint8_t chunksPerSide,
         const PerlinNoiseConfig& noiseConfig,
-        const Vec2f& initialObserverPosition = { 0, 0 });
+        const glm::vec2& initialObserverPosition = { 0, 0 });
     ~ProceduralDataGenerator();
 
     uint16_t getDataPerChunkSide() const { return dataPerChunkSide;                 }
@@ -32,10 +32,11 @@ namespace Lotus
     uint32_t getDataAmount()       const { return dataPerChunkSide * chunksPerSide; }
     uint16_t getChunksAmount()     const { return chunksPerSide * chunksPerSide;    }
 
-    const float* getChunkData(const Vec2u& chunk) const;
+    const float* getChunkData(const glm::uvec2& chunk) const;
     const float* getChunkData(uint8_t x, uint8_t y) const;
 
-    Vec2i getDataOrigin() const { return dataOrigin; }
+    glm::ivec2 getDataOrigin()   const { return dataOrigin;   }
+    glm::uvec2 getChunksOrigin() const { return chunksOrigin; }
 
     unsigned int getChunksTop()    const { return chunksOrigin.y;                                       }
     unsigned int getChunksRight()  const { return (chunksOrigin.x + chunksPerSide - 1) % chunksPerSide; }
@@ -44,24 +45,24 @@ namespace Lotus
 
     bool updatedSincePreviousFrame(ProceduralUpdateRegion region) const;
 
-    void registerObserverPosition(const Vec2f& observerPosition);
+    void registerObserverPosition(const glm::vec2& observerPosition);
 
   private:
     
-    void reload(const Vec2f& position);
+    void reload(const glm::vec2& position);
     void loadTopChunks();
     void loadRightChunks();
     void loadBottomChunks();
     void loadLeftChunks();
 
-    void loadChunkData(const Vec2u& chunk);
+    void loadChunkData(const glm::uvec2& chunk);
     void loadChunkData(uint8_t x, uint8_t y);
 
     uint16_t dataPerChunkSide;
     uint8_t chunksPerSide;
 
-    Vec2i dataOrigin;
-    Vec2u chunksOrigin;
+    glm::ivec2 dataOrigin;
+    glm::uvec2 chunksOrigin;
 
     PerlinNoiseConfig noiseConfig;
 

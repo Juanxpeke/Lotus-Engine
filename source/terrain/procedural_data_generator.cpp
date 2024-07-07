@@ -16,7 +16,7 @@ namespace Lotus
       uint16_t generatorDataPerChunkSide,
       uint8_t generatorChunksPerSide,
       const PerlinNoiseConfig& generatorNoiseConfig,
-      const Vec2f& initialObserverPosition) : 
+      const glm::vec2& initialObserverPosition) : 
     dataPerChunkSide(generatorDataPerChunkSide),
     chunksPerSide(generatorChunksPerSide),
     noiseConfig(generatorNoiseConfig)
@@ -40,7 +40,7 @@ namespace Lotus
     }
   }
 
-  const float* ProceduralDataGenerator::getChunkData(const Vec2u& chunk) const
+  const float* ProceduralDataGenerator::getChunkData(const glm::uvec2& chunk) const
   {
     return getChunkData(chunk.x, chunk.y);
   }
@@ -69,9 +69,9 @@ namespace Lotus
     }
   }
 
-  void ProceduralDataGenerator::registerObserverPosition(const Vec2f& observerPosition)
+  void ProceduralDataGenerator::registerObserverPosition(const glm::vec2& observerPosition)
   {
-    Vec2f difference;
+    glm::vec2 difference;
 
     difference.x = observerPosition.x - dataOrigin.x;
     difference.y = observerPosition.y - dataOrigin.y;
@@ -103,7 +103,7 @@ namespace Lotus
     }
   }
 
-  void ProceduralDataGenerator::reload(const Vec2f& position)
+  void ProceduralDataGenerator::reload(const glm::vec2& position)
   {
     dataOrigin.x = std::floorf(position.x);
     dataOrigin.y = std::floorf(position.y);
@@ -179,16 +179,16 @@ namespace Lotus
     LOTUS_LOG_INFO("[Procedural Data Generator Log] Loaded left chunks");
   }
 
-  void ProceduralDataGenerator::loadChunkData(const Vec2u& chunk)
+  void ProceduralDataGenerator::loadChunkData(const glm::uvec2& chunk)
   {
     loadChunkData(chunk.x, chunk.y);
   }
 
   void ProceduralDataGenerator::loadChunkData(uint8_t x, uint8_t y)
   {
-    Vec2i dataChunk((x - getChunksLeft() + chunksPerSide) % chunksPerSide, (y - getChunksTop() + chunksPerSide) % chunksPerSide);
+    glm::ivec2 dataChunk((x - getChunksLeft() + chunksPerSide) % chunksPerSide, (y - getChunksTop() + chunksPerSide) % chunksPerSide);
 
-    Vec2i offset = dataOrigin - Vec2i((chunksPerSide * dataPerChunkSide) / 2) + dataChunk * dataPerChunkSide;
+    glm::ivec2 offset = dataOrigin - glm::ivec2((chunksPerSide * dataPerChunkSide) / 2) + dataChunk * static_cast<int>(dataPerChunkSide);
     
     float* chunkData = chunksData[y * chunksPerSide + x];
 

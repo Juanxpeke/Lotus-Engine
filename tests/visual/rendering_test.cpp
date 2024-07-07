@@ -144,7 +144,8 @@ int main()
 		updateFromInputs(window, dt, &camera);
 
     cameraPosition = camera.getLocalTranslation();
-    dataGenerator->registerObserverPosition(Lotus::Vec2f(cameraPosition.x, cameraPosition.z));
+
+    dataGenerator->registerObserverPosition(glm::vec2(cameraPosition.x, cameraPosition.z));
 
     objectPlacer.update();
 		

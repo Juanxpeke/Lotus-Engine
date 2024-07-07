@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <vector>
-#include "../math/linear_algebra.h"
+#include <glm/glm.hpp>
 #include "../math/randomizer.h"
 #include "../render/gpu_mesh.h"
 #include "../render/indirect/indirect_object_renderer.h"
@@ -35,7 +35,7 @@ namespace Lotus
       std::shared_ptr<Material> material;
     };
 
-    void generateObjects(const Vec2i& chunk);
+    void generateObjects(const glm::ivec2& chunk);
     void generateObjects(int x, int y);
 
     float radius;

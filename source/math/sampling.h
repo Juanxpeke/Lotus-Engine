@@ -4,7 +4,7 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
-#include "linear_algebra.h"
+#include <glm/glm.hpp>
 #include "randomizer.h"
 
 namespace Lotus
@@ -13,7 +13,7 @@ namespace Lotus
   {
   public:
 
-    static std::vector<Vec2f> samplePoints(float radius, float sampleRegionWidth, float sampleRegionHeight, uint8_t samplesBeforeRejection)
+    static std::vector<glm::vec2> samplePoints(float radius, float sampleRegionWidth, float sampleRegionHeight, uint8_t samplesBeforeRejection)
     {
       Randomizer randomizer;
 
@@ -25,10 +25,10 @@ namespace Lotus
       grid.resize(cellsWidth * cellsHeight);
       std::fill(grid.begin(), grid.end(), -1);
 
-      std::vector<Vec2f> points;
-      std::vector<Vec2f> spawnPoints;
+      std::vector<glm::vec2> points;
+      std::vector<glm::vec2> spawnPoints;
 
-      Vec2f initialPoint(randomizer.getFloatRange(sampleRegionWidth), randomizer.getFloatRange(sampleRegionHeight));
+      glm::vec2 initialPoint(randomizer.getFloatRange(sampleRegionWidth), randomizer.getFloatRange(sampleRegionHeight));
 
       addPointToGrid(points.size(), initialPoint, cellSize, cellsWidth, grid);
       points.push_back(initialPoint);
@@ -37,7 +37,7 @@ namespace Lotus
       while (!spawnPoints.empty())
       {
         int spawnIndex = randomizer.getIntRange(0, spawnPoints.size() - 1);
-        const Vec2f& spawnCentre = spawnPoints[spawnIndex];
+        const glm::vec2& spawnCentre = spawnPoints[spawnIndex];
 
         bool foundValidPoint = false;
 
@@ -45,8 +45,8 @@ namespace Lotus
         {
           float angle = randomizer.getFloat() * 2 * 3.1415;
 
-          Vec2f direction(std::sin(angle), std::cos(angle));
-          Vec2f candidate = spawnCentre + direction * randomizer.getFloatRange(radius, 2 * radius);
+          glm::vec2 direction(std::sin(angle), std::cos(angle));
+          glm::vec2 candidate = spawnCentre + direction * randomizer.getFloatRange(radius, 2 * radius);
 
           if (isValidPoint(candidate, radius, sampleRegionWidth, sampleRegionHeight, cellSize, cellsWidth, cellsHeight, points, grid))
           {
@@ -73,25 +73,25 @@ namespace Lotus
 
     static void addPointToGrid(
         int pointIndex,
-        const Vec2f&point,
+        const glm::vec2&point,
         float cellSize,
         int cellsWidth,
         std::vector<int>& grid)
     {
-      Vec2i cell(point.x / cellSize, point.y / cellSize);
+      glm::ivec2 cell(point.x / cellSize, point.y / cellSize);
 
       grid[cell.y * cellsWidth + cell.x] = pointIndex; 
     }
 
     static bool isValidPoint(
-        const Vec2f& point,
+        const glm::vec2& point,
         float radius,
         float sampleRegionWidth,
         float sampleRegionHeight,
         float cellSize,
         int cellsWidth,
         int cellsHeight,
-        const std::vector<Vec2f>& points,
+        const std::vector<glm::vec2>& points,
         const std::vector<int>& grid)
     {
       if (point.x < 0 || point.x >= sampleRegionWidth || point.y < 0 || point.y >= sampleRegionHeight)
@@ -99,9 +99,9 @@ namespace Lotus
         return false;
       }
 
-      Vec2i cell(point.x / cellSize, point.y / cellSize);
-      Vec2i startCell(std::max(cell.x - 1, 0), std::max(cell.y - 1, 0));
-      Vec2i endCell(std::min(cell.x + 1, cellsWidth - 1), std::min(cell.y + 1, cellsHeight - 1));
+      glm::ivec2 cell(point.x / cellSize, point.y / cellSize);
+      glm::ivec2 startCell(std::max(cell.x - 1, 0), std::max(cell.y - 1, 0));
+      glm::ivec2 endCell(std::min(cell.x + 1, cellsWidth - 1), std::min(cell.y + 1, cellsHeight - 1));
 
       for (int x = startCell.x; x <= endCell.x; x++)
       {
@@ -109,7 +109,7 @@ namespace Lotus
         {
           int pointIndex = grid[y * cellsWidth + x];
           
-          if (pointIndex != -1 && (point - points[pointIndex]).sqrLength() < radius * radius)
+          if (pointIndex != -1 && glm::distance(point, points[pointIndex]) < radius)
           {
             return false;
           }

@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include <algorithm>
-#include "linear_algebra.h"
+#include <glm/glm.hpp>
 #include "PerlinNoise.hpp"
 
 namespace Lotus
@@ -14,7 +14,7 @@ namespace Lotus
     uint32_t seed = 0;
     double frequency = 8.0;
     int octaves = 8;
-    Vec2i offset = { 0, 0 };
+    glm::ivec2 offset = { 0, 0 };
   };
 
   class Perlin2DArray

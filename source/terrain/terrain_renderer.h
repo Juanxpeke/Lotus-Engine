@@ -55,10 +55,10 @@ namespace Lotus
 
     struct ProceduralData
     {
-      int dataPerChunkSide;
-      int chunksPerSide;
+      unsigned int dataPerChunkSide;
+      unsigned int chunksPerSide;
       glm::ivec2 dataOrigin;
-      glm::ivec2 chunksOrigin;
+      glm::uvec2 chunksOrigin;
     };
 
     UniformBuffer<ProceduralData> proceduralBuffer;

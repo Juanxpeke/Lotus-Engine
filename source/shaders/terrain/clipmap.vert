@@ -13,10 +13,10 @@ layout(std140, binding = 0) uniform CameraBuffer
 */
 layout(std140, binding = 2) uniform ProceduralBuffer
 {
-  int dataPerChunkSide; // This should be the texture width and height
-  int chunksPerSide;    // Layers in texture array should be chunksPerside to the square
+  uint dataPerChunkSide; // This should be the texture width and height
+  uint chunksPerSide;    // Layers in texture array should be chunksPerside to the square
   ivec2 dataOrigin;
-  ivec2 chunksOrigin;
+  uvec2 chunksOrigin;
 };
 
 layout(location = 0) uniform mat4 model;
@@ -46,7 +46,7 @@ out vec3 fragNormal;
 
 float height(ivec2 dataCoord)
 {
-  int dataPerSide = dataPerChunkSide * chunksPerSide; 
+  uint dataPerSide = dataPerChunkSide * chunksPerSide; 
 
   if (dataCoord.x < 0 || dataCoord.y < 0 || dataCoord.x > dataPerSide || dataCoord.y > dataPerSide)
   {
@@ -55,9 +55,9 @@ float height(ivec2 dataCoord)
 
   ivec2 texCoord = ivec2(dataCoord.x % dataPerChunkSide, dataCoord.y % dataPerChunkSide);
 
-  int chunkX = (dataCoord.x / dataPerChunkSide + chunksOrigin.x) % chunksPerSide;
-  int chunkY = (dataCoord.y / dataPerChunkSide + chunksOrigin.y) % chunksPerSide;
-  int layer = chunkY * chunksPerSide + chunkX;
+  uint chunkX = (uint(dataCoord.x) / dataPerChunkSide + chunksOrigin.x) % chunksPerSide;
+  uint chunkY = (uint(dataCoord.y) / dataPerChunkSide + chunksOrigin.y) % chunksPerSide;
+  uint layer = chunkY * chunksPerSide + chunkX;
 
   return 64.0 * texelFetch(heightmaps, ivec3(texCoord, layer), 0).r;
 }
@@ -67,8 +67,8 @@ void main()
 
   vec2 xz = offset + (model * vec4(position, 1.0)).xz * levelScale;
 
-  int dataPerSide = dataPerChunkSide * chunksPerSide; 
-  int dataPerHalfSide = dataPerSide / 2;
+  uint dataPerSide = dataPerChunkSide * chunksPerSide; 
+  uint dataPerHalfSide = dataPerSide / 2;
 
   ivec2 topLeftDataOrigin = dataOrigin - ivec2(dataPerHalfSide, dataPerHalfSide);
   ivec2 dataCoord = ivec2(xz) - topLeftDataOrigin;
