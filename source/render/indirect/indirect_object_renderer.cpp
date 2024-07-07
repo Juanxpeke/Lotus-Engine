@@ -77,12 +77,6 @@ namespace Lotus {
     return meshInstance;
   }
 
-  void IndirectObjectRenderer::deleteObject(std::shared_ptr<MeshInstance> meshInstance)
-  {
-    meshInstances[0] = std::move(meshInstances.back());
-    meshInstances.pop_back();
-  }
-
   std::shared_ptr<Material> IndirectObjectRenderer::createMaterial(MaterialType type)
   {
     unsigned int offset = static_cast<unsigned int>(type);

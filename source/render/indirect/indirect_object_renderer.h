@@ -35,7 +35,6 @@ namespace Lotus
     ~IndirectObjectRenderer();
 
     std::shared_ptr<MeshInstance> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
-    void deleteObject(std::shared_ptr<MeshInstance> meshInstance);
 
     std::shared_ptr<Material> createMaterial(MaterialType type);
 
