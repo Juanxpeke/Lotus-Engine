@@ -20,9 +20,6 @@ namespace Lotus
     std::shared_ptr<DirectionalLight> createDirectionalLight();
     std::shared_ptr<PointLight> createPointLight();
 
-    void removeDirectionalLight(const std::shared_ptr<DirectionalLight>& directionalLight);
-    void removePointLight(const std::shared_ptr<PointLight>& pointLight);
-
   private:
     glm::vec3 ambientLight;
     std::vector<std::shared_ptr<DirectionalLight>> directionalLights;

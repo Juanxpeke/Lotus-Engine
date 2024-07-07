@@ -28,14 +28,4 @@ namespace Lotus
     return pointLight;
   }
 
-  void LightManager::removeDirectionalLight(const std::shared_ptr<DirectionalLight>& directionalLight)
-  {
-
-  }
-
-  void LightManager::removePointLight(const std::shared_ptr<PointLight>& pointLight)
-  {
-    
-  }
-
 }
