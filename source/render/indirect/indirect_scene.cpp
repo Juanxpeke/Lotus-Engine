@@ -17,22 +17,22 @@ namespace Lotus {
     
     glGenVertexArrays(1, &vertexArrayID);
 
-    GPUVertexBuffer.allocate(VertexBufferInitialAllocationSize);
-    GPUVertexBuffer.setVertexArray(vertexArrayID);
+    vertexBuffer.allocate(VertexBufferInitialAllocationSize);
+    vertexBuffer.setVertexArray(vertexArrayID);
 
-    GPUIndexBuffer.allocate(IndexBufferInitialAllocationSize);
-    GPUIndexBuffer.setVertexArray(vertexArrayID);
+    indexBuffer.allocate(IndexBufferInitialAllocationSize);
+    indexBuffer.setVertexArray(vertexArrayID);
 
-    GPUIndirectBuffer.allocate(IndirectBufferInitialAllocationSize);
+    indirectBuffer.allocate(IndirectBufferInitialAllocationSize);
 
-    GPUObjectBuffer.allocate(ObjectBufferInitialAllocationSize);
-    GPUObjectBuffer.setBindingPoint(ObjectBufferBindingPoint);
+    objectBuffer.allocate(ObjectBufferInitialAllocationSize);
+    objectBuffer.setBindingPoint(ObjectBufferBindingPoint);
 
-    GPUObjectHandleBuffer.allocate(ObjectBufferInitialAllocationSize);
-    GPUObjectHandleBuffer.setBindingPoint(ObjectHandleBufferBindingPoint);
+    objectHandleBuffer.allocate(ObjectBufferInitialAllocationSize);
+    objectHandleBuffer.setBindingPoint(ObjectHandleBufferBindingPoint);
 
-    GPUMaterialBuffer.allocate(MaterialBufferInitialAllocationSize);
-    GPUMaterialBuffer.setBindingPoint(MaterialBufferBindingPoint);
+    materialBuffer.allocate(MaterialBufferInitialAllocationSize);
+    materialBuffer.setBindingPoint(MaterialBufferBindingPoint);
   }
 
   IndirectScene::~IndirectScene()
@@ -57,7 +57,7 @@ namespace Lotus {
     GPUObject.model = meshInstance->getModelMatrix();
     GPUObject.materialHandle = materialHandle.get();
       
-    uint32_t objectID = GPUObjectBuffer.add(&GPUObject);
+    uint32_t objectID = objectBuffer.add(&GPUObject);
 
     RenderObject renderObject;
     renderObject.model = GPUObject.model;
@@ -70,7 +70,7 @@ namespace Lotus {
     renderObjects.push_back(renderObject);
     
     uint32_t placeholderHandle = 1;
-    GPUObjectHandleBuffer.add(&placeholderHandle);
+    objectHandleBuffer.add(&placeholderHandle);
 
     unbatchedObjectsHandles.push_back(handle);
 
@@ -107,10 +107,8 @@ namespace Lotus {
     }
   }
 
-  void IndirectScene::render(const Camera& camera)
+  void IndirectScene::render()
   {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   
     update();
 
     buildBatches();
@@ -119,10 +117,10 @@ namespace Lotus {
 
     glBindVertexArray(vertexArrayID);
     
-    GPUIndirectBuffer.bind();
-    GPUObjectBuffer.bind();
-    GPUObjectHandleBuffer.bind();
-    GPUMaterialBuffer.bind();
+    indirectBuffer.bind();
+    objectBuffer.bind();
+    objectHandleBuffer.bind();
+    materialBuffer.bind();
 
     for (int i = 0; i < shaderBatches.size(); i++)
     {
@@ -138,10 +136,10 @@ namespace Lotus {
           sizeof(DrawElementsIndirectCommand));
     }
 
-    GPUMaterialBuffer.unbind();
-    GPUObjectBuffer.unbind();
-    GPUObjectHandleBuffer.unbind();
-    GPUIndirectBuffer.unbind();
+    materialBuffer.unbind();
+    objectBuffer.unbind();
+    objectHandleBuffer.unbind();
+    indirectBuffer.unbind();
   }
 
   void IndirectScene::update()
@@ -350,7 +348,6 @@ namespace Lotus {
   void IndirectScene::buildDrawBatches()
   {
     drawBatches.clear();
-    GPUIndirectBuffer.filledSize = 0;
     
     if (objectBatches.size() == 0) { return; }
     
@@ -362,8 +359,6 @@ namespace Lotus {
 
     drawBatches.push_back(newDrawBatch);
     DrawBatch* backDrawBatch = &drawBatches.back();
-
-    GPUIndirectBuffer.filledSize++;
 
     for (int i = 0; i < objectBatches.size(); i++)
     {
@@ -386,8 +381,6 @@ namespace Lotus {
 
         drawBatches.push_back(newDrawBatch);
         backDrawBatch = &drawBatches.back();
-
-        GPUIndirectBuffer.filledSize++;
       }
     }
 
@@ -443,7 +436,9 @@ namespace Lotus {
   {
     if (!drawBatches.empty())
     {
-      DrawElementsIndirectCommand* indirectBuffer = GPUIndirectBuffer.map();
+      indirectBuffer.resize(drawBatches.size());
+
+      DrawElementsIndirectCommand* indirectBufferMap = indirectBuffer.map();
 
       for (int i = 0; i < drawBatches.size(); i++)
       {
@@ -451,14 +446,14 @@ namespace Lotus {
 
         const RenderMesh& mesh = renderMeshes[drawBatch.meshHandle.get()];
 
-        indirectBuffer[i].count = mesh.count;
-        indirectBuffer[i].instanceCount = drawBatch.instanceCount;
-        indirectBuffer[i].firstIndex = mesh.firstIndex;
-        indirectBuffer[i].baseVertex = mesh.baseVertex;
-        indirectBuffer[i].baseInstance = drawBatch.prevInstanceCount;
+        indirectBufferMap[i].count = mesh.count;
+        indirectBufferMap[i].instanceCount = drawBatch.instanceCount;
+        indirectBufferMap[i].firstIndex = mesh.firstIndex;
+        indirectBufferMap[i].baseVertex = mesh.baseVertex;
+        indirectBufferMap[i].baseInstance = drawBatch.prevInstanceCount;
       }
 
-      GPUIndirectBuffer.unmap();
+      indirectBuffer.unmap();
     }
   }
 
@@ -469,17 +464,17 @@ namespace Lotus {
       return;
     }
 
-    GPUObjectData* objectBuffer = GPUObjectBuffer.map();
+    GPUObjectData* objectBufferMap = objectBuffer.map();
     
     for (const Handle<RenderObject>& objectHandle : dirtyObjectsHandles)
     {
       const RenderObject& object = renderObjects[objectHandle.get()];
 
-      objectBuffer[object.ID].model = object.model;
-      objectBuffer[object.ID].materialHandle = object.materialHandle.get();
+      objectBufferMap[object.ID].model = object.model;
+      objectBufferMap[object.ID].materialHandle = object.materialHandle.get();
     }
 
-    GPUObjectBuffer.unmap();
+    objectBuffer.unmap();
 
     dirtyObjectsHandles.clear();
   }
@@ -491,7 +486,7 @@ namespace Lotus {
       return;
     }
 
-    uint32_t* objectHandleBuffer = GPUObjectHandleBuffer.map();
+    uint32_t* objectHandleBufferMap = objectHandleBuffer.map();
 
     int index = 0;
     for (int dI = 0; dI < drawBatches.size(); dI++)
@@ -500,12 +495,12 @@ namespace Lotus {
 
       for (int iI = 0; iI < drawBatch.instanceCount; iI++)
       {
-        objectHandleBuffer[index] = renderObjects[objectBatches[drawBatch.prevInstanceCount + iI].objectHandle.get()].ID;
+        objectHandleBufferMap[index] = renderObjects[objectBatches[drawBatch.prevInstanceCount + iI].objectHandle.get()].ID;
         index++;
       }
     }
 
-    GPUObjectHandleBuffer.unmap();
+    objectHandleBuffer.unmap();
   }
   
   void IndirectScene::refreshMaterialBuffer()
@@ -515,7 +510,7 @@ namespace Lotus {
       return;
     }
 
-    GPUMaterialData* materialBuffer = GPUMaterialBuffer.map();
+    GPUMaterialData* materialBufferMap = materialBuffer.map();
 
     for (const Handle<RenderMaterial>& materialHandle : dirtyMaterialsHandles)
     {
@@ -523,38 +518,12 @@ namespace Lotus {
 
       const std::shared_ptr<Material>& material = materials[materialHandle.get()];
 
-      materialBuffer[renderMaterial.ID] = materials[materialHandle.get()]->getMaterialData();
+      materialBufferMap[renderMaterial.ID] = materials[materialHandle.get()]->getMaterialData();
     }
 
-    GPUMaterialBuffer.unmap();
+    materialBuffer.unmap();
 
     dirtyMaterialsHandles.clear();
-  }
-
-  void IndirectScene::refreshInstancesBuffer()
-  {
-		if (0 < objectBatches.size())
-		{
-			// reallocateBuffer(CPU_GPUInstanceBuffer, renderBatches.size() * sizeof(GPUInstance));
-		}
-
-    if (objectBatches.size() > 0)
-    {
-      GPUInstance* data = nullptr; // TODO
-
-      int dataIndex = 0;
-      for (int dI = 0; dI < drawBatches.size(); dI++)
-      {
-        auto drawBatch = drawBatches[dI];
-
-        for (int iI = 0; iI < drawBatch.instanceCount; iI++)
-        {
-          data[dataIndex].objectID = 0; //(&objects[renderBatches[drawBatch.prevInstancesCount + iI].objectHandle.get()])->objectHandle.get();
-          data[dataIndex].drawBatchID = dI;
-          dataIndex++;
-        }
-      }
-    }
   }
 
   Handle<RenderMesh> IndirectScene::getMeshHandle(std::shared_ptr<Mesh> mesh)
@@ -568,8 +537,8 @@ namespace Lotus {
       const std::vector<Vertex>& vertices = mesh->getVertices();
       const std::vector<unsigned int>& indices = mesh->getIndices();
 
-      uint32_t verticesBufferLocation = GPUVertexBuffer.add(vertices.data(), vertices.size()); 
-      uint32_t indicesBufferLocation = GPUIndexBuffer.add(indices.data(), indices.size());
+      uint32_t verticesBufferLocation = vertexBuffer.add(vertices.data(), vertices.size()); 
+      uint32_t indicesBufferLocation = indexBuffer.add(indices.data(), indices.size());
 
       RenderMesh renderMesh;
       renderMesh.firstIndex = indicesBufferLocation;
@@ -601,7 +570,7 @@ namespace Lotus {
 
       GPUMaterialData GPUMaterial = material->getMaterialData();
       
-      uint32_t materialID = GPUMaterialBuffer.add(&GPUMaterial);
+      uint32_t materialID = materialBuffer.add(&GPUMaterial);
 
       RenderMaterial renderMaterial;
       renderMaterial.ID = materialID;

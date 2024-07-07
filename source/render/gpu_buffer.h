@@ -152,6 +152,16 @@ namespace Lotus
       link();
     }
 
+    void resize(size_t size)
+    {
+      filledSize = size;
+
+      if (allocatedSize < filledSize)
+      {
+        reallocate(filledSize);
+      }
+    };
+
     void write(const T* source, uint32_t first, size_t size)
     {
       glBindBuffer(bufferType, ID);
@@ -163,11 +173,6 @@ namespace Lotus
     {
       if constexpr(CPUMapEnabled)
       {
-        if (allocatedSize < filledSize)
-        {
-          reallocate(filledSize);
-        }
-
         return CPUBuffer;
       }
       else

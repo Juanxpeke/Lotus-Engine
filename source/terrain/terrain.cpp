@@ -73,14 +73,8 @@ namespace Lotus
 
     updateHeightmapTextures();
 
-    ProceduralData proceduralData;
+    fillProceduralBuffer();
 
-    proceduralData.dataPerChunkSide = static_cast<int>(dataGenerator->getDataPerChunkSide());
-    proceduralData.chunksPerSide = static_cast<int>(dataGenerator->getChunksPerSide());
-    proceduralData.dataOrigin = glm::ivec2(dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
-    proceduralData.chunksOrigin = glm::ivec2(dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
-
-    proceduralBuffer.write(&proceduralData);
     proceduralBuffer.bind();
 
     // Draw cross
@@ -194,6 +188,18 @@ namespace Lotus
     }
     
     glBindVertexArray(0);
+  }
+
+  void Terrain::fillProceduralBuffer()
+  {
+    ProceduralData proceduralData;
+
+    proceduralData.dataPerChunkSide = static_cast<int>(dataGenerator->getDataPerChunkSide());
+    proceduralData.chunksPerSide = static_cast<int>(dataGenerator->getChunksPerSide());
+    proceduralData.dataOrigin = glm::ivec2(dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
+    proceduralData.chunksOrigin = glm::ivec2(dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
+
+    proceduralBuffer.write(&proceduralData);
   }
 
   void Terrain::updateHeightmapTextures(bool forced)

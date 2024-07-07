@@ -39,7 +39,7 @@ namespace Lotus
 
     std::shared_ptr<Material> createMaterial(MaterialType type);
 
-    void render(const Camera& camera);
+    void render();
 
     // Update Functions
     void update();
@@ -58,8 +58,6 @@ namespace Lotus
     void refreshObjectBuffer();
     void refreshObjectHandleBuffer();
     void refreshMaterialBuffer();
-
-    void refreshInstancesBuffer(); // TODO
 
   private:
 
@@ -98,16 +96,13 @@ namespace Lotus
     // Buffers
     uint32_t vertexArrayID;
 
-    VertexBuffer GPUVertexBuffer;
-    IndexBuffer GPUIndexBuffer;
+    VertexBuffer vertexBuffer;
+    IndexBuffer indexBuffer;
 
-    DrawIndirectBuffer GPUIndirectBuffer;
-    ShaderStorageBuffer<GPUObjectData> GPUObjectBuffer;
-    ShaderStorageBuffer<uint32_t> GPUObjectHandleBuffer;
-    ShaderStorageBuffer<GPUMaterialData> GPUMaterialBuffer;
+    DrawIndirectBuffer indirectBuffer;
 
-    // TODO
-    GPUInstance* CPU_GPUInstanceBuffer;
-    size_t CPU_GPUInstanceBufferSize;
+    ShaderStorageBuffer<GPUObjectData> objectBuffer;
+    ShaderStorageBuffer<uint32_t> objectHandleBuffer;
+    ShaderStorageBuffer<GPUMaterialData> materialBuffer;
   };
 }

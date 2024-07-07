@@ -6,6 +6,7 @@
 #include "../scene/camera.h"
 #include "../lighting/light_manager.h"
 #include "../terrain/terrain.h"
+#include "gpu_buffer.h"
 #include "indirect/indirect_scene.h"
 
 namespace Lotus
@@ -24,9 +25,14 @@ namespace Lotus
     void render(const Camera& camera);
 
   private:
-    void renderLights(const Camera& camera);
-    void renderTraditionalScene(const Camera& camera);
-    void renderIndirectScene(const Camera& camera);
+
+    // Buffer filling
+    void fillCameraBuffer(const Camera& camera);    
+    void fillLightsBuffer();
+
+    // Rendering
+    void renderTraditionalObjects();
+    void renderIndirectObjects();
     void renderTerrain(const Camera& camera);
 
     struct DirectionalLightData
@@ -73,8 +79,8 @@ namespace Lotus
       float padding04;
     };
     
-    unsigned int lightsDataBufferID = 0;
-    unsigned int cameraDataBufferID = 0;
+    UniformBuffer<LightsData> lightsBuffer;
+    UniformBuffer<CameraData> cameraBuffer;
 
     std::shared_ptr<LightManager> lightManager;
     std::shared_ptr<IndirectScene> indirectScene;

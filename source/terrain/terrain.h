@@ -34,9 +34,14 @@ namespace Lotus
 
     void setDataGenerator(const std::shared_ptr<ProceduralDataGenerator>& dataGenerator);
 
-  private:
-    
     void render(const Camera& camera);
+
+  private:
+
+    // Buffers
+    void fillProceduralBuffer();
+    
+    // Textures
     void updateHeightmapTextures(bool forced = false);
 
     uint32_t levels;
