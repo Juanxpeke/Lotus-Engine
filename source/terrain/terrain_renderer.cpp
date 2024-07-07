@@ -1,4 +1,4 @@
-#include "terrain.h"
+#include "terrain_renderer.h"
 
 #include <cmath>
 #include <glm/glm.hpp>
@@ -11,7 +11,7 @@
 namespace Lotus
 {
 
-  Terrain::Terrain(const std::shared_ptr<ProceduralDataGenerator>& terrainDataGenerator, uint32_t terrainLevels, uint32_t terrainTileResolution) :
+  TerrainRenderer::TerrainRenderer(const std::shared_ptr<ProceduralDataGenerator>& terrainDataGenerator, uint32_t terrainLevels, uint32_t terrainTileResolution) :
     levels(terrainLevels),
     tileResolution(terrainTileResolution),
     dataGenerator(terrainDataGenerator)
@@ -53,13 +53,13 @@ namespace Lotus
     debugColors[4] = glm::vec3(1.0, 0.0, 0.0);
   }
 
-  void Terrain::setDataGenerator(const std::shared_ptr<ProceduralDataGenerator>& terrainDataGenerator)
+  void TerrainRenderer::setDataGenerator(const std::shared_ptr<ProceduralDataGenerator>& terrainDataGenerator)
   {
     dataGenerator = terrainDataGenerator;
     updateHeightmapTextures(true);
   }
 
-  void Terrain::render(const Camera& camera)
+  void TerrainRenderer::render(const Camera& camera)
   {
     glm::vec3 cameraPosition = camera.getLocalTranslation();
 
@@ -190,7 +190,7 @@ namespace Lotus
     glBindVertexArray(0);
   }
 
-  void Terrain::fillProceduralBuffer()
+  void TerrainRenderer::fillProceduralBuffer()
   {
     ProceduralData proceduralData;
 
@@ -202,7 +202,7 @@ namespace Lotus
     proceduralBuffer.write(&proceduralData);
   }
 
-  void Terrain::updateHeightmapTextures(bool forced)
+  void TerrainRenderer::updateHeightmapTextures(bool forced)
   {
     if (dataGenerator->updatedSincePreviousFrame(ProceduralUpdateRegion::Everything) || forced)
     {

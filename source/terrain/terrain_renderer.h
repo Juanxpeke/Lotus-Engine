@@ -15,7 +15,7 @@
 
 namespace Lotus
 {
-  class Terrain
+  class TerrainRenderer
   {
   friend class RenderingServer;
 
@@ -30,7 +30,7 @@ namespace Lotus
     
     static constexpr unsigned int HeightmapTextureUnit = 0;
 
-    Terrain(const std::shared_ptr<ProceduralDataGenerator>& dataGenerator, uint32_t levels = 7, uint32_t tileResolution = 128);
+    TerrainRenderer(const std::shared_ptr<ProceduralDataGenerator>& dataGenerator, uint32_t levels = 7, uint32_t tileResolution = 128);
 
     void setDataGenerator(const std::shared_ptr<ProceduralDataGenerator>& dataGenerator);
 

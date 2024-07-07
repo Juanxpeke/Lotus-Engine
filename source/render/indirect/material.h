@@ -18,7 +18,7 @@ namespace Lotus
 
   class Material
   {
-  friend class IndirectScene;
+  friend class IndirectObjectRenderer;
   friend class Renderer;
 
   public:

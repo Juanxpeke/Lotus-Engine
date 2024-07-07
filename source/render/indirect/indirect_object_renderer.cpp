@@ -1,4 +1,4 @@
-#include "indirect_scene.h"
+#include "indirect_object_renderer.h"
 
 #include <algorithm>
 #include <glad/glad.h>
@@ -10,7 +10,7 @@
 
 namespace Lotus {
 
-  IndirectScene::IndirectScene() : vertexArrayID(0)
+  IndirectObjectRenderer::IndirectObjectRenderer() : vertexArrayID(0)
   {
     shaders[static_cast<unsigned int>(MaterialType::UnlitFlat)] = ShaderProgram(shaderPath("indirect/unlit_flat.vert"), shaderPath("indirect/unlit_flat.frag"));
     shaders[static_cast<unsigned int>(MaterialType::DiffuseFlat)] = ShaderProgram(shaderPath("indirect/diffuse_flat.vert"), shaderPath("indirect/diffuse_flat.frag"));
@@ -35,7 +35,7 @@ namespace Lotus {
     materialBuffer.setBindingPoint(MaterialBufferBindingPoint);
   }
 
-  IndirectScene::~IndirectScene()
+  IndirectObjectRenderer::~IndirectObjectRenderer()
   {
     if (vertexArrayID)
     {
@@ -45,7 +45,7 @@ namespace Lotus {
     }
   }
 
-  std::shared_ptr<MeshInstance> IndirectScene::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
+  std::shared_ptr<MeshInstance> IndirectObjectRenderer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
   {
     std::shared_ptr<MeshInstance> meshInstance = std::make_shared<MeshInstance>(mesh, material);
     meshInstances.push_back(meshInstance);
@@ -77,13 +77,13 @@ namespace Lotus {
     return meshInstance;
   }
 
-  void IndirectScene::deleteObject(std::shared_ptr<MeshInstance> meshInstance)
+  void IndirectObjectRenderer::deleteObject(std::shared_ptr<MeshInstance> meshInstance)
   {
     meshInstances[0] = std::move(meshInstances.back());
     meshInstances.pop_back();
   }
 
-  std::shared_ptr<Material> IndirectScene::createMaterial(MaterialType type)
+  std::shared_ptr<Material> IndirectObjectRenderer::createMaterial(MaterialType type)
   {
     unsigned int offset = static_cast<unsigned int>(type);
 
@@ -107,7 +107,7 @@ namespace Lotus {
     }
   }
 
-  void IndirectScene::render()
+  void IndirectObjectRenderer::render()
   {
     update();
 
@@ -142,13 +142,13 @@ namespace Lotus {
     indirectBuffer.unbind();
   }
 
-  void IndirectScene::update()
+  void IndirectObjectRenderer::update()
   {
     updateObjects();
     updateMaterials();
   }
 
-  void IndirectScene::updateObjects()
+  void IndirectObjectRenderer::updateObjects()
   {
     for (int i = 0; i < meshInstances.size(); i++)
     {
@@ -197,7 +197,7 @@ namespace Lotus {
     }
   }
 
-  void IndirectScene::updateMaterials()
+  void IndirectObjectRenderer::updateMaterials()
   {
     for (int i = 0; i < materials.size(); i++)
     {
@@ -215,7 +215,7 @@ namespace Lotus {
     }
   }
 
-  void IndirectScene::buildBatches()
+  void IndirectObjectRenderer::buildBatches()
   {
     // Render merge
     buildObjectBatches();
@@ -227,7 +227,7 @@ namespace Lotus {
     buildShaderBatches();
   }
 
-  void IndirectScene::buildObjectBatches()
+  void IndirectObjectRenderer::buildObjectBatches()
   {
     if (!toUnbatchObjects.empty())
     {
@@ -345,7 +345,7 @@ namespace Lotus {
     }
   }
 
-  void IndirectScene::buildDrawBatches()
+  void IndirectObjectRenderer::buildDrawBatches()
   {
     drawBatches.clear();
     
@@ -386,7 +386,7 @@ namespace Lotus {
 
   }
 
-  void IndirectScene::buildShaderBatches()
+  void IndirectObjectRenderer::buildShaderBatches()
   {
     shaderBatches.clear();
 
@@ -424,7 +424,7 @@ namespace Lotus {
 
   }
 
-  void IndirectScene::refreshBuffers()
+  void IndirectObjectRenderer::refreshBuffers()
   {
     refreshIndirectBuffer();
     refreshObjectBuffer();
@@ -432,7 +432,7 @@ namespace Lotus {
     refreshMaterialBuffer();
   }
 
-  void IndirectScene::refreshIndirectBuffer()
+  void IndirectObjectRenderer::refreshIndirectBuffer()
   {
     if (!drawBatches.empty())
     {
@@ -457,7 +457,7 @@ namespace Lotus {
     }
   }
 
-  void IndirectScene::refreshObjectBuffer()
+  void IndirectObjectRenderer::refreshObjectBuffer()
   {
     if (dirtyObjectsHandles.empty())
     {
@@ -479,7 +479,7 @@ namespace Lotus {
     dirtyObjectsHandles.clear();
   }
 
-  void IndirectScene::refreshObjectHandleBuffer()
+  void IndirectObjectRenderer::refreshObjectHandleBuffer()
   {
     if (drawBatches.empty())
     {
@@ -503,7 +503,7 @@ namespace Lotus {
     objectHandleBuffer.unmap();
   }
   
-  void IndirectScene::refreshMaterialBuffer()
+  void IndirectObjectRenderer::refreshMaterialBuffer()
   {
     if (dirtyMaterialsHandles.empty())
     {
@@ -526,7 +526,7 @@ namespace Lotus {
     dirtyMaterialsHandles.clear();
   }
 
-  Handle<RenderMesh> IndirectScene::getMeshHandle(std::shared_ptr<Mesh> mesh)
+  Handle<RenderMesh> IndirectObjectRenderer::getMeshHandle(std::shared_ptr<Mesh> mesh)
   {
     Handle<RenderMesh> handle;
 
@@ -558,7 +558,7 @@ namespace Lotus {
     return handle;
   }
 
-  Handle<RenderMaterial> IndirectScene::getMaterialHandle(std::shared_ptr<Material> material)
+  Handle<RenderMaterial> IndirectObjectRenderer::getMaterialHandle(std::shared_ptr<Material> material)
   {
     Handle<RenderMaterial> handle;
 

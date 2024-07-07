@@ -9,7 +9,7 @@ namespace Lotus
 {
   class MeshInstance : public Node3D
   {
-  friend class IndirectScene;
+  friend class IndirectObjectRenderer;
   friend class Renderer;
 
   public:

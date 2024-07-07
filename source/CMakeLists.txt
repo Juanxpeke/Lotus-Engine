@@ -21,7 +21,7 @@ set(LIGHTING_HEADERS
 set(TERRAIN_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/procedural_data_generator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/geoclipmap.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/terrain.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/terrain_renderer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/object_placer.h)
 
 set(RENDER_HEADERS
@@ -36,7 +36,7 @@ set(RENDER_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/diffuse_flat_material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh_instance.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_scene.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_object_renderer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/diffuse_flat_material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/diffuse_textured_material.h
@@ -53,7 +53,7 @@ set(LIGHTING_SOURCES
 set(TERRAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/procedural_data_generator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/geoclipmap.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/terrain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/terrain/terrain_renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/object_placer.cpp)
 
 set(RENDER_SOURCES
@@ -65,7 +65,7 @@ set(RENDER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/renderer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_scene.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_object_renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/material.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/mesh_instance.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/texture.cpp

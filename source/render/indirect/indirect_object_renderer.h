@@ -22,7 +22,7 @@
 
 namespace Lotus
 {
-  class IndirectScene
+  class IndirectObjectRenderer
   {
   public:
     static constexpr unsigned int VertexBufferInitialAllocationSize = 1 << 16; 
@@ -31,8 +31,8 @@ namespace Lotus
     static constexpr unsigned int ObjectBufferInitialAllocationSize = 1 << 10;
     static constexpr unsigned int MaterialBufferInitialAllocationSize = 1 << 8;
 
-    IndirectScene();
-    ~IndirectScene();
+    IndirectObjectRenderer();
+    ~IndirectObjectRenderer();
 
     std::shared_ptr<MeshInstance> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
     void deleteObject(std::shared_ptr<MeshInstance> meshInstance);

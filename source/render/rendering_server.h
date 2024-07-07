@@ -5,9 +5,9 @@
 #include "../scene/transform.h"
 #include "../scene/camera.h"
 #include "../lighting/light_manager.h"
-#include "../terrain/terrain.h"
+#include "../terrain/terrain_renderer.h"
 #include "gpu_buffer.h"
-#include "indirect/indirect_scene.h"
+#include "indirect/indirect_object_renderer.h"
 
 namespace Lotus
 {
@@ -17,8 +17,8 @@ namespace Lotus
   public:
     RenderingServer(
         const std::shared_ptr<LightManager>& renderingLightManager,
-        const std::shared_ptr<IndirectScene>& renderingIndirectScene,
-        const std::shared_ptr<Terrain>& renderingTerrain);
+        const std::shared_ptr<IndirectObjectRenderer>& renderingIndirectScene,
+        const std::shared_ptr<TerrainRenderer>& renderingTerrain);
 
     void startUp();
   
@@ -83,8 +83,8 @@ namespace Lotus
     UniformBuffer<CameraData> cameraBuffer;
 
     std::shared_ptr<LightManager> lightManager;
-    std::shared_ptr<IndirectScene> indirectScene;
-    std::shared_ptr<Terrain> terrain;
+    std::shared_ptr<IndirectObjectRenderer> indirectScene;
+    std::shared_ptr<TerrainRenderer> terrain;
   };
 
 }

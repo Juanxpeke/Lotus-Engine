@@ -9,7 +9,7 @@ namespace Lotus
 {
   ObjectPlacer::ObjectPlacer(
       const std::shared_ptr<ProceduralDataGenerator>& placerHeightsGenerator,
-      const std::shared_ptr<IndirectScene>& indirectScene,
+      const std::shared_ptr<IndirectObjectRenderer>& indirectScene,
       float placerRadius,
       uint8_t placerSamplesBeforeRejection,
       uint32_t seed) :

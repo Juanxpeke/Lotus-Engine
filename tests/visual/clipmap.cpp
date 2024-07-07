@@ -7,7 +7,7 @@
 
 #include "util/path_manager.h"
 #include "scene/camera.h"
-#include "terrain/terrain.h"
+#include "terrain/terrain_renderer.h"
 
 int width = 720;
 int height = 720;
@@ -86,7 +86,7 @@ int main()
   Lotus::PerlinNoiseConfig p;
 
   std::shared_ptr<Lotus::ProceduralDataGenerator> dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(256, 8, p);
-  Lotus::Terrain clipmap(dataGenerator);
+  Lotus::TerrainRenderer clipmap(dataGenerator);
 	
 	double lastTime = glfwGetTime();
 

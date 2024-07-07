@@ -8,9 +8,9 @@
 #include "util/path_manager.h"
 #include "scene/camera.h"
 #include "lighting/light_manager.h"
-#include "terrain/terrain.h"
+#include "terrain/terrain_renderer.h"
 #include "terrain/object_placer.h"
-#include "render/indirect/indirect_scene.h"
+#include "render/indirect/indirect_object_renderer.h"
 #include "render/rendering_server.h"
 
 #include "render/indirect/mesh_manager.h"
@@ -93,8 +93,8 @@ int main()
   std::shared_ptr<Lotus::ProceduralDataGenerator> dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(512, 6, perlinConfiguration);
   
   std::shared_ptr<Lotus::LightManager> lightManager  = std::make_shared<Lotus::LightManager>();
-  std::shared_ptr<Lotus::IndirectScene> indirectScene = std::make_shared<Lotus::IndirectScene>();
-  std::shared_ptr<Lotus::Terrain> clipmap = std::make_shared<Lotus::Terrain>(dataGenerator);
+  std::shared_ptr<Lotus::IndirectObjectRenderer> indirectScene = std::make_shared<Lotus::IndirectObjectRenderer>();
+  std::shared_ptr<Lotus::TerrainRenderer> clipmap = std::make_shared<Lotus::TerrainRenderer>(dataGenerator);
 
   Lotus::RenderingServer renderingServer(lightManager, indirectScene, clipmap);
 

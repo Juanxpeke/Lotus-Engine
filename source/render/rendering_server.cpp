@@ -9,8 +9,8 @@ namespace Lotus
 
   RenderingServer::RenderingServer(
       const std::shared_ptr<LightManager>& renderingLightManager,
-      const std::shared_ptr<IndirectScene>& renderingIndirectScene,
-      const std::shared_ptr<Terrain>& renderingTerrain) :
+      const std::shared_ptr<IndirectObjectRenderer>& renderingIndirectScene,
+      const std::shared_ptr<TerrainRenderer>& renderingTerrain) :
     lightManager(renderingLightManager),
     indirectScene(renderingIndirectScene),
     terrain(renderingTerrain)
