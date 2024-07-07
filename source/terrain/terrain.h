@@ -5,6 +5,7 @@
 #include <vector>
 #include "../math/primitives.h"
 #include "../scene/camera.h"
+#include "../render/gpu_buffer.h"
 #include "../render/gpu_mesh.h"
 #include "../render/gpu_texture.h"
 #include "../render/texture_loader.h"
@@ -19,8 +20,6 @@ namespace Lotus
   friend class RenderingServer;
 
   public:
-    static constexpr unsigned int ProceduralBufferBinding = 2;
-
     static constexpr unsigned int ModelBinding = 0;
 
     static constexpr unsigned int LevelScaleBinding = 7;
@@ -57,7 +56,7 @@ namespace Lotus
       glm::ivec2 chunksOrigin;
     };
 
-    unsigned int proceduralBufferID = 0;
+    UniformBuffer<ProceduralData> proceduralBuffer;
     
     glm::mat4 rotationModels[4];
     glm::vec3 debugColors[5];

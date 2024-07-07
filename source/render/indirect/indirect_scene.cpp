@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "../../util/path_manager.h"
+#include "../identifiers.h"
 
 namespace Lotus {
 

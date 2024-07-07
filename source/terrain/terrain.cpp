@@ -5,6 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 #include "../util/log.h"
+#include "../render/identifiers.h"
 #include "geoclipmap.h"
 
 namespace Lotus
@@ -37,11 +38,8 @@ namespace Lotus
 
     clipmapProgram = ShaderProgram(shaderPath("terrain/clipmap.vert"), shaderPath("terrain/clipmap.frag"));
 
-    glGenBuffers(1, &proceduralBufferID);
-    glBindBuffer(GL_UNIFORM_BUFFER, proceduralBufferID);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(ProceduralData), nullptr, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    glBindBufferBase(GL_UNIFORM_BUFFER, ProceduralBufferBinding, proceduralBufferID);
+    proceduralBuffer.allocate();
+    proceduralBuffer.setBindingPoint(ProceduralBufferBindingPoint);
 
     rotationModels[0] = glm::mat4(1.0f);
     rotationModels[1] = glm::rotate(glm::mat4(1.0f), glm::radians( 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -82,10 +80,9 @@ namespace Lotus
     proceduralData.dataOrigin = glm::ivec2(dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
     proceduralData.chunksOrigin = glm::ivec2(dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
 
-    glBindBuffer(GL_UNIFORM_BUFFER, proceduralBufferID);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ProceduralData), &proceduralData);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    
+    proceduralBuffer.write(&proceduralData);
+    proceduralBuffer.bind();
+
     // Draw cross
     {
       float scale = 1.0;

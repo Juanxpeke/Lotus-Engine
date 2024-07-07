@@ -25,10 +25,6 @@ namespace Lotus
   class IndirectScene
   {
   public:
-    static constexpr unsigned int ObjectBufferBindingPoint = 0;
-    static constexpr unsigned int ObjectHandleBufferBindingPoint = 1;
-    static constexpr unsigned int MaterialBufferBindingPoint = 2;
-
     static constexpr unsigned int VertexBufferInitialAllocationSize = 1 << 16; 
     static constexpr unsigned int IndexBufferInitialAllocationSize = 1 << 16;
     static constexpr unsigned int IndirectBufferInitialAllocationSize = 1 << 10;

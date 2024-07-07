@@ -5,8 +5,8 @@
 #include "../scene/transform.h"
 #include "../scene/camera.h"
 #include "../lighting/light_manager.h"
-#include "../render/indirect/indirect_scene.h"
 #include "../terrain/terrain.h"
+#include "indirect/indirect_scene.h"
 
 namespace Lotus
 {
@@ -24,9 +24,6 @@ namespace Lotus
     void render(const Camera& camera);
 
   private:
-    static constexpr unsigned int CameraBufferBindingPoint = 0;
-    static constexpr unsigned int LightsBufferBindingPoint = 1;
-
     void renderLights(const Camera& camera);
     void renderTraditionalScene(const Camera& camera);
     void renderIndirectScene(const Camera& camera);

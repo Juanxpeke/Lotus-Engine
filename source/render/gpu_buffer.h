@@ -199,7 +199,7 @@ namespace Lotus
   };
 
   template <typename T, bool CPUMapEnabled = true>
-  struct UniformGPUBuffer : GPUBuffer<T, CPUMapEnabled>
+  struct SingleElementGPUBuffer : GPUBuffer<T, CPUMapEnabled>
   {
     uint32_t add(const T* source)
     {
@@ -248,7 +248,7 @@ namespace Lotus
   };
 
   template <typename T>
-  struct NonUniformGPUBuffer : GPUBuffer<T, false>
+  struct MultiElementGPUBuffer : GPUBuffer<T, false>
   {
     uint32_t add(const T* source, size_t size = 1)
     {
@@ -319,7 +319,7 @@ namespace Lotus
   /*
     Buffer for meshes vertices
   */
-  struct VertexBuffer : public NonUniformGPUBuffer<Vertex>
+  struct VertexBuffer : public MultiElementGPUBuffer<Vertex>
   {
     VertexBuffer() : vertexArray(0)
     {
@@ -358,7 +358,7 @@ namespace Lotus
   /*
     Buffer for meshes indices
   */
-  struct IndexBuffer : public NonUniformGPUBuffer<unsigned int>
+  struct IndexBuffer : public MultiElementGPUBuffer<unsigned int>
   {
     IndexBuffer() : vertexArray(0)
     {
@@ -385,7 +385,7 @@ namespace Lotus
   /*
     Buffer for draw commands
   */
-  struct DrawIndirectBuffer : public UniformGPUBuffer<DrawElementsIndirectCommand, true>
+  struct DrawIndirectBuffer : public SingleElementGPUBuffer<DrawElementsIndirectCommand, true>
   {
     DrawIndirectBuffer()
     {
@@ -394,10 +394,10 @@ namespace Lotus
   };
 
   /*
-    Buffer for generic uniform storage
+    Buffer for generic single-element storage
   */
   template <typename T>
-  struct ShaderStorageBuffer : public UniformGPUBuffer<T, true>
+  struct ShaderStorageBuffer : public SingleElementGPUBuffer<T, true>
   {
     ShaderStorageBuffer() : bindingPoint(0)
     {
@@ -423,4 +423,69 @@ namespace Lotus
     uint32_t bindingPoint;
   };
 
+  /*
+    Buffer for generic uniform storage
+  */
+  template <typename T>
+  struct UniformBuffer
+  {
+    UniformBuffer() : ID(0), allocated(false), bindingPoint(0)
+    {
+      glGenBuffers(1, &ID);
+    }
+
+    UniformBuffer(const UniformBuffer& other) = delete;
+
+    ~UniformBuffer()
+    {
+      glDeleteBuffers(1, &ID);
+    }
+
+    UniformBuffer& operator=(const UniformBuffer& other) = delete;
+
+    void setBindingPoint(uint32_t newBindingPoint)
+    {
+      glBindBufferBase(GL_UNIFORM_BUFFER, newBindingPoint, ID);
+      bindingPoint = newBindingPoint;
+    }
+
+    void bind()
+    {
+      glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, ID);
+    }
+
+    void unbind()
+    {
+      glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, 0);
+    }
+
+    void allocate()
+    {
+      if (allocated)
+      {
+        LOTUS_LOG_WARN("[Buffer Warning] Tried to allocate already allocated buffer with ID {0}", ID);
+        return;
+      }
+
+      glBindBuffer(GL_UNIFORM_BUFFER, ID);
+      glBufferData(GL_UNIFORM_BUFFER, sizeof(T), nullptr, GL_DYNAMIC_DRAW);
+      glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+      allocated = true;
+
+      LOTUS_LOG_INFO("[Buffer Log] Allocated buffer with ID {0}", ID);
+    }
+
+    void write(const T* source)
+    {
+      glBindBuffer(GL_UNIFORM_BUFFER, ID);
+      glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(T), source);
+      glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+
+    uint32_t ID;
+    bool allocated;
+
+    uint32_t bindingPoint;
+  };
 }
