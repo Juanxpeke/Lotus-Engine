@@ -11,6 +11,7 @@
 #include "../render/texture_loader.h"
 #include "../render/shader.h"
 #include "../util/path_manager.h"
+#include "terrain.h"
 #include "procedural_data_generator.h"
 
 namespace Lotus
@@ -30,9 +31,9 @@ namespace Lotus
     
     static constexpr unsigned int HeightmapTextureUnit = 0;
 
-    TerrainRenderer(const std::shared_ptr<ProceduralDataGenerator>& dataGenerator, uint32_t levels = 7, uint32_t tileResolution = 128);
+    TerrainRenderer(uint32_t levels = 7, uint32_t tileResolution = 128);
 
-    void setDataGenerator(const std::shared_ptr<ProceduralDataGenerator>& dataGenerator);
+    void setTerrain(Terrain* terrain);
 
     void render(const Camera& camera);
 
@@ -46,7 +47,6 @@ namespace Lotus
 
     uint32_t levels;
     uint32_t tileResolution;
-    std::shared_ptr<ProceduralDataGenerator> dataGenerator;
 
     ShaderProgram clipmapProgram;
 
@@ -65,5 +65,8 @@ namespace Lotus
     
     glm::mat4 rotationModels[4];
     glm::vec3 debugColors[5];
+
+    // Terrain
+    Terrain* terrain;
   };
 }

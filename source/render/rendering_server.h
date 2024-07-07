@@ -15,25 +15,31 @@ namespace Lotus
   class RenderingServer
   {
   public:
-    RenderingServer(
-        const std::shared_ptr<LightManager>& renderingLightManager,
-        const std::shared_ptr<IndirectObjectRenderer>& renderingIndirectScene,
-        const std::shared_ptr<TerrainRenderer>& renderingTerrain);
+    RenderingServer();
 
     void startUp();
   
     void render(const Camera& camera);
 
+    // Lighting
+    void setAmbientLight(const glm::vec3& light);
+    std::shared_ptr<DirectionalLight> createDirectionalLight();
+    std::shared_ptr<PointLight> createPointLight();
+
+    // Traditional Objects
+
+    // Indirect Objects
+    std::shared_ptr<MeshInstance> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+    std::shared_ptr<Material> createMaterial(MaterialType type);
+
+    // Terrain
+    void setTerrain(Terrain* terrain);
+
   private:
 
-    // Buffer filling
+    // Buffers
     void fillCameraBuffer(const Camera& camera);    
     void fillLightsBuffer();
-
-    // Rendering
-    void renderTraditionalObjects();
-    void renderIndirectObjects();
-    void renderTerrain(const Camera& camera);
 
     struct DirectionalLightData
     {
@@ -49,16 +55,6 @@ namespace Lotus
       float padding04;
       glm::vec3 position;
       float radius;
-    };
-
-    struct SpotLightData
-    {
-      glm::vec3 colorIntensity;
-      float radius;
-      glm::vec3 position;
-      float cosPenumbraAngle;
-      glm::vec3 direction;
-      float cosUmbraAngle;
     };
 
     struct LightsData
@@ -82,9 +78,9 @@ namespace Lotus
     UniformBuffer<LightsData> lightsBuffer;
     UniformBuffer<CameraData> cameraBuffer;
 
-    std::shared_ptr<LightManager> lightManager;
-    std::shared_ptr<IndirectObjectRenderer> indirectScene;
-    std::shared_ptr<TerrainRenderer> terrain;
+    LightManager lightManager;
+    IndirectObjectRenderer indirectObjectRenderer;
+    TerrainRenderer terrainRenderer;
   };
 
 }

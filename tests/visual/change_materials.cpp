@@ -7,8 +7,12 @@
 
 #include "util/path_manager.h"
 #include "scene/camera.h"
-#include "render/indirect/renderer.h"
+#include "terrain/terrain.h"
+#include "terrain/object_placer.h"
+#include "render/rendering_server.h"
+
 #include "render/indirect/mesh_manager.h"
+
 #include "../test_util.h"
 
 int width = 720;
@@ -87,27 +91,27 @@ void updateFromInputs(GLFWwindow* window, float dt, Lotus::Camera* cameraPtr)
   }
 }
 
-void createDirectionalLight(Lotus::Renderer& renderer)
+void createDirectionalLight(Lotus::RenderingServer& renderingServer)
 {
-  std::shared_ptr<Lotus::DirectionalLight> directionalLight = renderer.createDirectionalLight();
+  std::shared_ptr<Lotus::DirectionalLight> directionalLight = renderingServer.createDirectionalLight();
 
   directionalLight->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::pi<float>() * 0.5f);
   directionalLight->rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::pi<float>() * 0.25f);
   directionalLight->setLightColor(glm::vec3(0.1f, 0.04f, 0.0f));
 }
 
-std::shared_ptr<Lotus::Material> createFlatMaterial(Lotus::Renderer& renderer, glm::vec3 color)
+std::shared_ptr<Lotus::Material> createFlatMaterial(Lotus::RenderingServer& renderingServer, glm::vec3 color)
 {
-  std::shared_ptr<Lotus::DiffuseFlatMaterial> flatMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderer.createMaterial(Lotus::MaterialType::DiffuseFlat));
+  std::shared_ptr<Lotus::DiffuseFlatMaterial> flatMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
 
   flatMaterial->setDiffuseColor(color);
 
   return flatMaterial;
 }
 
-std::shared_ptr<Lotus::MeshInstance> createNewObject(Lotus::Renderer& renderer, std::shared_ptr<Lotus::Material> material)
+std::shared_ptr<Lotus::MeshInstance> createNewObject(Lotus::RenderingServer& renderingServer, std::shared_ptr<Lotus::Material> material)
 {
-	std::shared_ptr<Lotus::MeshInstance> object = renderer.createMeshInstance(sphereMesh, material);
+	std::shared_ptr<Lotus::MeshInstance> object = renderingServer.createObject(sphereMesh, material);
 
 	object->translate(newObjectPosition);
 
@@ -141,25 +145,25 @@ int main()
 
 	Lotus::Camera camera;
 
-	Lotus::Renderer renderer;
-	renderer.startUp();
+	Lotus::RenderingServer renderingServer;
+	renderingServer.startUp();
 
-	renderer.setAmbientLight(glm::vec3(0.5, 0.5, 0.5));
-	createDirectionalLight(renderer);
+	renderingServer.setAmbientLight(glm::vec3(0.5, 0.5, 0.5));
+	createDirectionalLight(renderingServer);
 
   sphereMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
 
-  std::shared_ptr<Lotus::Material> redFlatMaterial = createFlatMaterial(renderer, glm::vec3(1.0, 0.0, 0.0));
-  std::shared_ptr<Lotus::Material> greenFlatMaterial = createFlatMaterial(renderer, glm::vec3(0.0, 1.0, 0.0));
-  std::shared_ptr<Lotus::Material> blueFlatMaterial = createFlatMaterial(renderer, glm::vec3(0.0, 0.0, 1.0));
+  std::shared_ptr<Lotus::Material> redFlatMaterial = createFlatMaterial(renderingServer, glm::vec3(1.0, 0.0, 0.0));
+  std::shared_ptr<Lotus::Material> greenFlatMaterial = createFlatMaterial(renderingServer, glm::vec3(0.0, 1.0, 0.0));
+  std::shared_ptr<Lotus::Material> blueFlatMaterial = createFlatMaterial(renderingServer, glm::vec3(0.0, 0.0, 1.0));
 
 	materials.push_back(redFlatMaterial);
   materials.push_back(greenFlatMaterial);
   materials.push_back(blueFlatMaterial);
 
-	objects.push_back(createNewObject(renderer, redFlatMaterial));
-	objects.push_back(createNewObject(renderer, greenFlatMaterial));
-	objects.push_back(createNewObject(renderer, blueFlatMaterial));
+	objects.push_back(createNewObject(renderingServer, redFlatMaterial));
+	objects.push_back(createNewObject(renderingServer, greenFlatMaterial));
+	objects.push_back(createNewObject(renderingServer, blueFlatMaterial));
 
   materialIndices.push_back(0);
   materialIndices.push_back(1);
@@ -186,7 +190,7 @@ int main()
     updateFromInputs(window, dt, &camera);
     eventTimeline.update(dt);
 
-		renderer.render(camera);
+		renderingServer.render(camera);
 
     glfwSwapBuffers(window);
 	}

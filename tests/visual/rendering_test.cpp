@@ -7,10 +7,8 @@
 
 #include "util/path_manager.h"
 #include "scene/camera.h"
-#include "lighting/light_manager.h"
-#include "terrain/terrain_renderer.h"
+#include "terrain/terrain.h"
 #include "terrain/object_placer.h"
-#include "render/indirect/indirect_object_renderer.h"
 #include "render/rendering_server.h"
 
 #include "render/indirect/mesh_manager.h"
@@ -72,11 +70,11 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  sprintf(title, "Random Generation");
-	GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
+  sprintf(title, "Rendering Test");
+	GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
-	if (window == NULL) {
-		std::cout << "Failed to create GLFW window" << std::endl;
+	if (window == nullptr)
+  {
 		glfwTerminate();
 		return -1;
 	}
@@ -91,41 +89,41 @@ int main()
   
   Lotus::PerlinNoiseConfig perlinConfiguration;
   std::shared_ptr<Lotus::ProceduralDataGenerator> dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(512, 6, perlinConfiguration);
-  
-  std::shared_ptr<Lotus::LightManager> lightManager  = std::make_shared<Lotus::LightManager>();
-  std::shared_ptr<Lotus::IndirectObjectRenderer> indirectScene = std::make_shared<Lotus::IndirectObjectRenderer>();
-  std::shared_ptr<Lotus::TerrainRenderer> clipmap = std::make_shared<Lotus::TerrainRenderer>(dataGenerator);
 
-  Lotus::RenderingServer renderingServer(lightManager, indirectScene, clipmap);
+  Lotus::RenderingServer renderingServer;
 
   Lotus::MeshManager& meshManager = Lotus::MeshManager::getInstance();
 
   std::shared_ptr<Lotus::Mesh> cubeMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
   std::shared_ptr<Lotus::Mesh> sphereMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
 
-  std::shared_ptr<Lotus::DiffuseFlatMaterial> redMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(indirectScene->createMaterial(Lotus::MaterialType::DiffuseFlat));
+  std::shared_ptr<Lotus::DiffuseFlatMaterial> redMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
+  std::shared_ptr<Lotus::DiffuseFlatMaterial> blueMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
+  
   redMaterial->setDiffuseColor({ 1.0, 0.0, 0.0 });
-  std::shared_ptr<Lotus::DiffuseFlatMaterial> blueMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(indirectScene->createMaterial(Lotus::MaterialType::DiffuseFlat));
   blueMaterial->setDiffuseColor({ 0.0, 0.0, 1.0 });
 
-  Lotus::ObjectPlacer objectPlacer(dataGenerator, indirectScene, 36.0);
+  Lotus::ObjectPlacer objectPlacer(dataGenerator, &renderingServer, 36.0);
 
   objectPlacer.addObject(cubeMesh, redMaterial, 30.0);
   objectPlacer.addObject(sphereMesh, blueMaterial, 30.0);
   objectPlacer.initialize();
 
-  lightManager->setAmbientLight({ 0.1, 0.1, 0.1 });
+  renderingServer.setAmbientLight({ 0.1, 0.1, 0.1 });
 
-  std::shared_ptr<Lotus::DirectionalLight> directionalLight = lightManager->createDirectionalLight();
+  std::shared_ptr<Lotus::DirectionalLight> directionalLight = renderingServer.createDirectionalLight();
   directionalLight->setLightColor({ 0.2, 0.1, 0.01 });
-  directionalLight->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::pi<float>() * 0.5f);
-  directionalLight->rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::pi<float>() * 0.25f);
+  directionalLight->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(90.0f));
+  directionalLight->rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(45.0f));
 
-  std::shared_ptr<Lotus::PointLight> pointLight = lightManager->createPointLight();
+  std::shared_ptr<Lotus::PointLight> pointLight = renderingServer.createPointLight();
   pointLight->translate({ 0, 75, 0 });
   pointLight->setLightColor({ 1.0, 1.0, 1.0 });
   pointLight->setLightRadius(80.0);
   pointLight->setLightIntensity(200.0);
+
+  Lotus::Terrain terrain(dataGenerator);
+  renderingServer.setTerrain(&terrain);
 
 	renderingServer.startUp();
 	

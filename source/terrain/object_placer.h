@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include "../math/randomizer.h"
 #include "../render/gpu_mesh.h"
-#include "../render/indirect/indirect_object_renderer.h"
+#include "../render/rendering_server.h"
 #include "procedural_data_generator.h"
 
 namespace Lotus
@@ -16,7 +16,7 @@ namespace Lotus
   public:
     ObjectPlacer(
         const std::shared_ptr<ProceduralDataGenerator>& dataGenerator,
-        const std::shared_ptr<IndirectObjectRenderer>& indirectScene,
+        RenderingServer* renderingServer,
         float radius,
         uint8_t samplesBeforeRejection = 30,
         uint32_t seed = 0);
@@ -45,7 +45,7 @@ namespace Lotus
 
     std::vector<ObjectPlacerItem> objectItemsPool;
 
-    std::shared_ptr<IndirectObjectRenderer> scene;
+    RenderingServer* renderingServer;
 
     bool initialized;
   };

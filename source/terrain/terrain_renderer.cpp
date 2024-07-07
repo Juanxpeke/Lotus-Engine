@@ -11,30 +11,11 @@
 namespace Lotus
 {
 
-  TerrainRenderer::TerrainRenderer(const std::shared_ptr<ProceduralDataGenerator>& terrainDataGenerator, uint32_t terrainLevels, uint32_t terrainTileResolution) :
+  TerrainRenderer::TerrainRenderer(uint32_t terrainLevels, uint32_t terrainTileResolution) :
     levels(terrainLevels),
-    tileResolution(terrainTileResolution),
-    dataGenerator(terrainDataGenerator)
+    tileResolution(terrainTileResolution)
   {
     meshes = GeoClipmap::generate(tileResolution);
-
-    Lotus::TextureConfig textureConfig;
-    textureConfig.format = Lotus::TextureFormat::RFloat;
-    textureConfig.width = dataGenerator->getDataPerChunkSide();
-    textureConfig.height = dataGenerator->getDataPerChunkSide();
-    textureConfig.depth = dataGenerator->getChunksAmount();
-
-    heightmapTextures = std::make_shared<GPUArrayTexture>(textureConfig);
-    updateHeightmapTextures(true);
-    
-    for (int x = 0; x < dataGenerator->getChunksPerSide(); x++)
-    {
-      for (int y = 0; y < dataGenerator->getChunksPerSide(); y++)
-      {
-        uint16_t layer = y * dataGenerator->getChunksPerSide() + x;
-        heightmapTextures->setLayerData(layer, dataGenerator->getChunkData(x, y));
-      }
-    }
 
     clipmapProgram = ShaderProgram(shaderPath("terrain/clipmap.vert"), shaderPath("terrain/clipmap.frag"));
 
@@ -51,21 +32,36 @@ namespace Lotus
     debugColors[2] = glm::vec3(0.0, 1.0, 0.0);
     debugColors[3] = glm::vec3(0.0, 0.0, 1.0);
     debugColors[4] = glm::vec3(1.0, 0.0, 0.0);
+
+    terrain = nullptr;
   }
 
-  void TerrainRenderer::setDataGenerator(const std::shared_ptr<ProceduralDataGenerator>& terrainDataGenerator)
+  void TerrainRenderer::setTerrain(Terrain* aTerrain)
   {
-    dataGenerator = terrainDataGenerator;
+    terrain = aTerrain;
+
+    const std::shared_ptr<ProceduralDataGenerator> dataGenerator = terrain->getDataGenerator();
+
+    Lotus::TextureConfig textureConfig;
+    textureConfig.format = Lotus::TextureFormat::RFloat;
+    textureConfig.width = dataGenerator->getDataPerChunkSide();
+    textureConfig.height = dataGenerator->getDataPerChunkSide();
+    textureConfig.depth = dataGenerator->getChunksAmount();
+
+    heightmapTextures = std::make_shared<GPUArrayTexture>(textureConfig);
     updateHeightmapTextures(true);
   }
 
   void TerrainRenderer::render(const Camera& camera)
   {
+    if (terrain == nullptr)
+    {
+      return;
+    }
+
     glm::vec3 cameraPosition = camera.getLocalTranslation();
 
     glUseProgram(clipmapProgram.getProgramID());
-
-
 
     glUniform1i(HeightmapTextureArrayBinding, HeightmapTextureUnit);
 
@@ -192,6 +188,8 @@ namespace Lotus
 
   void TerrainRenderer::fillProceduralBuffer()
   {
+    const std::shared_ptr<ProceduralDataGenerator> dataGenerator = terrain->getDataGenerator();
+
     ProceduralData proceduralData;
 
     proceduralData.dataPerChunkSide = dataGenerator->getDataPerChunkSide();
@@ -204,6 +202,8 @@ namespace Lotus
 
   void TerrainRenderer::updateHeightmapTextures(bool forced)
   {
+    const std::shared_ptr<ProceduralDataGenerator> dataGenerator = terrain->getDataGenerator();
+
     if (dataGenerator->updatedSincePreviousFrame(ProceduralUpdateRegion::Everything) || forced)
     {
       for (int x = 0; x < dataGenerator->getChunksPerSide(); x++)

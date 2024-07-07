@@ -7,13 +7,7 @@
 namespace Lotus
 {
 
-  RenderingServer::RenderingServer(
-      const std::shared_ptr<LightManager>& renderingLightManager,
-      const std::shared_ptr<IndirectObjectRenderer>& renderingIndirectScene,
-      const std::shared_ptr<TerrainRenderer>& renderingTerrain) :
-    lightManager(renderingLightManager),
-    indirectScene(renderingIndirectScene),
-    terrain(renderingTerrain)
+  RenderingServer::RenderingServer()
   {
     cameraBuffer.allocate();
     cameraBuffer.setBindingPoint(CameraBufferBindingPoint);
@@ -41,12 +35,43 @@ namespace Lotus
     cameraBuffer.bind();
     lightsBuffer.bind();
 
-    renderTraditionalObjects();
-    renderIndirectObjects();
-    renderTerrain(camera);
+    indirectObjectRenderer.render();
+    terrainRenderer.render(camera);
 
     lightsBuffer.unbind();
     cameraBuffer.unbind();
+  }
+
+  void RenderingServer::setAmbientLight(const glm::vec3& light)
+  {
+    lightManager.setAmbientLight(light);
+  }
+  
+  std::shared_ptr<DirectionalLight> RenderingServer::createDirectionalLight()
+  {
+    return lightManager.createDirectionalLight();
+  }
+  
+  std::shared_ptr<PointLight> RenderingServer::createPointLight()
+  {
+    return lightManager.createPointLight();
+  }
+
+  std::shared_ptr<MeshInstance> RenderingServer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
+  {
+    return indirectObjectRenderer.createObject(mesh, material);
+  }
+
+  std::shared_ptr<Material> RenderingServer::createMaterial(MaterialType type)
+  {
+    return indirectObjectRenderer.createMaterial(type);
+  }
+
+
+
+  void RenderingServer::setTerrain(Terrain* terrain)
+  {
+    terrainRenderer.setTerrain(terrain);
   }
 
   void RenderingServer::fillCameraBuffer(const Camera& camera)
@@ -69,24 +94,24 @@ namespace Lotus
   {
     LightsData lightsData;
 
-    lightsData.ambientLight = lightManager->ambientLight;
+    lightsData.ambientLight = lightManager.ambientLight;
 
-    uint32_t directionalLightsCount = std::min(static_cast<uint32_t>(2 * 2), static_cast<uint32_t>(lightManager->directionalLights.size()));
+    uint32_t directionalLightsCount = std::min(static_cast<uint32_t>(2 * 2), static_cast<uint32_t>(lightManager.directionalLights.size()));
     lightsData.directionalLightsCount = static_cast<int>(directionalLightsCount);
 
     for (uint32_t i = 0; i < directionalLightsCount; i++)
     {
-      const std::shared_ptr<DirectionalLight>& dirLight = lightManager->directionalLights[i];
+      const std::shared_ptr<DirectionalLight>& dirLight = lightManager.directionalLights[i];
       lightsData.directionalLights[i].colorIntensity = dirLight->getLightColor() * dirLight->getLightIntensity();
       lightsData.directionalLights[i].direction = glm::rotate(dirLight->getLightDirection(), dirLight->getFrontVector());
     }
 
-    uint32_t pointLightsCount = std::min(static_cast<uint32_t>(2 * 2), static_cast<uint32_t>(lightManager->pointLights.size()));
+    uint32_t pointLightsCount = std::min(static_cast<uint32_t>(2 * 2), static_cast<uint32_t>(lightManager.pointLights.size()));
     lightsData.pointLightsCount = static_cast<int>(pointLightsCount);
 
     for (uint32_t i = 0; i < pointLightsCount; i++)
     {
-      const std::shared_ptr<PointLight>& pointLight = lightManager->pointLights[i];
+      const std::shared_ptr<PointLight>& pointLight = lightManager.pointLights[i];
       lightsData.pointLights[i].colorIntensity = pointLight->getLightColor() * pointLight->getLightIntensity();
       lightsData.pointLights[i].position = pointLight->getLocalTranslation();
       lightsData.pointLights[i].radius = pointLight->getLightRadius();
@@ -95,27 +120,4 @@ namespace Lotus
     lightsBuffer.write(&lightsData);
   }
 
-  void RenderingServer::renderTraditionalObjects()
-  {
-    /*
-    for (int i = 0; i < meshInstances.size(); i++)
-    {
-      const std::shared_ptr<MeshInstance>& meshInstance = meshInstances[i];
-      const std::shared_ptr<GPUMesh>& mesh = meshInstance->getMesh();
-
-      meshInstance->getMaterial()->setUniforms(projectionMatrix, viewMatrix, meshInstance->getModelMatrix(), cameraPosition);
-      glBindVertexArray(mesh->getVertexArrayID());
-      glDrawElements(GL_TRIANGLES, mesh->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
-    }*/
-  }
-
-  void RenderingServer::renderIndirectObjects()
-  {
-    indirectScene->render();
-  }
-
-  void RenderingServer::renderTerrain(const Camera& camera)
-  {
-    terrain->render(camera);
-  }
 }
