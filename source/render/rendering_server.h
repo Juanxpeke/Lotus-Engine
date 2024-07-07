@@ -24,6 +24,8 @@ namespace Lotus
     void render(const Camera& camera);
 
   private:
+    static constexpr unsigned int CameraBufferBindingPoint = 0;
+    static constexpr unsigned int LightsBufferBindingPoint = 1;
 
     void renderLights(const Camera& camera);
     void renderTraditionalScene(const Camera& camera);
@@ -64,8 +66,18 @@ namespace Lotus
       int directionalLightsCount;
       int pointLightsCount;
     };
+
+    struct CameraData
+    {
+      glm::mat4 view;
+      glm::mat4 projection;
+      glm::mat4 viewProjection;
+      glm::vec3 cameraPosition;
+      float padding04;
+    };
     
     unsigned int lightsDataBufferID = 0;
+    unsigned int cameraDataBufferID = 0;
 
     std::shared_ptr<LightManager> lightManager;
     std::shared_ptr<IndirectScene> indirectScene;

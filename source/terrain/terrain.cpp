@@ -37,6 +37,12 @@ namespace Lotus
 
     clipmapProgram = ShaderProgram(shaderPath("terrain/clipmap.vert"), shaderPath("terrain/clipmap.frag"));
 
+    glGenBuffers(1, &proceduralBufferID);
+    glBindBuffer(GL_UNIFORM_BUFFER, proceduralBufferID);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(ProceduralData), nullptr, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferBase(GL_UNIFORM_BUFFER, ProceduralBufferBinding, proceduralBufferID);
+
     rotationModels[0] = glm::mat4(1.0f);
     rotationModels[1] = glm::rotate(glm::mat4(1.0f), glm::radians( 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     rotationModels[2] = glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -57,24 +63,28 @@ namespace Lotus
 
   void Terrain::render(const Camera& camera)
   {
-    glm::mat4 viewMatrix = camera.getViewMatrix();
-    glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     glm::vec3 cameraPosition = camera.getLocalTranslation();
 
     glUseProgram(clipmapProgram.getProgramID());
 
-    glUniform1i(DataPerChunkSideBinding, dataGenerator->getDataPerChunkSide());
-    glUniform1i(ChunksPerSideBinding, dataGenerator->getChunksPerSide());
 
-    glUniformMatrix4fv(ViewBinding, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-    glUniformMatrix4fv(ProjectionBinding, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
     glUniform1i(HeightmapTextureArrayBinding, HeightmapTextureUnit);
 
     glBindTextureUnit(HeightmapTextureUnit, heightmapTextures->getID());
 
     updateHeightmapTextures();
-    glUniform2i(ChunksDataOrigin, dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
-    glUniform2i(ChunksOrigin, dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
+
+    ProceduralData proceduralData;
+
+    proceduralData.dataPerChunkSide = static_cast<int>(dataGenerator->getDataPerChunkSide());
+    proceduralData.chunksPerSide = static_cast<int>(dataGenerator->getChunksPerSide());
+    proceduralData.dataOrigin = glm::ivec2(dataGenerator->getDataOrigin().x, dataGenerator->getDataOrigin().y);
+    proceduralData.chunksOrigin = glm::ivec2(dataGenerator->getChunksLeft(), dataGenerator->getChunksTop());
+
+    glBindBuffer(GL_UNIFORM_BUFFER, proceduralBufferID);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ProceduralData), &proceduralData);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
     // Draw cross
     {

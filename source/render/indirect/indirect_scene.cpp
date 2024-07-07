@@ -109,10 +109,6 @@ namespace Lotus {
   void IndirectScene::render(const Camera& camera)
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  
-    glm::mat4 viewMatrix = camera.getViewMatrix();
-    glm::mat4 projectionMatrix = camera.getProjectionMatrix();
-    glm::vec3 cameraPosition = camera.getLocalTranslation();
    
     update();
 
@@ -132,9 +128,6 @@ namespace Lotus {
       const ShaderBatch& shaderBatch = shaderBatches[i];
 
       glUseProgram(shaders[shaderBatch.shaderHandle.get()].getProgramID());
-      
-      glUniformMatrix4fv(ViewMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-      glUniformMatrix4fv(ProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
       glMultiDrawElementsIndirect(
           GL_TRIANGLES,

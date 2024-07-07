@@ -19,14 +19,9 @@ namespace Lotus
   friend class RenderingServer;
 
   public:
-    static constexpr unsigned int ModelBinding = 0;
-    static constexpr unsigned int ViewBinding = 1;
-    static constexpr unsigned int ProjectionBinding = 2;
+    static constexpr unsigned int ProceduralBufferBinding = 2;
 
-    static constexpr unsigned int DataPerChunkSideBinding = 3;
-    static constexpr unsigned int ChunksPerSideBinding = 4;
-    static constexpr unsigned int ChunksDataOrigin = 5;
-    static constexpr unsigned int ChunksOrigin = 6;
+    static constexpr unsigned int ModelBinding = 0;
 
     static constexpr unsigned int LevelScaleBinding = 7;
     static constexpr unsigned int OffsetBinding = 8;
@@ -53,6 +48,16 @@ namespace Lotus
 
     std::vector<std::shared_ptr<GPUMesh>> meshes;
     std::shared_ptr<GPUArrayTexture> heightmapTextures;
+
+    struct ProceduralData
+    {
+      int dataPerChunkSide;
+      int chunksPerSide;
+      glm::ivec2 dataOrigin;
+      glm::ivec2 chunksOrigin;
+    };
+
+    unsigned int proceduralBufferID = 0;
     
     glm::mat4 rotationModels[4];
     glm::vec3 debugColors[5];

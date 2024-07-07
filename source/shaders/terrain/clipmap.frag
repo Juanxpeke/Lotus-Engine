@@ -3,7 +3,7 @@
 #include ../common/lighting.glsl
 
 // Lights information uniform
-layout(std140, binding = 0) uniform Lights
+layout(std140, binding = 1) uniform Lights
 {
 	DirectionalLight[${MAX_DIRECTIONAL_LIGHTS}] directionalLights;
 	PointLight[${MAX_POINT_LIGHTS}] pointLights;

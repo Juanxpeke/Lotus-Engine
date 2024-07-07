@@ -94,7 +94,7 @@ int main()
   
   std::shared_ptr<Lotus::LightManager> lightManager  = std::make_shared<Lotus::LightManager>();
   std::shared_ptr<Lotus::IndirectScene> indirectScene = std::make_shared<Lotus::IndirectScene>();
-  std::shared_ptr<Lotus::Terrain> clipmap = std::make_shared<Lotus::Terrain>(dataGenerator, 7, 32);
+  std::shared_ptr<Lotus::Terrain> clipmap = std::make_shared<Lotus::Terrain>(dataGenerator);
 
   Lotus::RenderingServer renderingServer(lightManager, indirectScene, clipmap);
 

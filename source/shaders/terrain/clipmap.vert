@@ -1,17 +1,25 @@
 #version 460 core
 
-layout(location = 0) uniform mat4 model;
-layout(location = 1) uniform mat4 view;
-layout(location = 2) uniform mat4 projection;
+layout(std140, binding = 0) uniform CameraBuffer
+{
+  mat4 view;
+  mat4 projection;
+  mat4 viewProjection;
+  vec3 cameraPosition;
+};
 
 /*
   Chunk generator variables
 */
-layout(location = 3) uniform int dataPerChunkSide; // This should be the texture width and height
-layout(location = 4) uniform int chunksPerSide;    // Layers in texture array should be chunksPerside to the square
+layout(std140, binding = 2) uniform ProceduralBuffer
+{
+  int dataPerChunkSide; // This should be the texture width and height
+  int chunksPerSide;    // Layers in texture array should be chunksPerside to the square
+  ivec2 dataOrigin;
+  ivec2 chunksOrigin;
+};
 
-layout(location = 5) uniform ivec2 dataOrigin;
-layout(location = 6) uniform ivec2 chunksOrigin;
+layout(location = 0) uniform mat4 model;
 
 /*
   Clipmap variables

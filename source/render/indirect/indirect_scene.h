@@ -25,9 +25,6 @@ namespace Lotus
   class IndirectScene
   {
   public:
-    static constexpr unsigned int ViewMatrixLocation = 0;
-    static constexpr unsigned int ProjectionMatrixLocation = 1;
-
     static constexpr unsigned int ObjectBufferBindingPoint = 0;
     static constexpr unsigned int ObjectHandleBufferBindingPoint = 1;
     static constexpr unsigned int MaterialBufferBindingPoint = 2;

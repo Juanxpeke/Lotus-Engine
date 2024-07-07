@@ -14,8 +14,14 @@ layout(std430, binding = 1) readonly buffer ObjectHandles
 	uint[] objectHandles;
 };
 
-layout(location = 0) uniform mat4 view;
-layout(location = 1) uniform mat4 projection;
+layout(std140, binding = 0) uniform CameraBuffer
+{
+  mat4 view;
+  mat4 projection;
+  mat4 viewProjection;
+  vec3 cameraPosition;
+};
+
 
 // Inputs
 layout(location = 0) in vec3 position;

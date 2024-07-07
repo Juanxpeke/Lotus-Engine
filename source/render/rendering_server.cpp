@@ -14,11 +14,17 @@ namespace Lotus
     indirectScene(renderingIndirectScene),
     terrain(renderingTerrain)
   {
+    glGenBuffers(1, &cameraDataBufferID);
+    glBindBuffer(GL_UNIFORM_BUFFER, cameraDataBufferID);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(CameraData), nullptr, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferBase(GL_UNIFORM_BUFFER, CameraBufferBindingPoint, cameraDataBufferID);
+
     glGenBuffers(1, &lightsDataBufferID);
     glBindBuffer(GL_UNIFORM_BUFFER, lightsDataBufferID);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(LightsData), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(LightsData), nullptr, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightsDataBufferID);
+    glBindBufferBase(GL_UNIFORM_BUFFER, LightsBufferBindingPoint, lightsDataBufferID);
   }
 
   void RenderingServer::startUp()
@@ -40,6 +46,17 @@ namespace Lotus
     glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     glm::vec3 cameraPosition = camera.getLocalTranslation();
 
+    CameraData cameraData;
+
+    cameraData.view = camera.getViewMatrix();
+    cameraData.projection = camera.getProjectionMatrix();
+    cameraData.viewProjection = cameraData.view * cameraData.projection;
+    cameraData.cameraPosition = camera.getLocalTranslation();
+
+    glBindBuffer(GL_UNIFORM_BUFFER, cameraDataBufferID);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(CameraData), &cameraData);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    
     renderLights(camera);
     renderTraditionalScene(camera);
     renderIndirectScene(camera);
