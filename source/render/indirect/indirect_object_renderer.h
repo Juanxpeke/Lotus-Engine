@@ -12,10 +12,10 @@
 #include "../mesh.h"
 #include "../gpu_buffer.h"
 #include "../shader.h"
-#include "material.h"
-#include "unlit_flat_material.h"
-#include "diffuse_flat_material.h"
-#include "mesh_instance.h"
+#include "../material.h"
+#include "../unlit_flat_material.h"
+#include "../diffuse_flat_material.h"
+#include "../mesh_object.h"
 
 
 namespace Lotus
@@ -32,9 +32,7 @@ namespace Lotus
     IndirectObjectRenderer();
     ~IndirectObjectRenderer();
 
-    std::shared_ptr<MeshInstance> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
-
-    std::shared_ptr<Material> createMaterial(MaterialType type);
+    std::shared_ptr<MeshObject> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
 
     void render();
 
@@ -71,7 +69,7 @@ namespace Lotus
 	  std::unordered_map<std::shared_ptr<Material>, Handle<RenderMaterial>> materialMap;
 
     // Objects
-    std::vector<std::shared_ptr<MeshInstance>> meshInstances;
+    std::vector<std::shared_ptr<MeshObject>> meshInstances;
     std::vector<RenderObject> renderObjects;
     std::vector<Handle<RenderObject>> dirtyObjectsHandles;
     std::vector<RenderObject> toUnbatchObjects;

@@ -77,7 +77,7 @@ void createDirectionalLight(Lotus::Renderer& renderer)
 
 void createNewObject(Lotus::Renderer& renderer)
 {
-	std::shared_ptr<Lotus::MeshInstance> object = renderer.createMeshInstance(sphereMesh, whiteFlatMaterial);
+	std::shared_ptr<Lotus::MeshObject> object = renderer.createMeshInstance(sphereMesh, whiteFlatMaterial);
 
 	object->translate(newObjectPosition);
 

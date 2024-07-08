@@ -4,9 +4,7 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
-#include "math/types.h"
-#include "render/indirect/diffuse_flat_material.h"
-#include "render/indirect/mesh_instance.h"
+#include "lotus_engine.h"
 
 namespace LotusTest
 {
@@ -82,19 +80,19 @@ namespace LotusTest
   class TransformChange
   {
   public:
-    TransformChange(std::shared_ptr<Lotus::MeshInstance> object) : objectPtr(object) {}
+    TransformChange(std::shared_ptr<Lotus::MeshObject> object) : objectPtr(object) {}
 
     virtual void apply(double dt) = 0;
 
   protected:
-    std::shared_ptr<Lotus::MeshInstance> objectPtr;
+    std::shared_ptr<Lotus::MeshObject> objectPtr;
   };
 
   class CyclicDirectedTranslation : public TransformChange
   {
   public:
     CyclicDirectedTranslation(
-        std::shared_ptr<Lotus::MeshInstance> object,
+        std::shared_ptr<Lotus::MeshObject> object,
         glm::vec3 initialVelocity = glm::vec3(0.0f, 2.0f, 0.0f),
         double initialDistance = 2.0) :
       TransformChange(object),

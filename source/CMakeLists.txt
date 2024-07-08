@@ -31,11 +31,11 @@ set(RENDER_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_mesh.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_texture.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/shader.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/material.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/diffuse_flat_material.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/mesh_object.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/texture_loader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/rendering_server.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/material.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/diffuse_flat_material.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh_instance.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_object_renderer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/diffuse_flat_material.h
@@ -62,6 +62,7 @@ set(RENDER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_mesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/shader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/material.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/texture_loader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/rendering_server.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_object_renderer.cpp

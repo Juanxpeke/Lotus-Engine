@@ -89,14 +89,33 @@ namespace Lotus
     return lightManager.createPointLight();
   }
 
-  std::shared_ptr<MeshInstance> RenderingServer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
+  std::shared_ptr<MeshObject> RenderingServer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
   {
     return indirectObjectRenderer.createObject(mesh, material);
   }
 
   std::shared_ptr<Material> RenderingServer::createMaterial(MaterialType type)
   {
-    return indirectObjectRenderer.createMaterial(type);
+    unsigned int offset = static_cast<unsigned int>(type);
+
+    switch (type)
+    {
+    case MaterialType::UnlitFlat:
+      return std::make_shared<UnlitFlatMaterial>();
+      break;
+    case MaterialType::DiffuseFlat:
+      return std::make_shared<DiffuseFlatMaterial>();
+      break;
+    case MaterialType::DiffuseTextured:
+      return std::make_shared<DiffuseFlatMaterial>();
+      break;
+    case MaterialType::MaterialTypeCount:
+      return std::make_shared<DiffuseFlatMaterial>();
+      break;
+    default:
+      return nullptr;
+      break;
+    }
   }
 
   void RenderingServer::setTerrainLevels(uint32_t levels)

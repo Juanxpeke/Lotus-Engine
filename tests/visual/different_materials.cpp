@@ -82,7 +82,7 @@ std::shared_ptr<Lotus::Material> createFlatMaterial(Lotus::Renderer& renderer, g
 
 void createNewObject(Lotus::Renderer& renderer, std::shared_ptr<Lotus::Material> material)
 {
-	std::shared_ptr<Lotus::MeshInstance> object = renderer.createMeshInstance(sphereMesh, material);
+	std::shared_ptr<Lotus::MeshObject> object = renderer.createMeshInstance(sphereMesh, material);
 
 	object->translate(newObjectPosition);
 

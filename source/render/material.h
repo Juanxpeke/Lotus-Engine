@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../../math/gpu_primitives.h"
-#include "../shader.h"
+#include "../math/types.h"
+#include "../math/gpu_primitives.h"
+#include "shader.h"
 
 namespace Lotus
 {
@@ -19,7 +20,6 @@ namespace Lotus
   class Material
   {
   friend class IndirectObjectRenderer;
-  friend class Renderer;
 
   public:
     Material() : dirty(false) {}
@@ -27,6 +27,10 @@ namespace Lotus
     virtual ~Material() = default;
 
     MaterialType getType() { return type; };
+
+    void setUniforms(const glm::mat4& modelMatrix);
+
+    virtual void setMaterialUniforms() = 0;
 
     virtual GPUMaterialData getMaterialData() = 0;
 

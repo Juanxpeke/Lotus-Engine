@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../../math/types.h"
+#include <glad/glad.h>
+#include "../math/types.h"
 #include "material.h"
 
 namespace Lotus
@@ -21,6 +22,11 @@ namespace Lotus
 
       diffuseColor = color;
       dirty = true;
+    }
+
+    virtual void setMaterialUniforms() override
+    {
+      glUniform3fv(ShaderProgram::DiffuseColorShaderLocation, 1, glm::value_ptr(diffuseColor));
     }
 
     virtual GPUMaterialData getMaterialData() override

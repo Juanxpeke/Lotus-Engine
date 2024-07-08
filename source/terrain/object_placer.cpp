@@ -123,7 +123,7 @@ namespace Lotus
 
       const ObjectPlacerItem& objectItem = objectItemsPool[objectIndex];
 
-      std::shared_ptr<MeshInstance> object = renderingServer->createObject(objectItem.mesh, objectItem.material);
+      std::shared_ptr<MeshObject> object = renderingServer->createObject(objectItem.mesh, objectItem.material);
       object->setTranslation(translation);
     }
   }

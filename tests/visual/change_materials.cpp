@@ -20,7 +20,7 @@ glm::vec3 newObjectPositionOffset(5, 0, 0);
 Lotus::MeshManager& meshManager = Lotus::MeshManager::getInstance();
 std::shared_ptr<Lotus::Mesh> sphereMesh;
 
-std::vector<std::shared_ptr<Lotus::MeshInstance>> objects;
+std::vector<std::shared_ptr<Lotus::MeshObject>> objects;
 std::vector<std::shared_ptr<Lotus::Material>> materials;
 std::vector<int> materialIndices;
 
@@ -101,9 +101,9 @@ std::shared_ptr<Lotus::Material> createFlatMaterial(Lotus::RenderingServer& rend
   return flatMaterial;
 }
 
-std::shared_ptr<Lotus::MeshInstance> createNewObject(Lotus::RenderingServer& renderingServer, std::shared_ptr<Lotus::Material> material)
+std::shared_ptr<Lotus::MeshObject> createNewObject(Lotus::RenderingServer& renderingServer, std::shared_ptr<Lotus::Material> material)
 {
-	std::shared_ptr<Lotus::MeshInstance> object = renderingServer.createObject(sphereMesh, material);
+	std::shared_ptr<Lotus::MeshObject> object = renderingServer.createObject(sphereMesh, material);
 
 	object->translate(newObjectPosition);
 

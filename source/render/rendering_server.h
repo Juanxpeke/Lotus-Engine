@@ -38,7 +38,7 @@ namespace Lotus
     // Traditional Objects
 
     // Indirect Objects
-    std::shared_ptr<MeshInstance> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+    std::shared_ptr<MeshObject> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
     std::shared_ptr<Material> createMaterial(MaterialType type);
 
     // Terrain

@@ -73,7 +73,7 @@ void createDirectionalLight(Lotus::Renderer& renderer)
 
 void createNewObject(Lotus::Renderer& renderer, std::shared_ptr<Lotus::Mesh> mesh, float customScale = 1.0f)
 {
-	std::shared_ptr<Lotus::MeshInstance> object = renderer.createMeshInstance(mesh, whiteFlatMaterial);
+	std::shared_ptr<Lotus::MeshObject> object = renderer.createMeshInstance(mesh, whiteFlatMaterial);
 
 	object->translate(newObjectPosition);
 	object->scale(customScale);

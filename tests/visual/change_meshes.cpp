@@ -23,7 +23,7 @@ glm::vec3 newObjectPositionOffset(5, 0, 0);
 Lotus::MeshManager& meshManager = Lotus::MeshManager::getInstance();
 std::shared_ptr<Lotus::DiffuseFlatMaterial> whiteFlatMaterial; 
 
-std::vector<std::shared_ptr<Lotus::MeshInstance>> objects;
+std::vector<std::shared_ptr<Lotus::MeshObject>> objects;
 std::vector<std::shared_ptr<Lotus::Mesh>> meshes;
 std::vector<int> meshIndices;
 

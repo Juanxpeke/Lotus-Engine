@@ -1,27 +1,28 @@
 #pragma once
 
 #include <iostream>
-#include "../../scene/node_3d.h"
-#include "../mesh.h"
+#include "../util/log.h"
+#include "../scene/node_3d.h"
+#include "mesh.h"
 #include "material.h"
 
 namespace Lotus
 {
-  class MeshInstance : public Node3D
+  class MeshObject : public Node3D
   {
   friend class IndirectObjectRenderer;
 
   public:
 
-    MeshInstance(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) :
+    MeshObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) :
       meshPtr(mesh),
       materialPtr(material),
       meshDirty(false),
       materialDirty(false),
       shaderDirty(false)
     {
-      // ASSERT(mesh != nullptr, "StaticMeshComponent Error: Mesh pointer cannot be null.");
-      // ASSERT(material != nullptr, "StaticMeshComponent Error: Material cannot be null.");
+      LOTUS_ASSERT(mesh != nullptr, "[Mesh Object Error] Mesh pointer cannot be null");
+      LOTUS_ASSERT(material != nullptr, "[Mesh Object Error] Material pointer cannot be null");
     }
 
     const std::shared_ptr<Mesh>& getMesh() const noexcept { return meshPtr; }
@@ -29,7 +30,13 @@ namespace Lotus
 
     void setMesh(std::shared_ptr<Mesh> mesh) noexcept
     {
-      if (mesh == nullptr || mesh == meshPtr) { return; }
+      LOTUS_ASSERT(mesh != nullptr, "[Mesh Object Error] Mesh pointer cannot be null");
+      
+      if (mesh == meshPtr)
+      {
+        LOTUS_LOG_WARN("[Mesh Object Warning] Tried to set same mash as the object's");
+        return;
+      }
 
       meshPtr = mesh;
       meshDirty = true;
@@ -37,7 +44,13 @@ namespace Lotus
     
     void setMaterial(std::shared_ptr<Material> material) noexcept
     {
-      if (material == nullptr || material == materialPtr) { return; }
+      LOTUS_ASSERT(material != nullptr, "[Mesh Object Error] Material pointer cannot be null");
+      
+      if (material == materialPtr)
+      {
+        LOTUS_LOG_WARN("[Mesh Object Warning] Tried to set same material as the object's");
+        return;
+      }
 
       if (material->getType() != materialPtr->getType())
       {

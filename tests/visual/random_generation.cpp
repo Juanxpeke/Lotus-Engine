@@ -81,7 +81,7 @@ void createVent(Lotus::Renderer& renderer)
 
 	ventMaterial->setDiffuseColor(glm::vec3(r, g, b));
 
-	std::shared_ptr<Lotus::MeshInstance> ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
+	std::shared_ptr<Lotus::MeshObject> ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
 
 	float x = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;
 	float y = objectsAreaSide * ((float)(std::rand()) / (float)(RAND_MAX)) - objectsAreaSide / 2.0f;

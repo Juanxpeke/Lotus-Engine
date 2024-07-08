@@ -43,9 +43,9 @@ namespace Lotus {
     }
   }
 
-  std::shared_ptr<MeshInstance> IndirectObjectRenderer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
+  std::shared_ptr<MeshObject> IndirectObjectRenderer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
   {
-    std::shared_ptr<MeshInstance> meshInstance = std::make_shared<MeshInstance>(mesh, material);
+    std::shared_ptr<MeshObject> meshInstance = std::make_shared<MeshObject>(mesh, material);
     meshInstances.push_back(meshInstance);
 
     Handle<RenderMesh> meshHandle = getMeshHandle(mesh);
@@ -73,30 +73,6 @@ namespace Lotus {
     unbatchedObjectsHandles.push_back(handle);
 
     return meshInstance;
-  }
-
-  std::shared_ptr<Material> IndirectObjectRenderer::createMaterial(MaterialType type)
-  {
-    unsigned int offset = static_cast<unsigned int>(type);
-
-    switch (type)
-    {
-    case MaterialType::UnlitFlat:
-      return std::make_shared<UnlitFlatMaterial>();
-      break;
-    case MaterialType::DiffuseFlat:
-      return std::make_shared<DiffuseFlatMaterial>();
-      break;
-    case MaterialType::DiffuseTextured:
-      return std::make_shared<DiffuseFlatMaterial>();
-      break;
-    case MaterialType::MaterialTypeCount:
-      return std::make_shared<DiffuseFlatMaterial>();
-      break;
-    default:
-      return nullptr;
-      break;
-    }
   }
 
   void IndirectObjectRenderer::render()
@@ -144,7 +120,7 @@ namespace Lotus {
   {
     for (int i = 0; i < meshInstances.size(); i++)
     {
-      const std::shared_ptr<MeshInstance>& meshInstance = meshInstances[i];
+      const std::shared_ptr<MeshObject>& meshInstance = meshInstances[i];
       Transform* transform = &(meshInstance->transform);
 
       if (transform->dirty || meshInstance->meshDirty || meshInstance->materialDirty)
