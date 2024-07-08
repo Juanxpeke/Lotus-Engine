@@ -30,8 +30,10 @@ namespace Lotus
     
     static constexpr unsigned int HeightmapTextureUnit = 0;
 
-    TerrainRenderer(uint32_t levels = 7, uint32_t tileResolution = 128);
+    TerrainRenderer(uint32_t terrainLevels = 7, uint32_t terrainTileResolution = 128);
 
+    void setLevels(uint32_t terrainLevels);
+    void setTileResolution(uint32_t terrainTileResolution);
     void setTerrain(Terrain* terrain);
 
     void render(const Camera& camera);

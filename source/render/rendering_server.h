@@ -11,6 +11,11 @@
 
 namespace Lotus
 {
+  enum class RenderingMode
+  {
+    Fill,
+    Wireframe
+  };
 
   class RenderingServer
   {
@@ -20,6 +25,10 @@ namespace Lotus
     void startUp();
   
     void render(const Camera& camera);
+
+    // Modes
+    void setRenderingMode(RenderingMode renderingMode);
+    void switchRenderingMode();
 
     // Lighting
     void setAmbientLight(const glm::vec3& light);
@@ -33,6 +42,8 @@ namespace Lotus
     std::shared_ptr<Material> createMaterial(MaterialType type);
 
     // Terrain
+    void setTerrainLevels(uint32_t levels);
+    void setTerrainTileResolution(uint32_t tileResolution);
     void setTerrain(Terrain* terrain);
 
   private:
@@ -75,6 +86,8 @@ namespace Lotus
       float padding04;
     };
     
+    RenderingMode mode;
+
     UniformBuffer<LightsData> lightsBuffer;
     UniformBuffer<CameraData> cameraBuffer;
 

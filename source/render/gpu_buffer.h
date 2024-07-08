@@ -40,6 +40,8 @@ namespace Lotus
       {
         delete[] CPUBuffer;
       }
+
+      LOTUS_LOG_INFO("[Buffer Log] Deleted buffer with ID {0}", ID);
     }
 
     GPUBuffer& operator=(const GPUBuffer& other) = delete;

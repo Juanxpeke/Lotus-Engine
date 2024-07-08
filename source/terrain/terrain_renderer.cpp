@@ -19,7 +19,7 @@ namespace Lotus
 
     proceduralBuffer.allocate();
     proceduralBuffer.setBindingPoint(ProceduralBufferBindingPoint);
-
+    
     rotationModels[0] = glm::mat4(1.0f);
     rotationModels[1] = glm::rotate(glm::mat4(1.0f), glm::radians( 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     rotationModels[2] = glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -32,6 +32,18 @@ namespace Lotus
     debugColors[4] = glm::vec3(1.0, 0.0, 0.0);
 
     terrain = nullptr;
+  }
+
+  void TerrainRenderer::setLevels(uint32_t terrainLevels)
+  {
+    levels = terrainLevels;
+  }
+
+  void TerrainRenderer::setTileResolution(uint32_t terrainTileResolution)
+  {
+    tileResolution = terrainTileResolution;
+
+    meshes = GeoClipmap::generate(tileResolution);
   }
 
   void TerrainRenderer::setTerrain(Terrain* aTerrain)

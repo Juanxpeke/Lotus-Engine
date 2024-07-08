@@ -3,10 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "math/types.h"
-#include "util/path_manager.h"
-#include "scene/camera.h"
-#include "terrain/terrain_renderer.h"
+#include "lotus_engine.h"
 
 int width = 720;
 int height = 720;
@@ -79,15 +76,22 @@ int main()
 	glViewport(0, 0, width, height);
 
 	Lotus::Camera camera;
-  
-  glEnable(GL_DEPTH_TEST);
 
-  Lotus::PerlinNoiseConfig p;
+  Lotus::PerlinNoiseConfig noiseConfiguration;
+  std::shared_ptr<Lotus::ProceduralDataGenerator> dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(512, 6, noiseConfiguration);
 
-  std::shared_ptr<Lotus::ProceduralDataGenerator> dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(256, 8, p);
-  Lotus::TerrainRenderer clipmap(dataGenerator);
+  Lotus::RenderingServer renderingServer;
+
+  renderingServer.setRenderingMode(Lotus::RenderingMode::Wireframe);
+
+  Lotus::Terrain terrain(dataGenerator);
+  renderingServer.setTerrainLevels(12);
+  renderingServer.setTerrainTileResolution(6);
+  renderingServer.setTerrain(&terrain);
+
+	renderingServer.startUp();
 	
-	double lastTime = glfwGetTime();
+  double lastTime = glfwGetTime();
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -99,7 +103,7 @@ int main()
 
     updateFromInputs(window, dt, &camera);
 
-		clipmap.render(camera);
+		renderingServer.render(camera);
 
     glfwSwapBuffers(window);
 	}

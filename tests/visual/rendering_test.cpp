@@ -3,14 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "math/types.h"
-#include "util/path_manager.h"
-#include "scene/camera.h"
-#include "terrain/terrain.h"
-#include "terrain/object_placer.h"
-#include "render/mesh_manager.h"
-#include "render/rendering_server.h"
-
+#include "lotus_engine.h"
 
 int width = 720;
 int height = 720;
@@ -19,12 +12,14 @@ char title[256];
 const float cameraSpeed = 128.0f;
 const float cameraAngularSpeed = 2.0f;
 
-const int objectsCount = 32000;
-const float objectsAreaSide = 160.f;
-
-void updateFromInputs(GLFWwindow* window, float dt, Lotus::Camera* cameraPtr)
+void updateFromInputs(GLFWwindow* window, float dt, Lotus::RenderingServer* renderingServerPtr, Lotus::Camera* cameraPtr)
 {
-  // Translation
+  // Mode
+  if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) {
+    renderingServerPtr->switchRenderingMode();
+  }
+
+  // Camera Translation
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     cameraPtr->translate(cameraPtr->getFrontVector() * dt * cameraSpeed);
   }
@@ -43,7 +38,8 @@ void updateFromInputs(GLFWwindow* window, float dt, Lotus::Camera* cameraPtr)
   if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
     cameraPtr->translate(glm::vec3(0.0f, 1.0f, 0.0f) * dt * -cameraSpeed);
   }
-  // Rotation
+
+  // Camera Rotation
   if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
     cameraPtr->rotate(cameraPtr->getRightVector(), dt * cameraAngularSpeed);
   }
@@ -56,6 +52,7 @@ void updateFromInputs(GLFWwindow* window, float dt, Lotus::Camera* cameraPtr)
   if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
     cameraPtr->rotate(glm::vec3(0.0f, 1.0f, 0.0f), dt * -cameraAngularSpeed);
   }
+
   // Misc
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
@@ -86,8 +83,8 @@ int main()
 
   Lotus::Camera camera;
   
-  Lotus::PerlinNoiseConfig perlinConfiguration;
-  std::shared_ptr<Lotus::ProceduralDataGenerator> dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(512, 6, perlinConfiguration);
+  Lotus::PerlinNoiseConfig noiseConfiguration;
+  std::shared_ptr<Lotus::ProceduralDataGenerator> dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(512, 6, noiseConfiguration);
 
   Lotus::RenderingServer renderingServer;
 
@@ -138,7 +135,7 @@ int main()
 		double dt = currentTime - lastTime;
 		lastTime = currentTime;
 		
-		updateFromInputs(window, dt, &camera);
+		updateFromInputs(window, dt, &renderingServer, &camera);
 
     cameraPosition = camera.getLocalTranslation();
 

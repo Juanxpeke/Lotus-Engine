@@ -105,7 +105,7 @@ namespace Lotus
     glm::ivec2 offset = dataGenerator->getDataOrigin() + chunkOffset * static_cast<int>(dataGenerator->getDataPerChunkSide());
     glm::vec3 worldOffset(offset.x, 0, offset.y);
 
-    LOTUS_LOG_INFO("[Object Placer Info] Generating objects on chunk ({0}, {1})", offset.x / dataGenerator->getDataPerChunkSide(), offset.y / dataGenerator->getDataPerChunkSide());
+    LOTUS_LOG_INFO("[Object Placer Log] Generating objects on chunk ({0}, {1})", offset.x / dataGenerator->getDataPerChunkSide(), offset.y / dataGenerator->getDataPerChunkSide());
 
     const float* heightData = dataGenerator->getChunkData(x ,y);
 

@@ -30,5 +30,5 @@ add_visual_test(change_materials)
 #add_visual_test(random_generation)
 
 # Terrain generation
-#add_visual_test(clipmap)
+add_visual_test(clipmap)
 add_visual_test(rendering_test)

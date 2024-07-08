@@ -224,21 +224,21 @@ namespace Lotus
       glGenerateTextureMipmap(ID);
     }
 
-    LOTUS_LOG_INFO("[Texture Log] Created GPU texture array with ID {0}", ID);
+    LOTUS_LOG_INFO("[Texture Log] Created GPU array texture with ID {0}", ID);
   }
 
   GPUArrayTexture::~GPUArrayTexture()
   {
     if (ID)
     {
-      LOTUS_LOG_INFO("[Texture Log] Deleted GPU texture array with ID {0}", ID);
+      LOTUS_LOG_INFO("[Texture Log] Deleted GPU array texture with ID {0}", ID);
       
       glDeleteTextures(1, &ID);
       ID = 0;
     }
     else
     {
-      LOTUS_LOG_ERROR("[Texture Error] Tried to delete already deleted texture array");
+      LOTUS_LOG_ERROR("[Texture Error] Tried to delete already deleted array texture");
     }
   }
 

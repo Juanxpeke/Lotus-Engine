@@ -8,13 +8,7 @@ namespace Lotus
 {
 
   RenderingServer::RenderingServer()
-  {
-    cameraBuffer.allocate();
-    cameraBuffer.setBindingPoint(CameraBufferBindingPoint);
-
-    lightsBuffer.allocate();
-    lightsBuffer.setBindingPoint(LightsBufferBindingPoint);
-  }
+  {}
 
   void RenderingServer::startUp()
   {
@@ -22,7 +16,14 @@ namespace Lotus
     
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_FRONT);
-  
+    
+    mode = RenderingMode::Fill;
+    
+    cameraBuffer.allocate();
+    cameraBuffer.setBindingPoint(CameraBufferBindingPoint);
+
+    lightsBuffer.allocate();
+    lightsBuffer.setBindingPoint(LightsBufferBindingPoint);
   }
 
   void RenderingServer::render(const Camera& camera)
@@ -40,6 +41,37 @@ namespace Lotus
 
     lightsBuffer.unbind();
     cameraBuffer.unbind();
+  }
+
+  void RenderingServer::setRenderingMode(RenderingMode renderingMode)
+  {
+    mode = renderingMode;
+
+    switch (mode)
+    {
+      case RenderingMode::Fill:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glDisable(GL_POLYGON_OFFSET_LINE);
+        break;
+      case RenderingMode::Wireframe:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glEnable(GL_POLYGON_OFFSET_LINE);
+        glPolygonOffset(-1, -1);
+        break;
+    }
+  }
+
+  void RenderingServer::switchRenderingMode()
+  {
+    switch (mode)
+    {
+      case RenderingMode::Fill:
+        setRenderingMode(RenderingMode::Wireframe);
+        break;
+      case RenderingMode::Wireframe:
+        setRenderingMode(RenderingMode::Fill);
+        break;
+    }
   }
 
   void RenderingServer::setAmbientLight(const glm::vec3& light)
@@ -67,7 +99,15 @@ namespace Lotus
     return indirectObjectRenderer.createMaterial(type);
   }
 
+  void RenderingServer::setTerrainLevels(uint32_t levels)
+  {
+    terrainRenderer.setLevels(levels);
+  }
 
+  void RenderingServer::setTerrainTileResolution(uint32_t tileResolution)
+  {
+    terrainRenderer.setTileResolution(tileResolution);
+  }
 
   void RenderingServer::setTerrain(Terrain* terrain)
   {
