@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <vector>
-#include <glm/glm.hpp>
+#include "../math/types.h"
 #include "../math/randomizer.h"
 #include "../render/gpu_mesh.h"
 #include "../render/rendering_server.h"

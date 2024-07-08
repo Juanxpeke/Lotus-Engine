@@ -1,8 +1,6 @@
 #include "terrain_renderer.h"
 
 #include <cmath>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 #include "../util/log.h"
 #include "../render/identifiers.h"

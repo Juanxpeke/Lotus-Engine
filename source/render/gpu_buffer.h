@@ -1,8 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <cstddef>
-#include <cstdint>
 #include <cstring>
 #include <limits>
 #include <algorithm>
@@ -10,7 +8,9 @@
 #include <set>
 #include <glad/glad.h>
 #include "../util/log.h"
+#include "../math/types.h"
 #include "../math/gpu_primitives.h"
+#include "../render/mesh.h"
 
 namespace Lotus
 {
@@ -324,7 +324,7 @@ namespace Lotus
   /*
     Buffer for meshes vertices
   */
-  struct VertexBuffer : public MultiElementGPUBuffer<Vertex>
+  struct VertexBuffer : public MultiElementGPUBuffer<MeshVertex>
   {
     VertexBuffer() : vertexArray(0)
     {
@@ -343,15 +343,15 @@ namespace Lotus
       glBindBuffer(bufferType, ID);
 
       glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void*) offsetof(MeshVertex, position));
       glEnableVertexAttribArray(1);
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal));
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void*) offsetof(MeshVertex, normal));
       glEnableVertexAttribArray(2);
-      glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, uv));
+      glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void*) offsetof(MeshVertex, uv));
       glEnableVertexAttribArray(3);
-      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, tangent));
+      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void*) offsetof(MeshVertex, tangent));
       glEnableVertexAttribArray(4);
-      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, bitangent));
+      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void*) offsetof(MeshVertex, bitangent));
 
       glBindVertexArray(0);
       glBindBuffer(bufferType, 0);

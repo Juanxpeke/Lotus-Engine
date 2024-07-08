@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include "../../scene/node_3d.h"
-#include "mesh.h"
+#include "../mesh.h"
 #include "material.h"
 
 namespace Lotus
@@ -10,7 +10,6 @@ namespace Lotus
   class MeshInstance : public Node3D
   {
   friend class IndirectObjectRenderer;
-  friend class Renderer;
 
   public:
 

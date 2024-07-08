@@ -2,8 +2,6 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include "../../util/path_manager.h"
 #include "diffuse_flat_material.h"
 #include "diffuse_textured_material.h"

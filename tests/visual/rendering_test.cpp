@@ -2,16 +2,15 @@
 #include <cstdlib>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
+#include "math/types.h"
 #include "util/path_manager.h"
 #include "scene/camera.h"
 #include "terrain/terrain.h"
 #include "terrain/object_placer.h"
+#include "render/mesh_manager.h"
 #include "render/rendering_server.h"
 
-#include "render/indirect/mesh_manager.h"
 
 int width = 720;
 int height = 720;

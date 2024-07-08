@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdint>
 #include <string>
+#include "../../math/types.h"
 
 namespace Lotus
 {

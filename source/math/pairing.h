@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include "types.h"
 
 namespace Lotus
 {

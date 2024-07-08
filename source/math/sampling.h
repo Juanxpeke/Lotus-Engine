@@ -4,7 +4,7 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
-#include <glm/glm.hpp>
+#include "types.h"
 #include "randomizer.h"
 
 namespace Lotus

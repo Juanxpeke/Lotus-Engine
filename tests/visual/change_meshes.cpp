@@ -2,13 +2,12 @@
 #include <cstdlib>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
+#include "math/types.h"
 #include "util/path_manager.h"
 #include "scene/camera.h"
 #include "render/indirect/renderer.h"
-#include "render/indirect/mesh_manager.h"
+#include "render/mesh_manager.h"
 #include "../test_util.h"
 
 int width = 720;

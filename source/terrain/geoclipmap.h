@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include <vector>
 #include <memory>
+#include "../math/types.h"
 #include "../render/gpu_mesh.h"
 
 namespace Lotus

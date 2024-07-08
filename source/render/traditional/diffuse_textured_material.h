@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <glm/glm.hpp>
+#include "../../math/types.h"
 
 #include "texture.h"
 #include "material.h"

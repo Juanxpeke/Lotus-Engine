@@ -2,9 +2,8 @@
 #include <cstdlib>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
+#include "math/types.h"
 #include "util/path_manager.h"
 #include "scene/camera.h"
 #include "terrain/terrain_renderer.h"

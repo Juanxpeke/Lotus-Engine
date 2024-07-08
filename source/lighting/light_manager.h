@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <memory>
-#include <glm/glm.hpp>
+#include "../math/types.h"
 #include "directional_light.h"
 #include "point_light.h"
 

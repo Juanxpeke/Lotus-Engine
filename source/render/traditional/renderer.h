@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 #include <array>
-#include <glm/glm.hpp>
+#include "../../math/types.h"
 #include "../../scene/transform.h"
 #include "../../scene/camera.h"
 #include "../../lighting/directional_light.h"

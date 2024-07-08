@@ -1,9 +1,9 @@
 #pragma once
 
-#include <cstdint>
 #include <filesystem>
 #include <string>
 #include <set>
+#include "../math/types.h"
 
 namespace Lotus
 {

@@ -5,7 +5,7 @@
 namespace Lotus
 {
 
-  struct Tile : MeshPrimitive
+  struct Tile : Mesh
   {
     Tile(uint32_t quadsPerSide)
     {
@@ -13,7 +13,7 @@ namespace Lotus
 
       vertices.reserve(verticesPerSide * verticesPerSide);
       
-      Vertex vertex;
+      MeshVertex vertex;
 
       for (uint32_t y = 0; y < verticesPerSide; y++)
       {
@@ -41,7 +41,7 @@ namespace Lotus
     }
   };
 
-  struct Filler : MeshPrimitive
+  struct Filler : Mesh
   {
     Filler(uint32_t quadsPerTileSide)
     {
@@ -50,7 +50,7 @@ namespace Lotus
 
       vertices.reserve(verticesPerTileSide * 8);
 
-      Vertex vertex;
+      MeshVertex vertex;
       
       for (uint32_t i = 0; i < verticesPerTileSide; i++)
       {
@@ -117,7 +117,7 @@ namespace Lotus
     }
   };
 
-  struct Trim : MeshPrimitive
+  struct Trim : Mesh
   {
     Trim(uint32_t quadsPerTileSide)
     {
@@ -126,7 +126,7 @@ namespace Lotus
 
       vertices.reserve((verticesPerLevelSide * 2 + 1) * 2);
 
-      Vertex vertex;
+      MeshVertex vertex;
 
       // Vertical part of L
       for (uint32_t i = 0; i < verticesPerLevelSide + 1; i++)
@@ -146,7 +146,7 @@ namespace Lotus
         vertices.push_back(vertex);
       }
 
-      for (Vertex& v : vertices)
+      for (MeshVertex& v : vertices)
       {
         v.position -= glm::vec3(0.5f * (verticesPerLevelSide + 1), 0, 0.5f * (verticesPerLevelSide + 1));
       }
@@ -177,7 +177,7 @@ namespace Lotus
     }
   };
 
-  struct Cross : MeshPrimitive
+  struct Cross : Mesh
   {
     Cross(uint32_t quadsPerTileSide)
     {
@@ -185,7 +185,7 @@ namespace Lotus
 
       vertices.reserve(verticesPerTileSide * 8);
       
-      Vertex vertex;
+      MeshVertex vertex;
 
       // Horizontal vertices
       for (uint32_t i = 0; i < verticesPerTileSide * 2; i++)
@@ -246,7 +246,7 @@ namespace Lotus
     }
   };
 
-  struct Seam : MeshPrimitive
+  struct Seam : Mesh
   {
     Seam(uint32_t quadsPerTileSide)
     {
@@ -255,7 +255,7 @@ namespace Lotus
 
       vertices.reserve(verticesPerLevelSide * 4);
 
-      Vertex vertex;
+      MeshVertex vertex;
 
       vertices.resize(verticesPerLevelSide * 4);
 

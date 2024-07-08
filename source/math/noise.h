@@ -1,9 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include <memory>
 #include <algorithm>
-#include <glm/glm.hpp>
+#include "types.h"
 #include "PerlinNoise.hpp"
 
 namespace Lotus

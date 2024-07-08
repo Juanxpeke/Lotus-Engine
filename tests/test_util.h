@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
-#include <glm/glm.hpp>
+#include "math/types.h"
 #include "render/indirect/diffuse_flat_material.h"
 #include "render/indirect/mesh_instance.h"
 

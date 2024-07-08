@@ -25,14 +25,14 @@ set(TERRAIN_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/object_placer.h)
 
 set(RENDER_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/mesh.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/mesh_manager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_buffer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_mesh.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_texture.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/shader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/texture_loader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/rendering_server.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh_manager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/diffuse_flat_material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh_instance.h
@@ -57,14 +57,13 @@ set(TERRAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/object_placer.cpp)
 
 set(RENDER_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/mesh.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/mesh_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_mesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gpu_texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/texture_loader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/rendering_server.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/mesh_manager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_object_renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/material.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/mesh_instance.cpp

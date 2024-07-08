@@ -1,8 +1,7 @@
 #pragma once
 
-#include <cstdint>
 #include <vector>
-#include <glm/glm.hpp>
+#include "../math/types.h"
 #include "../math/noise.h"
 
 namespace Lotus

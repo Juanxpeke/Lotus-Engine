@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include <vector>
-#include "../math/primitives.h"
+#include "mesh.h"
+#include "../math/types.h"
 #include "gpu_buffer.h"
 
 namespace Lotus
@@ -10,8 +10,8 @@ namespace Lotus
   class GPUMesh
   {
   public:
-    GPUMesh(const MeshPrimitive& mesh);
-    GPUMesh(const std::vector<Lotus::Vertex>& vertices, const std::vector<unsigned int>& indices);
+    GPUMesh(const Mesh& mesh);
+    GPUMesh(const std::vector<Lotus::MeshVertex>& vertices, const std::vector<unsigned int>& indices);
     ~GPUMesh();
 
     GPUMesh& operator=(const GPUMesh& other) = delete;

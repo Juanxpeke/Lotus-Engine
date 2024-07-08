@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include "../../util/path_manager.h"
 #include "../identifiers.h"
 
@@ -528,7 +526,7 @@ namespace Lotus {
 
     if (it == meshMap.end())
     {
-      const std::vector<Vertex>& vertices = mesh->getVertices();
+      const std::vector<MeshVertex>& vertices = mesh->getVertices();
       const std::vector<unsigned int>& indices = mesh->getIndices();
 
       uint32_t verticesBufferLocation = vertexBuffer.add(vertices.data(), vertices.size()); 

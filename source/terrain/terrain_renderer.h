@@ -1,9 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include <memory>
 #include <vector>
-#include "../math/primitives.h"
+#include "../math/types.h"
 #include "../scene/camera.h"
 #include "../render/gpu_buffer.h"
 #include "../render/gpu_mesh.h"

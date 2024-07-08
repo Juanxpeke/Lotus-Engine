@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cstdint>
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
+#include "types.h"
 
 namespace Lotus
 {  

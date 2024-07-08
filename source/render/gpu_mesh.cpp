@@ -5,9 +5,9 @@
 
 namespace Lotus
 {
-  GPUMesh::GPUMesh(const MeshPrimitive& mesh) : GPUMesh(mesh.vertices, mesh.indices) {}
+  GPUMesh::GPUMesh(const Mesh& mesh) : GPUMesh(mesh.getVertices(), mesh.getIndices()) {}
 
-  GPUMesh::GPUMesh(const std::vector<Lotus::Vertex>& vertices, const std::vector<unsigned int>& indices)
+  GPUMesh::GPUMesh(const std::vector<Lotus::MeshVertex>& vertices, const std::vector<unsigned int>& indices)
   {
     glGenVertexArrays(1, &vertexArrayID);
 

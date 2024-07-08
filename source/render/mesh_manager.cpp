@@ -2,6 +2,7 @@
 
 namespace Lotus
 {
+
   std::string primitiveEnumToString(Mesh::PrimitiveType type)
   {
     switch (type)
@@ -24,6 +25,7 @@ namespace Lotus
   std::shared_ptr<Mesh> MeshManager::loadMesh(Mesh::PrimitiveType type) noexcept
   {
     const std::string primName = primitiveEnumToString(type);
+
     auto it = meshMap.find(primName);
     
     if (it != meshMap.end())
@@ -32,12 +34,12 @@ namespace Lotus
     }
     
     Mesh* meshPtr = new Mesh(type);
-    std::shared_ptr<Mesh> sharedPtr = std::shared_ptr<Mesh>(meshPtr);
+    std::shared_ptr<Mesh> meshSharedPtr = std::shared_ptr<Mesh>(meshPtr);
 
     // Before returning the loaded mesh, we add it to the map so future loads are faster
-    meshMap.insert({ primName, sharedPtr });
+    meshMap.insert({ primName, meshSharedPtr });
 
-    return sharedPtr;
+    return meshSharedPtr;
   }
 
   std::shared_ptr<Mesh> MeshManager::loadMesh(const std::filesystem::path& filePath, bool flipUVs) noexcept
@@ -47,15 +49,19 @@ namespace Lotus
     // In case there already existed a loaded mesh with the given path referenced by the meshes map
     // it is returned immediately
     auto it = meshMap.find(stringPath);
+
     if (it != meshMap.end())
+    {
       return it->second;
+    }
     
     Mesh* meshPtr = new Mesh(stringPath, flipUVs);
-    std::shared_ptr<Mesh> sharedPtr = std::shared_ptr<Mesh>(meshPtr);
+    std::shared_ptr<Mesh> meshSharedPtr = std::shared_ptr<Mesh>(meshPtr);
     
     // Before returning the loaded mesh, we add it to the map so future loads are faster
-    meshMap.insert({ stringPath, sharedPtr });
-    return sharedPtr;
+    meshMap.insert({ stringPath, meshSharedPtr });
+
+    return meshSharedPtr;
   }
 
   void MeshManager::cleanUnusedMeshes() noexcept
@@ -66,22 +72,15 @@ namespace Lotus
     */
     for (auto i = meshMap.begin(), last = meshMap.end(); i != last;)
     {
-      if (i->second.use_count() == 1) {
+      if (i->second.use_count() == 1)
+      {
         i = meshMap.erase(i);
       }
-      else {
+      else
+      {
         ++i;
       }
     }
-  }
-
-  void MeshManager::shutDown() noexcept
-  {
-    for (auto& entry : meshMap) {
-      entry.second->clearData();
-    }
-    
-    meshMap.clear();
   }
 
 }

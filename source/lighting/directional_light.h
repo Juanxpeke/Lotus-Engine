@@ -1,7 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <glm/gtx/quaternion.hpp>
+#include "../math/types.h"
 #include "../scene/node_3d.h"
 
 namespace Lotus
