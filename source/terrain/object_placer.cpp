@@ -8,16 +8,18 @@
 namespace Lotus
 {
   ObjectPlacer::ObjectPlacer(
-      const std::shared_ptr<ProceduralDataGenerator>& placerHeightsGenerator,
-      RenderingServer* indirectScene,
+      const std::shared_ptr<ProceduralDataGenerator>& placerDataGenerator,
+      RenderingServer* placerRenderingServer,
+      RenderingMethod placerRenderingMethod,
       float placerRadius,
       uint8_t placerSamplesBeforeRejection,
       uint32_t seed) :
     radius(placerRadius),
     samplesBeforeRejection(placerSamplesBeforeRejection),
     randomizer(seed),
-    dataGenerator(placerHeightsGenerator),
-    renderingServer(indirectScene)
+    dataGenerator(placerDataGenerator),
+    renderingServer(placerRenderingServer),
+    renderingMethod(placerRenderingMethod)
   {
     initialized = false;
   }
@@ -123,7 +125,7 @@ namespace Lotus
 
       const ObjectPlacerItem& objectItem = objectItemsPool[objectIndex];
 
-      std::shared_ptr<MeshObject> object = renderingServer->createObject(objectItem.mesh, objectItem.material);
+      std::shared_ptr<MeshObject> object = renderingServer->createObject(objectItem.mesh, objectItem.material, renderingMethod);
       object->setTranslation(translation);
     }
   }

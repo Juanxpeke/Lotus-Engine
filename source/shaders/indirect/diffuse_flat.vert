@@ -2,13 +2,11 @@
 
 #include ../common/primitives.glsl
 
-// Shader storage buffer with the objects
 layout(std140, binding = 0) readonly buffer Objects
 {
 	Object[] objects;
 };
 
-// Shader storage buffer with the objects handles
 layout(std430, binding = 1) readonly buffer ObjectHandles
 {
 	uint[] objectHandles;
@@ -41,5 +39,5 @@ void main()
 	fragPosition = vec3(object.model * vec4(position, 1.0));
 	fragNormal = mat3(transpose(inverse(object.model))) * normal;
 	
-	gl_Position = projection * view * object.model * vec4(position, 1.0);
+	gl_Position = viewProjection * object.model * vec4(position, 1.0);
 }

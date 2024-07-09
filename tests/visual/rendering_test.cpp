@@ -99,7 +99,7 @@ int main()
   redMaterial->setDiffuseColor({ 1.0, 0.0, 0.0 });
   blueMaterial->setDiffuseColor({ 0.0, 0.0, 1.0 });
 
-  Lotus::ObjectPlacer objectPlacer(dataGenerator, &renderingServer, 36.0);
+  Lotus::ObjectPlacer objectPlacer(dataGenerator, &renderingServer, Lotus::RenderingMethod::Indirect, 36.0);
 
   objectPlacer.addObject(cubeMesh, redMaterial, 30.0);
   objectPlacer.addObject(sphereMesh, blueMaterial, 30.0);

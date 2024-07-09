@@ -36,14 +36,8 @@ set(RENDER_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/render/mesh_object.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/texture_loader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/rendering_server.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_object_renderer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/material.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/diffuse_flat_material.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/diffuse_textured_material.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/mesh_instance.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/texture.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/texture_manager.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/renderer.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/traditional_object_renderer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_object_renderer.h)
 
 # Source files
 
@@ -65,12 +59,8 @@ set(RENDER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/render/material.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/texture_loader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/rendering_server.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_object_renderer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/material.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/mesh_instance.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/texture.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/texture_manager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/renderer.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/traditional_object_renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_object_renderer.cpp)
 
 set(ENGINE_NAME
     LotusEngine)

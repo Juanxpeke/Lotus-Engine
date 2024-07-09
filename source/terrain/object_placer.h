@@ -15,10 +15,11 @@ namespace Lotus
   {
   public:
     ObjectPlacer(
-        const std::shared_ptr<ProceduralDataGenerator>& dataGenerator,
-        RenderingServer* renderingServer,
-        float radius,
-        uint8_t samplesBeforeRejection = 30,
+        const std::shared_ptr<ProceduralDataGenerator>& placerDataGenerator,
+        RenderingServer* placerRenderingServer,
+        RenderingMethod placerRenderingMethod,
+        float placerRadius,
+        uint8_t placerSamplesBeforeRejection = 30,
         uint32_t seed = 0);
 
     void initialize();
@@ -46,6 +47,7 @@ namespace Lotus
     std::vector<ObjectPlacerItem> objectItemsPool;
 
     RenderingServer* renderingServer;
+    RenderingMethod renderingMethod;
 
     bool initialized;
   };

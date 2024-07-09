@@ -7,6 +7,7 @@
 #include "../lighting/light_manager.h"
 #include "../terrain/terrain_renderer.h"
 #include "gpu_buffer.h"
+#include "traditional/traditional_object_renderer.h"
 #include "indirect/indirect_object_renderer.h"
 
 namespace Lotus
@@ -15,6 +16,12 @@ namespace Lotus
   {
     Fill,
     Wireframe
+  };
+
+  enum class RenderingMethod
+  {
+    Traditional,
+    Indirect
   };
 
   class RenderingServer
@@ -38,7 +45,7 @@ namespace Lotus
     // Traditional Objects
 
     // Indirect Objects
-    std::shared_ptr<MeshObject> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+    std::shared_ptr<MeshObject> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material, RenderingMethod method = RenderingMethod::Indirect);
     std::shared_ptr<Material> createMaterial(MaterialType type);
 
     // Terrain
@@ -92,6 +99,7 @@ namespace Lotus
     UniformBuffer<CameraData> cameraBuffer;
 
     LightManager lightManager;
+    TraditionalObjectRenderer traditionalObjectRenderer;
     IndirectObjectRenderer indirectObjectRenderer;
     TerrainRenderer terrainRenderer;
   };

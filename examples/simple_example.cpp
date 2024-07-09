@@ -5,13 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "scene/camera.h"
-#include "util/path_manager.h"
-#include "render/shader.h"
-#include "render/traditional/texture_manager.h"
-#include "render/traditional/diffuse_textured_material.h"
-#include "render/traditional/mesh_instance.h"
-#include "render/traditional/renderer.h"
+#include "lotus_engine.h"
 
 int width = 720;
 int height = 720;
@@ -20,8 +14,8 @@ char title[256];
 const float cameraSpeed = 14.4f;
 const float cameraAngularSpeed = 2.0f;
 
-Lotus::Plane plane;
-Lotus::GPUMesh* planeM;
+Lotus::MeshManager& meshManager = Lotus::MeshManager::getInstance();
+Lotus::TextureLoader& textureLoader = Lotus::TextureLoader::getInstance();
 
 void updateFromInputs(GLFWwindow* window, float dt, Lotus::Camera* cameraPtr)
 {
@@ -63,18 +57,18 @@ void updateFromInputs(GLFWwindow* window, float dt, Lotus::Camera* cameraPtr)
   }
 }
 
-void createDirectionalLight(Lotus::Traditional::Renderer& renderer)
+void createDirectionalLight(Lotus::RenderingServer& renderingServer)
 {
-  std::shared_ptr<Lotus::DirectionalLight> directionalLight = renderer.createDirectionalLight();
+  std::shared_ptr<Lotus::DirectionalLight> directionalLight = renderingServer.createDirectionalLight();
 
-  directionalLight->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::pi<float>() * 0.5f);
-  directionalLight->rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::pi<float>() * 0.25f);
+  directionalLight->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(90.0f));
+  directionalLight->rotate(glm::vec3(0.0f, 0.0f, 1.0f), glm::radians(45.0f));
   directionalLight->setLightColor(glm::vec3(0.1f, 0.04f, 0.0f));
 }
 
-void createPointLights(Lotus::Traditional::Renderer& renderer)
+void createPointLights(Lotus::RenderingServer& renderingServer)
 {
-  std::shared_ptr<Lotus::PointLight> pointLight = renderer.createPointLight();
+  std::shared_ptr<Lotus::PointLight> pointLight = renderingServer.createPointLight();
 
   pointLight->translate(glm::vec3(0.0f, 5.0f, 0.0f));
   pointLight->setLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -82,28 +76,25 @@ void createPointLights(Lotus::Traditional::Renderer& renderer)
   pointLight->setLightRadius(400.f);
 }
 
-void createPlane(Lotus::Traditional::Renderer& renderer)
+void createPlane(Lotus::RenderingServer& renderingServer)
 {
-	//auto& meshManager = MeshManager::getInstance();
-  //Lotus::Plane plane; 
-  //Lotus::GPUMesh planeM = Lotus::GPUMesh(plane.vertices, plane.indices);
-	//std::shared_ptr<Lotus::GPUMesh> planeMesh = std::make_shared<Lotus::GPUMesh>(planeM);// = meshManager.loadMesh(Mesh::PrimitiveType::Plane);
+  std::shared_ptr<Lotus::Mesh> planeMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Plane);
 
-  auto& textureManager = Lotus::Traditional::TextureManager::getInstance();
-  std::shared_ptr<Lotus::Traditional::Texture> planeDiffuseTexture = textureManager.loadTexture(Lotus::assetPath("textures/wood.png"));
+  // auto& textureManager = Lotus::Traditional::TextureManager::getInstance();
+  //std::shared_ptr<Lotus::Traditional::Texture> planeDiffuseTexture = textureManager.loadTexture(Lotus::assetPath("textures/wood.png"));
 
-	std::shared_ptr<Lotus::Traditional::DiffuseTexturedMaterial> planeMaterial = std::static_pointer_cast<Lotus::Traditional::DiffuseTexturedMaterial>(renderer.createMaterial(Lotus::Traditional::MaterialType::DiffuseTextured));
+	std::shared_ptr<Lotus::DiffuseFlatMaterial> planeMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
 
-	planeMaterial->setDiffuseTexture(planeDiffuseTexture);
+	//planeMaterial->setDiffuseTexture(planeDiffuseTexture);
 
-	std::shared_ptr<Lotus::Traditional::MeshInstance> planeInstance = renderer.createMeshInstance(*planeM, planeMaterial);
+	std::shared_ptr<Lotus::MeshObject> planeObject = renderingServer.createObject(planeMesh, planeMaterial, Lotus::RenderingMethod::Indirect);
 
-  planeInstance->rotate(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(-90.0f));
-	planeInstance->scale(20.f);
+  planeObject->rotate(glm::vec3(1.0f, 0.0f, 0.0f), glm::radians(-90.0f));
+	planeObject->scale(20.f);
 }
 
 /*
-void createVent(Lotus::Traditional::Renderer& renderer)
+void createVent(Lotus::RenderingServer& renderer)
 {
 	auto& meshManager = MeshManager::getInstance();
 	std::shared_ptr<Mesh> ventMesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj"), true);
@@ -129,11 +120,11 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  sprintf(title, "GPU-Driven Rendering Engine");
-	GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
+  sprintf(title, "Simple Example");
+	GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
-	if (window == NULL) {
-		std::cout << "Failed to create GLFW window" << std::endl;
+	if (window == NULL)
+  {
 		glfwTerminate();
 		return -1;
 	}
@@ -146,17 +137,15 @@ int main()
 
   Lotus::Camera camera;
 
-  Lotus::Traditional::Renderer renderer;
-	renderer.startUp();
+  Lotus::RenderingServer renderingServer;
+	renderingServer.startUp();
 
-  renderer.setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
-  createDirectionalLight(renderer);
-  createPointLights(renderer);
+  renderingServer.setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
+  createDirectionalLight(renderingServer);
+  createPointLights(renderingServer);
 
-  planeM = new Lotus::GPUMesh(plane.vertices, plane.indices);
-
-  createPlane(renderer);
-	//createVent(renderer);
+  createPlane(renderingServer);
+	//createVent(renderingServer);
 	
 	double lastTime = glfwGetTime();
 
@@ -171,15 +160,13 @@ int main()
 
     updateFromInputs(window, dt, &camera);
 
-		renderer.render(camera);
+		renderingServer.render(camera);
 
     glfwSwapBuffers(window);
 	}
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
-
-  delete planeM;
 
   return 0;
 }

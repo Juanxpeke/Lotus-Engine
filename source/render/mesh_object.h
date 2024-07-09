@@ -4,12 +4,14 @@
 #include "../util/log.h"
 #include "../scene/node_3d.h"
 #include "mesh.h"
+#include "gpu_mesh.h"
 #include "material.h"
 
 namespace Lotus
 {
   class MeshObject : public Node3D
   {
+  friend class TraditionalObjectRenderer;
   friend class IndirectObjectRenderer;
 
   public:
@@ -17,6 +19,7 @@ namespace Lotus
     MeshObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) :
       meshPtr(mesh),
       materialPtr(material),
+      GPUMeshPtr(nullptr),
       meshDirty(false),
       materialDirty(false),
       shaderDirty(false)
@@ -64,7 +67,11 @@ namespace Lotus
   private:
     std::shared_ptr<Mesh> meshPtr;
     std::shared_ptr<Material> materialPtr;
+    
+    // Only intended to be handled by the traditional object renderer
+    std::shared_ptr<GPUMesh> GPUMeshPtr;
 
+    // Only intended to be handled by the indirect object renderer
     bool meshDirty;
     bool materialDirty;
     bool shaderDirty;

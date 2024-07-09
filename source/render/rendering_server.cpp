@@ -36,6 +36,7 @@ namespace Lotus
     cameraBuffer.bind();
     lightsBuffer.bind();
 
+    traditionalObjectRenderer.render();
     indirectObjectRenderer.render();
     terrainRenderer.render(camera);
 
@@ -89,9 +90,15 @@ namespace Lotus
     return lightManager.createPointLight();
   }
 
-  std::shared_ptr<MeshObject> RenderingServer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
+  std::shared_ptr<MeshObject> RenderingServer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material, RenderingMethod method)
   {
-    return indirectObjectRenderer.createObject(mesh, material);
+    switch(method)
+    {
+      case RenderingMethod::Traditional:
+        return traditionalObjectRenderer.createObject(mesh, material);
+      case RenderingMethod::Indirect:
+        return indirectObjectRenderer.createObject(mesh, material);
+    }
   }
 
   std::shared_ptr<Material> RenderingServer::createMaterial(MaterialType type)
@@ -100,21 +107,21 @@ namespace Lotus
 
     switch (type)
     {
-    case MaterialType::UnlitFlat:
-      return std::make_shared<UnlitFlatMaterial>();
-      break;
-    case MaterialType::DiffuseFlat:
-      return std::make_shared<DiffuseFlatMaterial>();
-      break;
-    case MaterialType::DiffuseTextured:
-      return std::make_shared<DiffuseFlatMaterial>();
-      break;
-    case MaterialType::MaterialTypeCount:
-      return std::make_shared<DiffuseFlatMaterial>();
-      break;
-    default:
-      return nullptr;
-      break;
+      case MaterialType::UnlitFlat:
+        return std::make_shared<UnlitFlatMaterial>();
+        break;
+      case MaterialType::DiffuseFlat:
+        return std::make_shared<DiffuseFlatMaterial>();
+        break;
+      case MaterialType::DiffuseTextured:
+        return std::make_shared<DiffuseFlatMaterial>();
+        break;
+      case MaterialType::MaterialTypeCount:
+        return std::make_shared<DiffuseFlatMaterial>();
+        break;
+      default:
+        return nullptr;
+        break;
     }
   }
 
@@ -143,7 +150,7 @@ namespace Lotus
 
     cameraData.view = camera.getViewMatrix();
     cameraData.projection = camera.getProjectionMatrix();
-    cameraData.viewProjection = cameraData.view * cameraData.projection;
+    cameraData.viewProjection = cameraData.projection * cameraData.view;
     cameraData.cameraPosition = camera.getLocalTranslation();
 
     cameraBuffer.write(&cameraData);
