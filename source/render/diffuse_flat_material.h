@@ -18,7 +18,11 @@ namespace Lotus
 
     void setDiffuseColor(const glm::vec3& color)
     {
-      if (color == diffuseColor) { return; }
+      if (color == diffuseColor)
+      {
+        LOTUS_LOG_WARN("[Material Warning] Tried to set color that is already being used");
+        return;
+      }
 
       diffuseColor = color;
       dirty = true;

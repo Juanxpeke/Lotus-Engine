@@ -17,19 +17,16 @@ struct Material
 	int int_3;
 };
 
-// Shader storage buffer with the objects
 layout(std140, binding = 0) readonly buffer Objects
 {
 	Object[] objects;
 };
 
-// Shader storage buffer with the materials
 layout(std140, binding = 2) readonly buffer Materials
 {
 	Material[] materials;
 };
 
-// Lights information uniform
 layout(std140, binding = 1) uniform Lights
 {
 	DirectionalLight[${MAX_DIRECTIONAL_LIGHTS}] directionalLights;

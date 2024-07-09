@@ -7,6 +7,10 @@
 #include "../lighting/light_manager.h"
 #include "../terrain/terrain_renderer.h"
 #include "gpu_buffer.h"
+#include "material.h"
+#include "unlit_flat_material.h"
+#include "diffuse_flat_material.h"
+#include "diffuse_textured_material.h"
 #include "traditional/traditional_object_renderer.h"
 #include "indirect/indirect_object_renderer.h"
 

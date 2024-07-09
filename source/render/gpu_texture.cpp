@@ -124,6 +124,7 @@ namespace Lotus
 
   GPUTexture::GPUTexture(TextureConfig textureConfig) :
     ID(0),
+    handle(0),
     width(textureConfig.width),
     height(textureConfig.height),
     format(textureConfig.format)
@@ -143,6 +144,9 @@ namespace Lotus
     if (textureConfig.data)
     {
       glTextureSubImage2D(ID, 0, 0, 0, width, height, dataFormat, dataType, textureConfig.data);
+
+      handle = glGetTextureHandleARB(ID);
+      glMakeTextureHandleResidentARB(handle);
     }
     if (textureConfig.genMipmaps)
     {

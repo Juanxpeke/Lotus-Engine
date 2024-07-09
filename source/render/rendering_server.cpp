@@ -109,19 +109,16 @@ namespace Lotus
     {
       case MaterialType::UnlitFlat:
         return std::make_shared<UnlitFlatMaterial>();
-        break;
+      case MaterialType::UnlitTextured:
+        return std::make_shared<UnlitFlatMaterial>();
       case MaterialType::DiffuseFlat:
         return std::make_shared<DiffuseFlatMaterial>();
-        break;
       case MaterialType::DiffuseTextured:
-        return std::make_shared<DiffuseFlatMaterial>();
-        break;
+        return std::make_shared<DiffuseTexturedMaterial>();
       case MaterialType::MaterialTypeCount:
         return std::make_shared<DiffuseFlatMaterial>();
-        break;
       default:
         return nullptr;
-        break;
     }
   }
 

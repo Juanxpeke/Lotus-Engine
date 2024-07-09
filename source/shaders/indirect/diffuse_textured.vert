@@ -2,13 +2,11 @@
 
 #include ../common/primitives.glsl
 
-// Shader storage buffer with the objects
 layout(std140, binding = 0) readonly buffer Objects
 {
 	Object[] objects;
 };
 
-// Shader storage buffer with the objects handles
 layout(std430, binding = 1) readonly buffer ObjectHandles
 {
 	uint[] objectHandles;
@@ -21,7 +19,6 @@ layout(std140, binding = 0) uniform CameraBuffer
   mat4 viewProjection;
   vec3 cameraPosition;
 };
-
 
 // Inputs
 layout(location = 0) in vec3 position;
@@ -45,5 +42,5 @@ void main()
 	fragNormal = mat3(transpose(inverse(object.model))) * normal;
 	fragTexCoord = texCoord;
 	
-	gl_Position = projection * view * object.model * vec4(position, 1.0);
+	gl_Position = viewProjection * object.model * vec4(position, 1.0);
 }

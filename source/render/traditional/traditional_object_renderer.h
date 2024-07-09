@@ -24,7 +24,7 @@ namespace Lotus
 
     TraditionalObjectRenderer();
 
-    void render() noexcept;
+    void render();
 
     std::shared_ptr<MeshObject> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
   

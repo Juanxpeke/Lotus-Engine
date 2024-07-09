@@ -37,7 +37,7 @@ namespace Lotus
       
       if (mesh == meshPtr)
       {
-        LOTUS_LOG_WARN("[Mesh Object Warning] Tried to set same mash as the object's");
+        LOTUS_LOG_WARN("[Mesh Object Warning] Tried to set mesh that is already being used");
         return;
       }
 

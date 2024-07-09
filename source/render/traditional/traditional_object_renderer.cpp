@@ -3,8 +3,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "../../util/path_manager.h"
-#include "../diffuse_flat_material.h"
-//#include "../diffuse_textured_material.h"
 
 namespace Lotus
 {
@@ -15,7 +13,7 @@ namespace Lotus
     shaders[static_cast<unsigned int>(MaterialType::DiffuseTextured)] = ShaderProgram(shaderPath("traditional/diffuse_textured.vert"), shaderPath("traditional/diffuse_textured.frag"));
   }
 
-  void TraditionalObjectRenderer::render() noexcept
+  void TraditionalObjectRenderer::render()
   {
     for (int i = 0; i < meshObjects.size(); i++)
     {

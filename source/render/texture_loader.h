@@ -31,8 +31,6 @@ namespace Lotus
         TextureWrapMode tWrapMode = TextureWrapMode::Repeat,
         bool genMipmaps = false) noexcept;
 
-    std::shared_ptr<GPUTexture> generatePerlinTexture(int width, int height);
-
   private:
     TextureLoader() = default;
 

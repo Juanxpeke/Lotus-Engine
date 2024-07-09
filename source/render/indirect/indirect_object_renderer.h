@@ -13,8 +13,6 @@
 #include "../gpu_buffer.h"
 #include "../shader.h"
 #include "../material.h"
-#include "../unlit_flat_material.h"
-#include "../diffuse_flat_material.h"
 #include "../mesh_object.h"
 
 
@@ -99,5 +97,8 @@ namespace Lotus
     ShaderStorageBuffer<GPUObjectData> objectBuffer;
     ShaderStorageBuffer<uint32_t> objectHandleBuffer;
     ShaderStorageBuffer<GPUMaterialData> materialBuffer;
+
+    // Extensions support
+    bool supportsTexturedMaterials;
   };
 }

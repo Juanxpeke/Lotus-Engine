@@ -80,12 +80,11 @@ void createPlane(Lotus::RenderingServer& renderingServer)
 {
   std::shared_ptr<Lotus::Mesh> planeMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Plane);
 
-  // auto& textureManager = Lotus::Traditional::TextureManager::getInstance();
-  //std::shared_ptr<Lotus::Traditional::Texture> planeDiffuseTexture = textureManager.loadTexture(Lotus::assetPath("textures/wood.png"));
+  std::shared_ptr<Lotus::GPUTexture> planeDiffuseTexture = textureLoader.loadTexture(Lotus::assetPath("textures/wood.png"));
 
-	std::shared_ptr<Lotus::DiffuseFlatMaterial> planeMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
+	std::shared_ptr<Lotus::DiffuseTexturedMaterial> planeMaterial = std::static_pointer_cast<Lotus::DiffuseTexturedMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseTextured));
 
-	//planeMaterial->setDiffuseTexture(planeDiffuseTexture);
+	planeMaterial->setDiffuseTexture(planeDiffuseTexture);
 
 	std::shared_ptr<Lotus::MeshObject> planeObject = renderingServer.createObject(planeMesh, planeMaterial, Lotus::RenderingMethod::Indirect);
 
@@ -93,25 +92,21 @@ void createPlane(Lotus::RenderingServer& renderingServer)
 	planeObject->scale(20.f);
 }
 
-/*
-void createVent(Lotus::RenderingServer& renderer)
+void createVent(Lotus::RenderingServer& renderingServer)
 {
-	auto& meshManager = MeshManager::getInstance();
-	std::shared_ptr<Mesh> ventMesh = meshManager.loadMesh(assetPath("models/air_conditioner/AirConditioner.obj"), true);
+	std::shared_ptr<Lotus::Mesh> ventMesh = meshManager.loadMesh(Lotus::assetPath("models/air_conditioner/AirConditioner.obj"), true);
 
-  auto& textureManager = TextureManager::getInstance();
-  std::shared_ptr<Texture> ventDiffuseTexture = textureManager.loadTexture(assetPath("models/air_conditioner/Albedo.png"));
+  std::shared_ptr<Lotus::GPUTexture> ventDiffuseTexture = textureLoader.loadTexture(Lotus::assetPath("models/air_conditioner/Albedo.png"));
 
-	std::shared_ptr<DiffuseTexturedMaterial> ventMaterial = std::static_pointer_cast<DiffuseTexturedMaterial>(renderer.createMaterial(MaterialType::DiffuseTextured));
+	std::shared_ptr<Lotus::DiffuseTexturedMaterial> ventMaterial = std::static_pointer_cast<Lotus::DiffuseTexturedMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseTextured));
 
 	ventMaterial->setDiffuseTexture(ventDiffuseTexture);
 
-	MeshInstance* ventInstance = renderer.createMeshInstance(ventMesh, ventMaterial);
+	std::shared_ptr<Lotus::MeshObject> ventObject = renderingServer.createObject(ventMesh, ventMaterial, Lotus::RenderingMethod::Indirect);
 
-  ventInstance->translate(glm::vec3(0.0f, 10.0f, -18.0f));
-	ventInstance->scale(0.3f);
+  ventObject->translate(glm::vec3(0.0f, 10.5f, -18.0f));
+	ventObject->scale(0.3f);
 }
-*/
 
 int main()
 {
@@ -120,7 +115,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  sprintf(title, "Simple Example");
+  sprintf(title, "Simple Scene");
 	GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
 	if (window == NULL)
@@ -145,11 +140,10 @@ int main()
   createPointLights(renderingServer);
 
   createPlane(renderingServer);
-	//createVent(renderingServer);
+	createVent(renderingServer);
 	
 	double lastTime = glfwGetTime();
 
-	// Main while loop
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();

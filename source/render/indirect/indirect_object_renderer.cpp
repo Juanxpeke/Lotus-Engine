@@ -3,16 +3,25 @@
 #include <algorithm>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "../../util/log.h"
 #include "../../util/path_manager.h"
+#include "../../util/opengl_extensions.h"
 #include "../identifiers.h"
 
 namespace Lotus {
 
   IndirectObjectRenderer::IndirectObjectRenderer() : vertexArrayID(0)
   {
+    supportsTexturedMaterials = OpenGLExtensionChecker::isExtensionSupported(OpenGLExtension::BindlessTexture);
+
     shaders[static_cast<unsigned int>(MaterialType::UnlitFlat)] = ShaderProgram(shaderPath("indirect/unlit_flat.vert"), shaderPath("indirect/unlit_flat.frag"));
     shaders[static_cast<unsigned int>(MaterialType::DiffuseFlat)] = ShaderProgram(shaderPath("indirect/diffuse_flat.vert"), shaderPath("indirect/diffuse_flat.frag"));
-    
+
+    if (supportsTexturedMaterials)
+    {
+      shaders[static_cast<unsigned int>(MaterialType::DiffuseTextured)] = ShaderProgram(shaderPath("indirect/diffuse_textured.vert"), shaderPath("indirect/diffuse_textured.frag"));
+    }
+
     glGenVertexArrays(1, &vertexArrayID);
 
     vertexBuffer.allocate(VertexBufferInitialAllocationSize);

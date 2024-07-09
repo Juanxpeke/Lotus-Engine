@@ -1,6 +1,13 @@
 #version 460 core
 
-layout(location = 0) uniform mat4 mvp;
+layout(std140, binding = 0) uniform CameraBuffer
+{
+  mat4 view;
+  mat4 projection;
+  mat4 viewProjection;
+  vec3 cameraPosition;
+};
+
 layout(location = 1) uniform mat4 model;
 layout(location = 2) uniform mat4 modelInverseTranspose;
 
@@ -14,9 +21,9 @@ out vec2 fragTexCoord;
 
 void main()
 {
-	fragPosition = vec3(model * vec4(position, 1.0f));
+	fragPosition = vec3(model * vec4(position, 1.0));
 	fragNormal = mat3(modelInverseTranspose) * normal;
 	fragTexCoord = texCoord;
 	
-	gl_Position = mvp * vec4(position, 1.0f);
+	gl_Position = viewProjection * model * vec4(position, 1.0);
 }

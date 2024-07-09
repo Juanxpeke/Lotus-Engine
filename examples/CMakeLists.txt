@@ -8,4 +8,4 @@ function(add_example TARGET_NAME)
 	target_include_directories(${TARGET_NAME} PRIVATE ${LOTUS_INCLUDE_DIRECTORY} ${THIRD_PARTY_INCLUDE_DIRECTORIES})
 endfunction(add_example)
 
-add_example(simple_example)
+add_example(simple_scene)

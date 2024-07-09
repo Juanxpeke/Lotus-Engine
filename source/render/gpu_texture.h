@@ -67,6 +67,7 @@ namespace Lotus
     uint32_t getID() const { return ID; }
     uint32_t getWidth() const { return width; }
     uint32_t getHeight() const { return height; }
+    uint64_t getHandle() const { return handle; }
 
     void setData(const void* data);
 
@@ -77,6 +78,7 @@ namespace Lotus
 
   private:
     uint32_t ID;
+    uint64_t handle;
     uint32_t width;
     uint32_t height;
 

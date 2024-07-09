@@ -2,8 +2,10 @@
 
 #version 460 core
 
-// Enable bindless textures
 #extension GL_ARB_bindless_texture : require
+
+#include ../common/lighting.glsl
+#include ../common/primitives.glsl
 
 struct Material
 {
@@ -17,19 +19,16 @@ struct Material
 	sampler2D tex_3;
 };
 
-// Shader storage buffer with the materials
+layout(std140, binding = 0) readonly buffer Objects
+{
+	Object[] objects;
+};
+
 layout(std140, binding = 2) readonly buffer Materials
 {
 	Material[] materials;
 };
 
-// Textures block
-layout (std140, binding = 1) uniform Textures
-{
-  sampler2D textures[512];
-};
-
-// Lights information uniform
 layout(std140, binding = 1) uniform Lights
 {
 	DirectionalLight[${MAX_DIRECTIONAL_LIGHTS}] directionalLights;
