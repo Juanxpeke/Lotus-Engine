@@ -301,12 +301,63 @@ namespace Lotus
       int previousAllocationBlockIndex = -1;
       int nextAllocationBlockIndex = -1;
 
-      for (int i = 0; i < allocationBlocks.size(); i++)
+      int i = 0;
+      
+      while (i < allocationBlocks.size())
       {
-        // TODO: Indentify previous and next allocation blocks
+        AllocationBlock& block = allocationBlocks[i];
+
+        if (block.first <= first && (block.first + block.size) >= first + size)
+        {
+          LOTUS_LOG_WARN("[Buffer Warning] Tried to remove block inside a free region, buffer ID {0}", this->ID);
+          return;
+        }
+
+        if (block.first >= first && (block.first + block.size) <= first + size)
+        {
+          allocationBlocks[i] = allocationBlocks.back();
+          allocationBlocks.pop_back();
+          continue;
+        }
+
+        if (block.first < first && (block.first + block.size) < first + size)
+        {
+          previousAllocationBlockIndex = i;
+        }
+        else if(block.first > first && (block.first + block.size) > first + size)
+        {
+          nextAllocationBlockIndex = i;
+        }
+
+        i++;
       }
 
-      // TODO: If they exist, do the merge, if not, then allocationBlocks.emplace_back(first, size);
+      int finalBlockIndex;
+
+      if (previousAllocationBlockIndex != -1)
+      {
+        finalBlockIndex = previousAllocationBlockIndex;
+
+        AllocationBlock& prevBlock = allocationBlocks[previousAllocationBlockIndex];
+
+        prevBlock.size += first + size - (prevBlock.first + prevBlock.size);
+      }
+      else
+      {
+        allocationBlocks.emplace_back(first, size);
+        finalBlockIndex = allocationBlocks.size() - 1;
+      }
+
+      if (nextAllocationBlockIndex != -1)
+      {
+        AllocationBlock& finalBlock = allocationBlocks[finalBlockIndex];
+        AllocationBlock& nextBlock = allocationBlocks[nextAllocationBlockIndex];
+
+        finalBlock.size = nextBlock.first + nextBlock.size - (finalBlock.first + finalBlock.size); 
+
+        allocationBlocks[newAllocationBlockIndex] = allocationBlocks.back();
+        allocationBlocks.pop_back()
+      }
     }
 
     struct AllocationBlock
