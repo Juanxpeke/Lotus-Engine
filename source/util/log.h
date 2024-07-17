@@ -4,7 +4,8 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-namespace Lotus {
+namespace Lotus
+{
 
   class Log
   {
@@ -29,6 +30,7 @@ namespace Lotus {
     
     std::shared_ptr<spdlog::logger> sLogger;
   };
+
 }
 
 #if NDEBUG
@@ -46,5 +48,4 @@ namespace Lotus {
 	#else
 		#define LOTUS_ASSERT(expr, ...)  { if(!(expr)) { LOTUS_LOG_ERROR(__VA_ARGS__); __debugbreak(); } }
 	#endif
-
 #endif

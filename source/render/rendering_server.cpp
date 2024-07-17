@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <glad/glad.h>
+#include "../util/profile.h"
 #include "identifiers.h"
 
 namespace Lotus
@@ -41,6 +42,8 @@ namespace Lotus
 
     lightsBuffer.unbind();
     cameraBuffer.unbind();
+
+    LOTUS_PROFILE_END_FRAME();
   }
 
   void RenderingServer::setRenderingMode(RenderingMode renderingMode)

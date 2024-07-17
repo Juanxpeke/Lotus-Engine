@@ -81,6 +81,8 @@ int main()
 
 	glViewport(0, 0, width, height);
 
+  LOTUS_SET_PROFILER_APP(title);
+
   Lotus::Camera camera;
   
   Lotus::PerlinNoiseConfig noiseConfiguration;

@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "../../util/log.h"
+#include "../../util/profile.h"
 #include "../../util/path_manager.h"
 #include "../../util/opengl_extensions.h"
 #include "../identifiers.h"
@@ -54,6 +55,8 @@ namespace Lotus {
 
   std::shared_ptr<MeshObject> IndirectObjectRenderer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
   {
+    LOTUS_PROFILE_INCREASE_COUNTER(FrameCounter::AddedIndirectObjects);
+
     std::shared_ptr<MeshObject> meshInstance = std::make_shared<MeshObject>(mesh, material);
     meshInstances.push_back(meshInstance);
 
@@ -206,6 +209,8 @@ namespace Lotus {
 
   void IndirectObjectRenderer::buildObjectBatches()
   {
+    LOTUS_PROFILE_START_TIME(FrameTime::IndirectObjectBatchBuildTime);
+
     if (!toUnbatchObjects.empty())
     {
 
@@ -320,10 +325,14 @@ namespace Lotus {
       }
 
     }
+
+    LOTUS_PROFILE_END_TIME(FrameTime::IndirectObjectBatchBuildTime);
   }
 
   void IndirectObjectRenderer::buildDrawBatches()
   {
+    LOTUS_PROFILE_START_TIME(FrameTime::IndirectDrawBatchBuildTime);
+
     drawBatches.clear();
     
     if (objectBatches.size() == 0) { return; }
@@ -361,10 +370,13 @@ namespace Lotus {
       }
     }
 
+    LOTUS_PROFILE_END_TIME(FrameTime::IndirectDrawBatchBuildTime);
   }
 
   void IndirectObjectRenderer::buildShaderBatches()
   {
+    LOTUS_PROFILE_START_TIME(FrameTime::IndirectShaderBatchBuildTime);
+
     shaderBatches.clear();
 
     if (drawBatches.size() == 0) { return; }
@@ -399,6 +411,7 @@ namespace Lotus {
       }
     }
 
+    LOTUS_PROFILE_END_TIME(FrameTime::IndirectShaderBatchBuildTime);
   }
 
   void IndirectObjectRenderer::refreshBuffers()

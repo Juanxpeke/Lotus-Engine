@@ -1,6 +1,7 @@
 #pragma once
 
 #include "math/types.h"
+#include "util/profile.h"
 #include "util/path_manager.h"
 #include "scene/transform.h"
 #include "scene/node_3d.h"
