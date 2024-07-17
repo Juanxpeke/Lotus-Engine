@@ -355,8 +355,8 @@ namespace Lotus
 
         finalBlock.size = nextBlock.first + nextBlock.size - (finalBlock.first + finalBlock.size); 
 
-        allocationBlocks[newAllocationBlockIndex] = allocationBlocks.back();
-        allocationBlocks.pop_back()
+        allocationBlocks[nextAllocationBlockIndex] = allocationBlocks.back();
+        allocationBlocks.pop_back();
       }
     }
 
