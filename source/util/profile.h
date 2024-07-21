@@ -175,7 +175,7 @@ namespace Lotus
 
     void exportData()
     {
-      std::filesystem::path filePath = testPath(appName + ".csv");
+      std::filesystem::path filePath = experimentPath("results/" + appName + ".csv");
       std::ofstream file(filePath.string());
 
       for (const FrameData& frameData : data)

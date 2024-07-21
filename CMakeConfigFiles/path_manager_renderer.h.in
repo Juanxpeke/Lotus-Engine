@@ -24,9 +24,14 @@ namespace Lotus
     return directoryPath + "source/shaders/" + shaderRelativePath;
   }
 
-  static std::filesystem::path testPath(const std::string& relativePath)
+  static std::filesystem::path experimentPath(const std::string& experimentRelativePath)
   {
-    return directoryPath + "tests/" + relativePath;
+    return directoryPath + "experiments/" + experimentRelativePath;
+  }
+
+  static std::filesystem::path testPath(const std::string& testRelativePath)
+  {
+    return directoryPath + "tests/" + testRelativePath;
   }
 }
 
