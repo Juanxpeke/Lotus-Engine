@@ -98,14 +98,28 @@ namespace Lotus
       return profiler;
     }
 
+    void enable()
+    {
+      enabled = true;
+    }
+
     void setProfilerAppName(std::string name)
     {
+      if (!enabled)
+      {
+        LOTUS_LOG_WARN("[Profiler Warning] Tried to set profiler application name, but profiling is not enabled");
+        return;
+      }
+
       appName = name;
     }
 
     void endFrame()
     {
-      if (dataExported) return;
+      if (!enabled || dataExported)
+      {
+        return;
+      }
       
       bool timeRunning = false;
 
@@ -130,7 +144,10 @@ namespace Lotus
 
     void startFrameTime(FrameTime frameTime)
     {
-      if (dataExported) return;
+      if (!enabled || dataExported)
+      {
+        return;
+      }
 
       using std::chrono::microseconds;
 
@@ -144,7 +161,10 @@ namespace Lotus
     
     void endFrameTime(FrameTime frameTime)
     {
-      if (dataExported) return;
+      if (!enabled || dataExported)
+      {
+        return;
+      }
 
       using std::chrono::microseconds;
 
@@ -160,7 +180,10 @@ namespace Lotus
 
     void increaseCounter(FrameCounter frameCounter)
     {
-      if (dataExported) return;
+      if (!enabled || dataExported)
+      {
+        return;
+      }
 
       currentFrameData.counters[static_cast<int>(frameCounter)] += 1;
     }
@@ -168,13 +191,19 @@ namespace Lotus
   private:
     static constexpr unsigned int maxFrameCount = 1000;
 
-    Profiler() : frame(0), appName("default"), dataExported(false)
+    Profiler() :  enabled(false), frame(0), appName("default"), dataExported(false)
     {
 
     }
 
     void exportData()
     {
+      if (!enabled)
+      {
+        LOTUS_LOG_WARN("[Profiler Warning] Tried to export data, but profiling is not enabled");
+        return;
+      }
+
       std::filesystem::path filePath = experimentPath("results/" + appName + ".csv");
       std::ofstream file(filePath.string());
 
@@ -194,8 +223,10 @@ namespace Lotus
 
       dataExported = true;
 
-      LOTUS_LOG_INFO("[Profiler Info] Exported data to {0}", filePath.string());
+      LOTUS_LOG_INFO("[Profiler Log] Exported data to {0}", filePath.string());
     }
+
+    bool enabled;
 
     unsigned int frame;
     FrameData currentFrameData;
@@ -208,12 +239,14 @@ namespace Lotus
 }
 
 #if NPROFILE
+  #define LOTUS_ENABLE_PROFILING()                     (void(0))
   #define LOTUS_SET_PROFILER_APP(appName)              (void(0))
   #define LOTUS_PROFILE_START_TIME(frameTime)          (void(0))
   #define LOTUS_PROFILE_END_TIME(frameTime)            (void(0))
   #define LOTUS_PROFILE_INCREASE_COUNTER(frameCounter) (void(0))
   #define LOTUS_PROFILE_END_FRAME()                    (void(0))
 #else
+  #define LOTUS_ENABLE_PROFILING()                     ::Lotus::Profiler::getProfiler().enable()
   #define LOTUS_SET_PROFILER_APP(appName)              ::Lotus::Profiler::getProfiler().setProfilerAppName(appName)
   #define LOTUS_PROFILE_START_TIME(frameTime)          ::Lotus::Profiler::getProfiler().startFrameTime(frameTime)
   #define LOTUS_PROFILE_END_TIME(frameTime)            ::Lotus::Profiler::getProfiler().endFrameTime(frameTime)
