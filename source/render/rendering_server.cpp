@@ -1,7 +1,7 @@
 #include "rendering_server.h"
 
 #include <algorithm>
-#include <glad/glad.h>
+#include "../util/opengl_entry.h"
 #include "../util/profile.h"
 #include "identifiers.h"
 

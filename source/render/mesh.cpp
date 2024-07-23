@@ -3,11 +3,11 @@
 #include <iostream>
 #include <vector>
 #include <stack>
-#include <glad/glad.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "../util/log.h"
+#include "../util/opengl_entry.h"
 #include "../util/assimp_transformations.h"
 
 namespace Lotus

@@ -1,6 +1,6 @@
 #include "material.h"
 
-#include <glad/glad.h>
+#include "../util/opengl_entry.h"
 
 namespace Lotus
 {

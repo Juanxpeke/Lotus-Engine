@@ -6,8 +6,8 @@
 #include <algorithm>
 #include <vector>
 #include <set>
-#include <glad/glad.h>
 #include "../util/log.h"
+#include "../util/opengl_entry.h"
 #include "../math/types.h"
 #include "../math/gpu_primitives.h"
 #include "../render/mesh.h"

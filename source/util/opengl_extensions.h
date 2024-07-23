@@ -2,7 +2,7 @@
 
 #include <set>
 #include <string>
-#include <glad/glad.h>
+#include "opengl_entry.h"
 
 namespace Lotus
 {

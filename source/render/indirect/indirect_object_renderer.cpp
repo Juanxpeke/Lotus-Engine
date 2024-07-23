@@ -1,12 +1,11 @@
 #include "indirect_object_renderer.h"
 
 #include <algorithm>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include "../../util/log.h"
+#include "../../util/opengl_entry.h"
+#include "../../util/opengl_extensions.h"
 #include "../../util/profile.h"
 #include "../../util/path_manager.h"
-#include "../../util/opengl_extensions.h"
 #include "../identifiers.h"
 
 namespace Lotus {

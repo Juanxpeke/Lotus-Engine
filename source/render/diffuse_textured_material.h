@@ -1,7 +1,7 @@
 #pragma once
 
-#include <glad/glad.h>
 #include "../util/log.h"
+#include "../util/opengl_entry.h"
 #include "../math/types.h"
 #include "gpu_texture.h"
 #include "material.h"

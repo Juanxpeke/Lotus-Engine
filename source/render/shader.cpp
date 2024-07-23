@@ -4,8 +4,8 @@
 #include <sstream>
 #include <fstream>
 #include <array>
-#include <glad/glad.h>
 #include "../util/log.h"
+#include "../util/opengl_entry.h"
 // #include "renderer.h"
 
 namespace Lotus

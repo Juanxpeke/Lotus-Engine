@@ -1,8 +1,8 @@
 #include "terrain_renderer.h"
 
 #include <cmath>
-#include <glad/glad.h>
 #include "../util/log.h"
+#include "../util/opengl_entry.h"
 #include "../render/identifiers.h"
 #include "geoclipmap.h"
 

@@ -1,7 +1,6 @@
 #include "traditional_object_renderer.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "../../util/opengl_entry.h"
 #include "../../util/path_manager.h"
 
 namespace Lotus

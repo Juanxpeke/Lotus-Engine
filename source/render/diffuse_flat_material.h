@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glad/glad.h>
+#include "../util/opengl_entry.h"
 #include "../math/types.h"
 #include "material.h"
 

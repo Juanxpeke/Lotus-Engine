@@ -1,7 +1,7 @@
 #include "gpu_texture.h"
 
-#include <glad/glad.h>
 #include "../util/log.h"
+#include "../util/opengl_entry.h"
 
 namespace Lotus
 {
