@@ -9,3 +9,4 @@ function(add_example TARGET_NAME)
 endfunction(add_example)
 
 add_example(simple_scene)
+add_example(procedural_scene)

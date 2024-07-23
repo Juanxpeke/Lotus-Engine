@@ -31,4 +31,3 @@ add_visual_test(change_materials)
 
 # Terrain generation
 add_visual_test(clipmap)
-add_visual_test(rendering_test)

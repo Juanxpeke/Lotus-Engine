@@ -46,20 +46,28 @@ namespace Lotus
     meshes = GeoClipmap::generate(tileResolution);
   }
 
-  void TerrainRenderer::setTerrain(Terrain* aTerrain)
+  std::shared_ptr<Terrain> TerrainRenderer::createTerrain(const std::shared_ptr<ProceduralDataGenerator>& terrainDataGenerator)
   {
-    terrain = aTerrain;
-
-    const std::shared_ptr<ProceduralDataGenerator> dataGenerator = terrain->getDataGenerator();
+    if (terrain != nullptr)
+    {
+      LOTUS_LOG_WARN("[Terrain Renderer Warning] Tried to create terrain, but terrain is already created");
+      return terrain;
+    }
+    
+    terrain = std::make_shared<Terrain>(terrainDataGenerator);
 
     Lotus::TextureConfig textureConfig;
     textureConfig.format = Lotus::TextureFormat::RFloat;
-    textureConfig.width = dataGenerator->getDataPerChunkSide();
-    textureConfig.height = dataGenerator->getDataPerChunkSide();
-    textureConfig.depth = dataGenerator->getChunksAmount();
+    textureConfig.width = terrainDataGenerator->getDataPerChunkSide();
+    textureConfig.height = terrainDataGenerator->getDataPerChunkSide();
+    textureConfig.depth = terrainDataGenerator->getChunksAmount();
 
     heightmapTextures = std::make_shared<GPUArrayTexture>(textureConfig);
     updateHeightmapTextures(true);
+
+
+
+    return terrain;
   }
 
   void TerrainRenderer::render(const Camera& camera)

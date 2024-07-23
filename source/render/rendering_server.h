@@ -55,7 +55,7 @@ namespace Lotus
     // Terrain
     void setTerrainLevels(uint32_t levels);
     void setTerrainTileResolution(uint32_t tileResolution);
-    void setTerrain(Terrain* terrain);
+    std::shared_ptr<Terrain> createTerrain(const std::shared_ptr<ProceduralDataGenerator>& terrainDataGenerator);
 
   private:
 

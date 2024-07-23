@@ -132,9 +132,9 @@ namespace Lotus
     terrainRenderer.setTileResolution(tileResolution);
   }
 
-  void RenderingServer::setTerrain(Terrain* terrain)
+  std::shared_ptr<Terrain> RenderingServer::createTerrain(const std::shared_ptr<ProceduralDataGenerator>& terrainDataGenerator)
   {
-    terrainRenderer.setTerrain(terrain);
+    return terrainRenderer.createTerrain(terrainDataGenerator);
   }
 
   void RenderingServer::fillCameraBuffer(const Camera& camera)

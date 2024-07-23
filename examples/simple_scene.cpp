@@ -15,7 +15,6 @@ public:
     
     createDirectionalLight();
     createPointLights();
-
     createPlane();
     createVent();    
   }

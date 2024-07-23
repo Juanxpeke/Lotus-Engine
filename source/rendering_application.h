@@ -13,12 +13,12 @@ namespace Lotus
     RenderingApplication(const std::string& applicationName, int windowWidth, int windowHeight);
 
     Camera camera;
-    float cameraSpeed = 14.4f;
+    float cameraSpeed = 32.0f;
     float cameraAngularSpeed = 2.0f;
     
     RenderingServer renderingServer;
 
-  private:
+  protected:
     virtual void update(float deltaTime) override;
     void updateCamera(float deltaTime);
   };

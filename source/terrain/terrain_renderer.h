@@ -34,7 +34,8 @@ namespace Lotus
 
     void setLevels(uint32_t terrainLevels);
     void setTileResolution(uint32_t terrainTileResolution);
-    void setTerrain(Terrain* terrain);
+    
+    std::shared_ptr<Terrain> createTerrain(const std::shared_ptr<ProceduralDataGenerator>& terrainDataGenerator);
 
     void render(const Camera& camera);
 
@@ -67,7 +68,6 @@ namespace Lotus
     glm::mat4 rotationModels[4];
     glm::vec3 debugColors[5];
 
-    // Terrain
-    Terrain* terrain;
+    std::shared_ptr<Terrain> terrain;
   };
 }
