@@ -39,6 +39,10 @@ set(RENDER_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/traditional_object_renderer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_object_renderer.h)
 
+set(APPLICATION_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/application.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/rendering_application.h)
+
 # Source files
 
 set(LIGHTING_SOURCES
@@ -62,6 +66,12 @@ set(RENDER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/traditional_object_renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_object_renderer.cpp)
 
+set(APPLICATION_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/application.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/rendering_application.cpp)
+
+# Engine
+
 set(ENGINE_NAME
     LotusEngine)
 
@@ -70,12 +80,14 @@ set(ENGINE_HEADERS
     ${SCENE_HEADERS}
     ${LIGHTING_HEADERS}
     ${TERRAIN_HEADERS}
-    ${RENDER_HEADERS})
+    ${RENDER_HEADERS}
+    ${APPLICATION_HEADERS})
 
 set(ENGINE_SOURCES
     ${LIGHTING_SOURCES}
     ${TERRAIN_SOURCES}
-    ${RENDER_SOURCES})
+    ${RENDER_SOURCES}
+    ${APPLICATION_SOURCES})
 
 add_library(${ENGINE_NAME} STATIC ${ENGINE_SOURCES} ${ENGINE_HEADERS})
 

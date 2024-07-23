@@ -15,8 +15,6 @@ namespace Lotus
   {
     glEnable(GL_DEPTH_TEST);
     
-    // glEnable(GL_CULL_FACE);
-    
     mode = RenderingMode::Fill;
     
     cameraBuffer.allocate();

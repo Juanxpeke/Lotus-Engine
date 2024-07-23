@@ -1,7 +1,5 @@
 #include <iostream>
 #include <cstdlib>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 #include "lotus_engine.h"
 
