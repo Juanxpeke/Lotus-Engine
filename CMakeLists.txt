@@ -27,7 +27,8 @@ set(LOTUS_INCLUDE_DIRECTORY
 # Header generated automatically by CMake
 configure_file(CMakeConfigFiles/path_manager_renderer.h.in ${CMAKE_CURRENT_SOURCE_DIR}/source/util/path_manager.h)
 
+add_subdirectory(third_party)
 add_subdirectory(source)
 add_subdirectory(examples)
+add_subdirectory(experiments)
 add_subdirectory(tests)
-add_subdirectory(third_party)
