@@ -8,7 +8,7 @@
 #include "scene/camera.h"
 #include "render/indirect/renderer.h"
 #include "render/mesh_manager.h"
-#include "../test_util.h"
+#include "../testing.h"
 
 int width = 720;
 int height = 720;

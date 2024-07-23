@@ -5,7 +5,7 @@
 
 #include "lotus_engine.h"
 
-#include "../test_util.h"
+#include "../testing.h"
 
 int width = 720;
 int height = 720;
