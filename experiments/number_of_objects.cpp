@@ -7,7 +7,7 @@ Lotus::TextureLoader& textureLoader = Lotus::TextureLoader::getInstance();
 class NumberOfObjectsApplication : public ExperimentApplication
 {
 public:
-  NumberOfObjectsApplication() : ExperimentApplication("NumberOfObjects")
+  NumberOfObjectsApplication() : ExperimentApplication("NumberOfObjects"), numberOfObjects(1)
   {
     std::string objectMethodName = objectRenderingMethod == Lotus::RenderingMethod::Traditional ? "Traditional" : "Indirect";
     std::string profilerAppName = "NumberOfObjects-" + objectMethodName + "-" + std::to_string(numberOfObjects);
@@ -19,7 +19,39 @@ private:
 
   virtual void renderConfigurationGUI() override
   {
-    ImGui::SliderInt("Number of objects", &numberOfObjects, 1 << 0, 1 << 15);
+    ImGui::Text("Number of objects:");
+    ImGui::Spacing();
+    
+    int predefinedNumberOfObjects[7] = { 512, 1024, 2048, 4096, 8192, 16384, 32768 }; 
+
+    float buttonsTextWidth = 0.0f;
+
+    for (int number : predefinedNumberOfObjects)
+    { 
+      buttonsTextWidth += ImGui::CalcTextSize(std::to_string(number).c_str()).x;
+    }
+
+    float buttonsPadding = ImGui::GetStyle().FramePadding.x * 2 * 7;
+    float buttonsSpacing = ImGui::GetStyle().ItemSpacing.x * 8;
+    float buttonsWidth = buttonsTextWidth + buttonsPadding + buttonsSpacing + ImGui::GetTextLineHeight() * 7;
+
+    ImGui::SetNextItemWidth(buttonsWidth);
+    ImGui::SliderInt("##slider", &numberOfObjects, 1 << 0, 1 << 15);
+    ImGui::Spacing();
+
+    int counter = 0;
+
+    for (int number : predefinedNumberOfObjects)
+    {
+      ImGui::RadioButton(std::to_string(number).c_str(), &numberOfObjects, number); ImGui::SameLine();
+
+      if (counter < 6)
+      {
+        ImGui::SameLine();
+      }
+      
+      counter++;
+    }
   }
 
   virtual void initializeExperiment() override
