@@ -1,6 +1,3 @@
-#include <iostream>
-#include <cstdlib>
-
 #include "lotus_engine.h"
 
 Lotus::MeshManager& meshManager = Lotus::MeshManager::getInstance();
