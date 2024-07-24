@@ -1,5 +1,7 @@
 #include "application.h"
 
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 #include "util/opengl_entry.h"
 
 namespace Lotus
@@ -33,6 +35,13 @@ namespace Lotus
       LOTUS_ASSERT(false, "[Application Error] Failed to initialize Glad");
     }
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 460");
+
     glViewport(0, 0, width, height);
   }
 
@@ -53,7 +62,17 @@ namespace Lotus
       float currentFrame = glfwGetTime();
       
       update(currentFrame - lastFrame);
-      
+
+      ImGui_ImplOpenGL3_NewFrame();
+      ImGui_ImplGlfw_NewFrame();
+      ImGui::NewFrame();
+
+      render();
+      renderGUI();
+
+      ImGui::Render();
+      ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
       lastFrame = currentFrame;
       
       glfwSwapBuffers(window);
@@ -61,5 +80,7 @@ namespace Lotus
   }
   
   void Application::update(float deltaTime) {}
+  void Application::render() {}
+  void Application::renderGUI() {}
 
 }

@@ -12,7 +12,6 @@ namespace Lotus
   void RenderingApplication::update(float deltaTime)
   {
     updateCamera(deltaTime);
-    renderingServer.render(camera);
   }
 
   void RenderingApplication::updateCamera(float deltaTime)
@@ -61,4 +60,8 @@ namespace Lotus
     }
   }
 
+  void RenderingApplication::render()
+  {
+    renderingServer.render(camera);
+  }
 }

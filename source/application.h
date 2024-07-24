@@ -3,6 +3,7 @@
 #define GLFW_INCLUDE_NONE
 
 #include <string>
+#include <imgui.h>
 #include "util/log.h"
 #include "util/window_entry.h"
 
@@ -22,6 +23,8 @@ namespace Lotus
 
   protected:
     virtual void update(float deltaTime);
+    virtual void render();
+    virtual void renderGUI();
 
     std::string name;
     int width;

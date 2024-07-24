@@ -6,7 +6,7 @@ Lotus::TextureLoader& textureLoader = Lotus::TextureLoader::getInstance();
 class SimpleSceneApplication : public Lotus::RenderingApplication
 {
 public:
-  SimpleSceneApplication() : Lotus::RenderingApplication("Simple Scene", 720, 720)
+  SimpleSceneApplication() : Lotus::RenderingApplication("Simple Scene ", 720, 720)
   {
     renderingServer.setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
     

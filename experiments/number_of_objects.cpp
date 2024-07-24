@@ -9,13 +9,26 @@ class NumberOfObjectsApplication : public ExperimentApplication
 public:
   NumberOfObjectsApplication() : ExperimentApplication("NumberOfObjects")
   {
+    std::string objectMethodName = objectRenderingMethod == Lotus::RenderingMethod::Traditional ? "Traditional" : "Indirect";
+    std::string profilerAppName = "NumberOfObjects-" + objectMethodName + "-" + std::to_string(numberOfObjects);
+
+    LOTUS_SET_PROFILER_APP(profilerAppName);
+  }
+  
+private:
+
+  virtual void renderConfigurationGUI() override
+  {
+    ImGui::SliderInt("Number of objects", &numberOfObjects, 1 << 0, 1 << 15);
+  }
+
+  virtual void initializeExperiment() override
+  {
     renderingServer.setAmbientLight(glm::vec3(0.1, 0.1, 0.1));
     
     createDirectionalLight();
     createObjects();    
   }
-  
-private:
 
   void createDirectionalLight()
   {
@@ -31,8 +44,6 @@ private:
     std::shared_ptr<Lotus::Mesh> sphereMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
 
     std::shared_ptr<Lotus::DiffuseFlatMaterial> sphereMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
-
-    numberOfObjects = 32000;
 
     for (int i = 0; i < numberOfObjects; i++)
     {

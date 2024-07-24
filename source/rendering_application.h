@@ -20,6 +20,8 @@ namespace Lotus
 
   protected:
     virtual void update(float deltaTime) override;
+    virtual void render() override;
+
     void updateCamera(float deltaTime);
   };
 
