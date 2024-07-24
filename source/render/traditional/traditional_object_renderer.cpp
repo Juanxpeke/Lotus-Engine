@@ -1,6 +1,7 @@
 #include "traditional_object_renderer.h"
 
 #include "../../util/opengl_entry.h"
+#include "../../util/profile.h"
 #include "../../util/path_manager.h"
 
 namespace Lotus
@@ -14,6 +15,8 @@ namespace Lotus
 
   void TraditionalObjectRenderer::render()
   {
+    LOTUS_PROFILE_START_TIME(FrameTime::TraditionalSceneRenderTime);
+
     for (int i = 0; i < meshObjects.size(); i++)
     {
       const std::shared_ptr<MeshObject>& meshObject = meshObjects[i];
@@ -28,10 +31,14 @@ namespace Lotus
       
       glDrawElements(GL_TRIANGLES, mesh->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
     }
+    
+    LOTUS_PROFILE_END_TIME(FrameTime::TraditionalSceneRenderTime);
   }
 
   std::shared_ptr<MeshObject> TraditionalObjectRenderer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
   {
+    LOTUS_PROFILE_INCREASE_COUNTER(FrameCounter::AddedTraditionalObjects);
+
     std::shared_ptr<MeshObject> meshObject = std::make_shared<MeshObject>(mesh, material);
     std::shared_ptr<GPUMesh> GPUMeshSharedPtr;
 

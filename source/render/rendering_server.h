@@ -40,18 +40,13 @@ namespace Lotus
     // Modes
     void setRenderingMode(RenderingMode renderingMode);
     void switchRenderingMode();
-
     // Lighting
     void setAmbientLight(const glm::vec3& light);
     std::shared_ptr<DirectionalLight> createDirectionalLight();
     std::shared_ptr<PointLight> createPointLight();
-
-    // Traditional Objects
-
-    // Indirect Objects
+    // Objects
     std::shared_ptr<MeshObject> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material, RenderingMethod method = RenderingMethod::Indirect);
     std::shared_ptr<Material> createMaterial(MaterialType type);
-
     // Terrain
     void setTerrainLevels(uint32_t levels);
     void setTerrainTileResolution(uint32_t tileResolution);

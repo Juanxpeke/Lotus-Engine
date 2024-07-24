@@ -98,13 +98,13 @@ namespace Lotus
         return traditionalObjectRenderer.createObject(mesh, material);
       case RenderingMethod::Indirect:
         return indirectObjectRenderer.createObject(mesh, material);
+      default:
+        return indirectObjectRenderer.createObject(mesh, material);
     }
   }
 
   std::shared_ptr<Material> RenderingServer::createMaterial(MaterialType type)
   {
-    unsigned int offset = static_cast<unsigned int>(type);
-
     switch (type)
     {
       case MaterialType::UnlitFlat:
@@ -139,10 +139,6 @@ namespace Lotus
 
   void RenderingServer::fillCameraBuffer(const Camera& camera)
   {
-    glm::mat4 viewMatrix = camera.getViewMatrix();
-    glm::mat4 projectionMatrix = camera.getProjectionMatrix();
-    glm::vec3 cameraPosition = camera.getLocalTranslation();
-
     CameraData cameraData;
 
     cameraData.view = camera.getViewMatrix();

@@ -330,11 +330,15 @@ namespace Lotus {
 
   void IndirectObjectRenderer::buildDrawBatches()
   {
-    LOTUS_PROFILE_START_TIME(FrameTime::IndirectDrawBatchBuildTime);
 
     drawBatches.clear();
     
-    if (objectBatches.size() == 0) { return; }
+    if (objectBatches.size() == 0)
+    {
+      return;
+    }
+
+    LOTUS_PROFILE_START_TIME(FrameTime::IndirectDrawBatchBuildTime);
     
     DrawBatch newDrawBatch;
     newDrawBatch.prevInstanceCount = 0;
@@ -374,11 +378,14 @@ namespace Lotus {
 
   void IndirectObjectRenderer::buildShaderBatches()
   {
-    LOTUS_PROFILE_START_TIME(FrameTime::IndirectShaderBatchBuildTime);
-
     shaderBatches.clear();
 
-    if (drawBatches.size() == 0) { return; }
+    if (drawBatches.size() == 0)
+    {
+      return;
+    }
+
+    LOTUS_PROFILE_START_TIME(FrameTime::IndirectShaderBatchBuildTime);
 
     ShaderBatch newShaderBatch;
     newShaderBatch.first = 0;
