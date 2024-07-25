@@ -3,6 +3,7 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include "util/opengl_entry.h"
+#include "util/profile.h"
 
 namespace Lotus
 {
@@ -43,6 +44,21 @@ namespace Lotus
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 460");
 
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    style.Colors[ImGuiCol_Button] = ImVec4(0.0f, 0.5f, 0.0f, 1.0f);
+    style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.0f, 0.6f, 0.0f, 1.0f);
+    style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.0f, 0.4f, 0.0f, 1.0f);
+
+    style.Colors[ImGuiCol_CheckMark] = ImVec4(0.0f, 0.5f, 0.0f, 1.0f);
+
+    style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.0f, 0.5f, 0.0f, 1.0f);
+    style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.0f, 0.6f, 0.0f, 1.0f);
+
+    style.Colors[ImGuiCol_FrameBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+    style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
+    style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+
     glViewport(0, 0, width, height);
   }
 
@@ -77,11 +93,18 @@ namespace Lotus
       lastFrame = currentFrame;
       
       glfwSwapBuffers(window);
+
+      LOTUS_PROFILE_END_FRAME();
     }
   }
   
   void Application::update(float deltaTime) {}
   void Application::render() {}
   void Application::renderGUI() {}
+
+  void Application::disableVSync()
+  {
+    glfwSwapInterval(0);
+  }
 
 }

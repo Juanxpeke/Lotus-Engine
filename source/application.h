@@ -26,6 +26,8 @@ namespace Lotus
     virtual void render();
     virtual void renderGUI();
 
+    void disableVSync();
+
     std::string name;
     int width;
     int height;

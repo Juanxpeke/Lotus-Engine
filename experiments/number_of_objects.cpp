@@ -9,10 +9,6 @@ class NumberOfObjectsApplication : public ExperimentApplication
 public:
   NumberOfObjectsApplication() : ExperimentApplication("NumberOfObjects"), numberOfObjects(1)
   {
-    std::string objectMethodName = objectRenderingMethod == Lotus::RenderingMethod::Traditional ? "Traditional" : "Indirect";
-    std::string profilerAppName = "NumberOfObjects-" + objectMethodName + "-" + std::to_string(numberOfObjects);
-
-    LOTUS_SET_PROFILER_APP(profilerAppName);
   }
   
 private:
@@ -20,38 +16,28 @@ private:
   virtual void renderConfigurationGUI() override
   {
     ImGui::Text("Number of objects:");
-    ImGui::Spacing();
+    ImGui::Dummy(ImVec2(0.0f, 4.0f));
     
     int predefinedNumberOfObjects[7] = { 512, 1024, 2048, 4096, 8192, 16384, 32768 }; 
 
-    float buttonsTextWidth = 0.0f;
-
-    for (int number : predefinedNumberOfObjects)
-    { 
-      buttonsTextWidth += ImGui::CalcTextSize(std::to_string(number).c_str()).x;
-    }
-
-    float buttonsPadding = ImGui::GetStyle().FramePadding.x * 2 * 7;
-    float buttonsSpacing = ImGui::GetStyle().ItemSpacing.x * 8;
-    float buttonsWidth = buttonsTextWidth + buttonsPadding + buttonsSpacing + ImGui::GetTextLineHeight() * 7;
-
-    ImGui::SetNextItemWidth(buttonsWidth);
-    ImGui::SliderInt("##slider", &numberOfObjects, 1 << 0, 1 << 15);
-    ImGui::Spacing();
-
-    int counter = 0;
-
-    for (int number : predefinedNumberOfObjects)
+    for (int i = 0; i < 7; i++)
     {
-      ImGui::RadioButton(std::to_string(number).c_str(), &numberOfObjects, number); ImGui::SameLine();
+      ImGui::RadioButton(std::to_string(predefinedNumberOfObjects[i]).c_str(), &numberOfObjects, predefinedNumberOfObjects[i]);
 
-      if (counter < 6)
+      if (i < 6)
       {
         ImGui::SameLine();
       }
-      
-      counter++;
+      else
+      {
+        ImGui::Dummy(ImVec2(0.0f, 4.0f));
+      }
     }
+
+    ImGui::PushItemWidth(configurationContentWindowWidth);
+    ImGui::SliderInt("##slider1", &numberOfObjects, 1 << 0, 1 << 15);
+    ImGui::PopItemWidth();
+
   }
 
   virtual void initializeExperiment() override

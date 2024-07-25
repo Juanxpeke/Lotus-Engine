@@ -40,8 +40,6 @@ namespace Lotus
 
     lightsBuffer.unbind();
     cameraBuffer.unbind();
-
-    LOTUS_PROFILE_END_FRAME();
   }
 
   void RenderingServer::setRenderingMode(RenderingMode renderingMode)
