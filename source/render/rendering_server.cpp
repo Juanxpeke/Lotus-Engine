@@ -8,14 +8,15 @@
 namespace Lotus
 {
 
-  RenderingServer::RenderingServer()
+  RenderingServer::RenderingServer() :
+    mode(RenderingMode::Fill),
+    defaultObjectRenderingMethod(RenderingMethod::Indirect),
+    defaultTerrainRenderingMethod(RenderingMethod::Indirect)
   {}
 
   void RenderingServer::startUp()
   {
     glEnable(GL_DEPTH_TEST);
-    
-    mode = RenderingMode::Fill;
     
     cameraBuffer.allocate();
     cameraBuffer.setBindingPoint(CameraBufferBindingPoint);
@@ -88,9 +89,19 @@ namespace Lotus
     return lightManager.createPointLight();
   }
 
-  std::shared_ptr<MeshObject> RenderingServer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material, RenderingMethod method)
+  void RenderingServer::setDefaultObjectRenderingMethod(RenderingMethod renderingMethod)
   {
-    switch(method)
+    defaultObjectRenderingMethod = renderingMethod;
+  }
+
+  std::shared_ptr<MeshObject> RenderingServer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
+  {
+    return createObject(mesh, material, defaultObjectRenderingMethod);
+  }
+
+  std::shared_ptr<MeshObject> RenderingServer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material, RenderingMethod renderingMethod)
+  {
+    switch(renderingMethod)
     {
       case RenderingMethod::Traditional:
         return traditionalObjectRenderer.createObject(mesh, material);
@@ -118,6 +129,11 @@ namespace Lotus
       default:
         return nullptr;
     }
+  }
+
+  void RenderingServer::setDefaultTerrainRenderingMethod(RenderingMethod renderingMethod)
+  {
+    defaultTerrainRenderingMethod = renderingMethod;
   }
 
   void RenderingServer::setTerrainLevels(uint32_t levels)

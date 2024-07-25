@@ -63,12 +63,16 @@ private:
 
     std::shared_ptr<Lotus::DiffuseFlatMaterial> sphereMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
 
+    float regionSize = 100.0f;
+
     for (int i = 0; i < numberOfObjects; i++)
     {
-      std::shared_ptr<Lotus::MeshObject> sphereObject = renderingServer.createObject(sphereMesh, sphereMaterial, objectRenderingMethod);
+      std::shared_ptr<Lotus::MeshObject> sphereObject = renderingServer.createObject(sphereMesh, sphereMaterial);
 
       float x, y, z;
-      x = randomizer.getFloatRange(-100, 100); y = randomizer.getFloatRange(-100, 100); z = randomizer.getFloatRange(-100, 100);
+      x = randomizer.getFloatRange(-regionSize, regionSize);
+      y = randomizer.getFloatRange(-regionSize, regionSize);
+      z = randomizer.getFloatRange(-regionSize, regionSize);
 
       sphereObject->translate(glm::vec3(x, y, z));
     }

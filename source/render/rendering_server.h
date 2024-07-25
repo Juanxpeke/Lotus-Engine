@@ -45,9 +45,12 @@ namespace Lotus
     std::shared_ptr<DirectionalLight> createDirectionalLight();
     std::shared_ptr<PointLight> createPointLight();
     // Objects
-    std::shared_ptr<MeshObject> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material, RenderingMethod method = RenderingMethod::Indirect);
+    void setDefaultObjectRenderingMethod(RenderingMethod renderingMethod);
+    std::shared_ptr<MeshObject> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+    std::shared_ptr<MeshObject> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material, RenderingMethod renderingMethod);
     std::shared_ptr<Material> createMaterial(MaterialType type);
     // Terrain
+    void setDefaultTerrainRenderingMethod(RenderingMethod renderingMethod);
     void setTerrainLevels(uint32_t levels);
     void setTerrainTileResolution(uint32_t tileResolution);
     std::shared_ptr<Terrain> createTerrain(const std::shared_ptr<ProceduralDataGenerator>& terrainDataGenerator);
@@ -93,6 +96,8 @@ namespace Lotus
     };
     
     RenderingMode mode;
+    RenderingMethod defaultObjectRenderingMethod;
+    RenderingMethod defaultTerrainRenderingMethod;
 
     UniformBuffer<LightsData> lightsBuffer;
     UniformBuffer<CameraData> cameraBuffer;

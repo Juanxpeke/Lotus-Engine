@@ -10,8 +10,8 @@ public:
     framesInHistory = LOTUS_GET_PROFILER_FRAME_HISTORY_MAX_SIZE();
     exportHistoryAutomatically = LOTUS_GET_PROFILER_EXPORT_AUTOMATIC();
     
-    std::string exportPathString = LOTUS_GET_PROFILER_EXPORT_PATH();
-    std::memcpy(exportPath, exportPathString.c_str(), (exportPathString.size() + 1) * sizeof(char));
+    std::string exportPath = Lotus::experimentPath("results/" + experimentName + ".csv").string();
+    std::memcpy(exportPathBuffer, exportPath.c_str(), (exportPath.size() + 1) * sizeof(char));
 
     disableVSync();
   }
@@ -84,7 +84,7 @@ public:
         ImGui::Text("Export path:");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
         ImGui::PushItemWidth(configurationContentWindowWidth);
-        ImGui::InputText("##input0", exportPath, 1024);
+        ImGui::InputText("##input0", exportPathBuffer, 1024);
         ImGui::PopItemWidth();
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
@@ -132,15 +132,15 @@ public:
         {
           experimentConfigured = true;
           
-          objectRenderingMethod = objectRenderingMethodNumber ? Lotus::RenderingMethod::Indirect : Lotus::RenderingMethod::Traditional;
-          terrainRenderingMethod = terrainRenderingMethodNumber ? Lotus::RenderingMethod::Indirect : Lotus::RenderingMethod::Traditional; 
+          renderingServer.setDefaultObjectRenderingMethod(objectRenderingMethodNumber ? Lotus::RenderingMethod::Indirect : Lotus::RenderingMethod::Traditional);
+          renderingServer.setDefaultTerrainRenderingMethod(terrainRenderingMethodNumber ? Lotus::RenderingMethod::Indirect : Lotus::RenderingMethod::Traditional); 
 
-          std::string exportPathString(exportPath);
+          std::string exportPath(exportPathBuffer);
 
           LOTUS_ENABLE_PROFILING();
           LOTUS_SET_PROFILER_FRAME_HISTORY_MAX_SIZE(framesInHistory);
           LOTUS_SET_PROFILER_EXPORT_AUTOMATIC(exportHistoryAutomatically);
-          LOTUS_SET_PROFILER_EXPORT_PATH(exportPathString);
+          LOTUS_SET_PROFILER_EXPORT_PATH(exportPathBuffer);
 
           initializeExperiment();
         }
@@ -165,13 +165,10 @@ protected:
   float configurationWindowWidth;
   float configurationWindowHeight;
 
-  Lotus::RenderingMethod objectRenderingMethod;
-  Lotus::RenderingMethod terrainRenderingMethod;
-
 private:
   bool experimentConfigured;
 
   int framesInHistory;
   bool exportHistoryAutomatically;
-  char exportPath[1024];
+  char exportPathBuffer[1024];
 };

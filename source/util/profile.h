@@ -268,6 +268,7 @@ namespace Lotus
         else
         {
           LOTUS_LOG_ERROR("[Profiler Error] Can't open file {0}", exportPath);
+          return;
         }
       }
 
