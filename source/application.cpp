@@ -2,8 +2,10 @@
 
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <stb_image.h>
 #include "util/opengl_entry.h"
 #include "util/profile.h"
+#include "util/path_manager.h"
 
 namespace Lotus
 {
@@ -36,6 +38,12 @@ namespace Lotus
       glfwTerminate();
       LOTUS_ASSERT(false, "[Application Error] Failed to initialize Glad");
     }
+
+    GLFWimage icons[1];
+    std::string iconPath = assetPath("icons/lotus_engine_icon.png").string();
+    icons[0].pixels = stbi_load(iconPath.c_str(), &icons[0].width, &icons[0].height, 0, 4);
+    glfwSetWindowIcon(window, 1, icons);
+    stbi_image_free(icons[0].pixels);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
