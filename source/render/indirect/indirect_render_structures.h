@@ -1,9 +1,10 @@
 #pragma once
 
-#include "types.h"
+#include "../../math/types.h"
 
 namespace Lotus
-{  
+{
+
   /*
     Abstract representation of an unsigned int ID related to an specific class
   */
@@ -39,7 +40,7 @@ namespace Lotus
   };
 
   /*
-    Representation of a mesh in the GPU buffers
+    Structure with a mesh GPU identifiers
   */
   struct RenderMesh
   {
@@ -48,11 +49,17 @@ namespace Lotus
     uint32_t baseVertex;
   };
 
+  /*
+    Structure with a material GPU identifier
+  */
   struct RenderMaterial
   {
     uint32_t ID;
   };
 
+  /*
+    Structure with an object GPU identifiers and auxiliary data
+  */
   struct RenderObject
   {
     Handle<RenderMesh> meshHandle = 0;
@@ -77,7 +84,7 @@ namespace Lotus
   };
 
   /*
-    Batch for objects with the same mesh
+    Batch for objects with the same mesh and shader
   */
   struct DrawBatch
   {
@@ -111,4 +118,5 @@ namespace Lotus
       return objectHandle < other.objectHandle;
     }
   };
+
 }

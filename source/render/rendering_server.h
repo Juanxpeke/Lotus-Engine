@@ -6,6 +6,7 @@
 #include "../scene/camera.h"
 #include "../lighting/light_manager.h"
 #include "../terrain/terrain_renderer.h"
+#include "gpu_structures.h"
 #include "gpu_buffer.h"
 #include "material.h"
 #include "unlit_flat_material.h"
@@ -37,19 +38,22 @@ namespace Lotus
   
     void render(const Camera& camera);
 
-    // Modes
+    /* Modes */
     void setRenderingMode(RenderingMode renderingMode);
     void switchRenderingMode();
-    // Lighting
+    
+    /* Lighting */
     void setAmbientLight(const glm::vec3& light);
     std::shared_ptr<DirectionalLight> createDirectionalLight();
     std::shared_ptr<PointLight> createPointLight();
-    // Objects
+    
+    /* Objects */
     void setDefaultObjectRenderingMethod(RenderingMethod renderingMethod);
     std::shared_ptr<MeshObject> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
     std::shared_ptr<MeshObject> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material, RenderingMethod renderingMethod);
     std::shared_ptr<Material> createMaterial(MaterialType type);
-    // Terrain
+
+    /* Terrain */
     void setDefaultTerrainRenderingMethod(RenderingMethod renderingMethod);
     void setTerrainLevels(uint32_t levels);
     void setTerrainTileResolution(uint32_t tileResolution);
@@ -57,50 +61,15 @@ namespace Lotus
 
   private:
 
-    // Buffers
     void fillCameraBuffer(const Camera& camera);    
     void fillLightsBuffer();
-
-    struct DirectionalLightData
-    {
-      glm::vec3 colorIntensity;
-      float padding04;
-      glm::vec3 direction;
-      float padding08;
-    };
-
-    struct PointLightData
-    {
-      glm::vec3 colorIntensity;
-      float padding04;
-      glm::vec3 position;
-      float radius;
-    };
-
-    struct LightsData
-    {
-      DirectionalLightData directionalLights[2];
-      PointLightData pointLights[2];
-      glm::vec3 ambientLight;
-      int directionalLightsCount;
-      int pointLightsCount;
-    };
-
-    struct CameraData
-    {
-      glm::mat4 view;
-      glm::mat4 projection;
-      glm::mat4 viewProjection;
-      glm::vec3 cameraPosition;
-      float padding04;
-    };
-    
+   
     RenderingMode mode;
     RenderingMethod defaultObjectRenderingMethod;
     RenderingMethod defaultTerrainRenderingMethod;
 
-    UniformBuffer<LightsData> lightsBuffer;
-    UniformBuffer<CameraData> cameraBuffer;
+    UniformBuffer<GPULightsData> lightsBuffer;
+    UniformBuffer<GPUCameraData> cameraBuffer;
 
     LightManager lightManager;
     TraditionalObjectRenderer traditionalObjectRenderer;

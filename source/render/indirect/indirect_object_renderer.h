@@ -5,15 +5,15 @@
 #include <vector>
 #include <unordered_map>
 #include "../../math/types.h"
-#include "../../math/render_primitives.h"
-#include "../../math/gpu_primitives.h"
 #include "../../scene/transform.h"
 #include "../../scene/camera.h"
-#include "../mesh.h"
+#include "../gpu_structures.h"
 #include "../gpu_buffer.h"
+#include "../mesh.h"
 #include "../shader.h"
 #include "../material.h"
 #include "../mesh_object.h"
+#include "indirect_render_structures.h"
 
 
 namespace Lotus

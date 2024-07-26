@@ -153,7 +153,7 @@ namespace Lotus
 
   void RenderingServer::fillCameraBuffer(const Camera& camera)
   {
-    CameraData cameraData;
+    GPUCameraData cameraData;
 
     cameraData.view = camera.getViewMatrix();
     cameraData.projection = camera.getProjectionMatrix();
@@ -165,7 +165,7 @@ namespace Lotus
 
   void RenderingServer::fillLightsBuffer()
   {
-    LightsData lightsData;
+    GPULightsData lightsData;
 
     lightsData.ambientLight = lightManager.ambientLight;
 
