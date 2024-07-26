@@ -34,18 +34,15 @@ namespace Lotus
 
     void render();
 
-    // Update Functions
     void update();
     void updateObjects();
     void updateMaterials();
 
-    // Batches Functions
     void buildBatches();
     void buildObjectBatches();
     void buildDrawBatches();
     void buildShaderBatches();
 
-    // Buffers Functions
     void refreshBuffers();
     void refreshIndirectBuffer();
     void refreshObjectBuffer();
@@ -56,8 +53,8 @@ namespace Lotus
 
 
     // Util Functions
-    Handle<RenderMesh> getMeshHandle(std::shared_ptr<Mesh> mesh);
-    Handle<RenderMaterial> getMaterialHandle(std::shared_ptr<Material> material);
+    Handle<RenderMesh> getMeshHandle(const std::shared_ptr<Mesh>& mesh);
+    Handle<RenderMaterial> getMaterialHandle(const std::shared_ptr<Material>& material);
 
     // Shaders
     std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount)> shaders;
@@ -67,7 +64,7 @@ namespace Lotus
 	  std::unordered_map<std::shared_ptr<Material>, Handle<RenderMaterial>> materialMap;
 
     // Objects
-    std::vector<std::shared_ptr<MeshObject>> meshInstances;
+    std::vector<std::shared_ptr<MeshObject>> objects;
     std::vector<RenderObject> renderObjects;
     std::vector<Handle<RenderObject>> dirtyObjectsHandles;
     std::vector<RenderObject> toUnbatchObjects;
@@ -82,6 +79,7 @@ namespace Lotus
     std::vector<RenderMesh> renderMeshes;
 
     // Batches
+    bool objectBatchesModified;
     std::vector<ObjectBatch> objectBatches;
     std::vector<DrawBatch> drawBatches;
     std::vector<ShaderBatch> shaderBatches;

@@ -72,7 +72,7 @@ private:
         {
           if (ImGui::Button("Add Object"))
           {
-            std::shared_ptr<Lotus::MeshObject> object = renderingServer.createObject(defaultMesh, defaultMaterial, Lotus::RenderingMethod::Indirect);
+            std::shared_ptr<Lotus::MeshObject> object = renderingServer.createObject(defaultMesh, defaultMaterial);
             objects.push_back(object);
           }
 

@@ -95,5 +95,20 @@ namespace Lotus
     Handle<RenderObject> objectHandle;
     Handle<int> shaderHandle;
     Handle<RenderMesh> meshHandle;
+
+    bool operator<(const ObjectBatch& other) const
+    {
+      if (shaderHandle != other.shaderHandle)
+      {
+        return shaderHandle < other.shaderHandle;
+      }
+
+      if (meshHandle != other.meshHandle)
+      {
+        return meshHandle < other.meshHandle;
+      }
+      
+      return objectHandle < other.objectHandle;
+    }
   };
 }

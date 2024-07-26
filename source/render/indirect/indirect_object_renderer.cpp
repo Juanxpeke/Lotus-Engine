@@ -10,7 +10,7 @@
 
 namespace Lotus {
 
-  IndirectObjectRenderer::IndirectObjectRenderer() : vertexArrayID(0)
+  IndirectObjectRenderer::IndirectObjectRenderer() : vertexArrayID(0), objectBatchesModified(false)
   {
     supportsTexturedMaterials = OpenGLExtensionChecker::isExtensionSupported(OpenGLExtension::BindlessTexture);
 
@@ -56,14 +56,14 @@ namespace Lotus {
   {
     LOTUS_PROFILE_INCREASE_COUNTER(FrameCounter::AddedIndirectObjects);
 
-    std::shared_ptr<MeshObject> meshInstance = std::make_shared<MeshObject>(mesh, material);
-    meshInstances.push_back(meshInstance);
+    std::shared_ptr<MeshObject> object = std::make_shared<MeshObject>(mesh, material);
+    objects.push_back(object);
 
     Handle<RenderMesh> meshHandle = getMeshHandle(mesh);
     Handle<RenderMaterial> materialHandle = getMaterialHandle(material);
 
     GPUObjectData GPUObject;
-    GPUObject.model = meshInstance->getModelMatrix();
+    GPUObject.model = object->getModelMatrix();
     GPUObject.materialHandle = materialHandle.get();
       
     uint32_t objectID = objectBuffer.add(&GPUObject);
@@ -78,12 +78,12 @@ namespace Lotus {
     Handle<RenderObject> handle(static_cast<uint32_t>(renderObjects.size()));
     renderObjects.push_back(renderObject);
     
-    uint32_t placeholderHandle = 1;
+    uint32_t placeholderHandle = 0;
     objectHandleBuffer.add(&placeholderHandle);
 
     unbatchedObjectsHandles.push_back(handle);
 
-    return meshInstance;
+    return object;
   }
 
   void IndirectObjectRenderer::render()
@@ -122,6 +122,8 @@ namespace Lotus {
     objectHandleBuffer.unbind();
     indirectBuffer.unbind();
 
+    glBindVertexArray(0);
+
     LOTUS_PROFILE_END_TIME(FrameTime::IndirectSceneRenderTime);
   }
 
@@ -133,27 +135,27 @@ namespace Lotus {
 
   void IndirectObjectRenderer::updateObjects()
   {
-    for (int i = 0; i < meshInstances.size(); i++)
+    for (int i = 0; i < objects.size(); i++)
     {
-      const std::shared_ptr<MeshObject>& meshInstance = meshInstances[i];
-      Transform* transform = &(meshInstance->transform);
+      const std::shared_ptr<MeshObject>& object = objects[i];
+      Transform* transform = &(object->transform);
 
-      if (transform->dirty || meshInstance->meshDirty || meshInstance->materialDirty)
+      if (transform->dirty || object->meshDirty || object->materialDirty)
       {
         RenderObject& renderObject = renderObjects[i];
         Handle<RenderObject> objectHandle(i);
 
         if (transform->dirty)
         {
-          renderObject.model = meshInstance->getModelMatrix();
+          renderObject.model = object->getModelMatrix();
           transform->dirty = false;
         }
-        if (meshInstance->materialDirty)
+        if (object->materialDirty)
         {
-          renderObject.materialHandle = getMaterialHandle(meshInstance->getMaterial());
-          meshInstance->materialDirty = false;
+          renderObject.materialHandle = getMaterialHandle(object->getMaterial());
+          object->materialDirty = false;
         }
-        if (meshInstance->meshDirty || meshInstance->shaderDirty)
+        if (object->meshDirty || object->shaderDirty)
         {
           if (!renderObject.unbatched)
           {
@@ -167,11 +169,11 @@ namespace Lotus {
             renderObject.unbatched = true;
           }
 
-          renderObject.meshHandle = getMeshHandle(meshInstance->getMesh());
-          renderObject.shaderHandle = static_cast<unsigned int>(meshInstance->getMaterial()->getType());
+          renderObject.meshHandle = getMeshHandle(object->getMesh());
+          renderObject.shaderHandle = static_cast<unsigned int>(object->getMaterial()->getType());
           
-          meshInstance->meshDirty = false;
-          meshInstance->shaderDirty = false;
+          object->meshDirty = false;
+          object->shaderDirty = false;
         }
 
         // Queue the object to be updated in the GPU buffer
@@ -200,13 +202,8 @@ namespace Lotus {
 
   void IndirectObjectRenderer::buildBatches()
   {
-    // Render merge
     buildObjectBatches();
-
-    // Draw merge
     buildDrawBatches();
-
-    // Shader merge
     buildShaderBatches();
   }
 
@@ -214,9 +211,10 @@ namespace Lotus {
   {
     LOTUS_PROFILE_START_TIME(FrameTime::IndirectObjectBatchBuildTime);
 
+    objectBatchesModified = !(toUnbatchObjects.empty() && unbatchedObjectsHandles.empty());
+
     if (!toUnbatchObjects.empty())
     {
-
       std::vector<ObjectBatch> deletionObjectBatches;
       deletionObjectBatches.reserve(toUnbatchObjects.size());
       
@@ -233,33 +231,14 @@ namespace Lotus {
 
       toUnbatchObjects.clear();
 
-      std::sort(deletionObjectBatches.begin(), deletionObjectBatches.end(),
-      [](const ObjectBatch& bA, const ObjectBatch& bB) {
-        if (bA.shaderHandle < bB.shaderHandle) { return true; }
-        else if (bA.shaderHandle == bB.shaderHandle) {
-                                if (bA.meshHandle < bB.meshHandle) { return true; }
-            else if (bA.meshHandle == bB.meshHandle) { return bA.objectHandle < bB.objectHandle; }
-            else { return false; }
-        }
-        else { return false; }
-      });
+      std::sort(deletionObjectBatches.begin(), deletionObjectBatches.end());
 
       std::vector<ObjectBatch> objectBatchesWithDeletion;
       objectBatchesWithDeletion.reserve(objectBatches.size());
 
-      std::set_difference(objectBatches.begin(), objectBatches.end(), deletionObjectBatches.begin(), deletionObjectBatches.end(), std::back_inserter(objectBatchesWithDeletion),
-      [](const ObjectBatch& bA, const ObjectBatch& bB) {
-        if (bA.shaderHandle < bB.shaderHandle) { return true; }
-        else if (bA.shaderHandle == bB.shaderHandle) {
-                                if (bA.meshHandle < bB.meshHandle) { return true; }
-            else if (bA.meshHandle == bB.meshHandle) { return bA.objectHandle < bB.objectHandle; }
-            else { return false; }
-        }
-        else { return false; }
-      });
+      std::set_difference(objectBatches.begin(), objectBatches.end(), deletionObjectBatches.begin(), deletionObjectBatches.end(), std::back_inserter(objectBatchesWithDeletion));
 
       objectBatches = std::move(objectBatchesWithDeletion);
-
     }
 
     if (!unbatchedObjectsHandles.empty())
@@ -284,17 +263,7 @@ namespace Lotus {
       unbatchedObjectsHandles.clear();
 
       // New render batches sort
-      std::sort(newObjectBatches.begin(), newObjectBatches.end(),
-      [](const ObjectBatch& bA, const ObjectBatch& bB)
-      {
-        if (bA.shaderHandle < bB.shaderHandle) { return true; }
-        else if (bA.shaderHandle == bB.shaderHandle) {
-                      if (bA.meshHandle < bB.meshHandle) { return true; }
-            else if (bA.meshHandle == bB.meshHandle) { return bA.objectHandle < bB.objectHandle; }
-            else { return false; }
-        }
-        else { return false; }
-      });
+      std::sort(newObjectBatches.begin(), newObjectBatches.end());
 
       // Merge the new render batches into the main render batch array
       if (!objectBatches.empty() && !newObjectBatches.empty())
@@ -311,16 +280,7 @@ namespace Lotus {
         ObjectBatch* mid = begin + index;
         ObjectBatch* end = begin + objectBatches.size();
 
-        std::inplace_merge(begin, mid, end,
-        [](const ObjectBatch& bA, const ObjectBatch& bB) {
-          if (bA.shaderHandle < bB.shaderHandle) { return true; }
-          else if (bA.shaderHandle == bB.shaderHandle) {
-            if (bA.meshHandle < bB.meshHandle) { return true; }
-            else if (bA.meshHandle == bB.meshHandle) { return bA.objectHandle < bB.objectHandle; }
-            else { return false; }
-          }
-          else { return false; }
-        });
+        std::inplace_merge(begin, mid, end);
       }
       else if (objectBatches.empty())
       {
@@ -334,94 +294,95 @@ namespace Lotus {
 
   void IndirectObjectRenderer::buildDrawBatches()
   {
-
-    drawBatches.clear();
-    
-    if (objectBatches.size() == 0)
+    if (objectBatchesModified)
     {
-      return;
-    }
-
-    LOTUS_PROFILE_START_TIME(FrameTime::IndirectDrawBatchBuildTime);
-    
-    DrawBatch newDrawBatch;
-    newDrawBatch.prevInstanceCount = 0;
-    newDrawBatch.instanceCount = 0;
-    newDrawBatch.meshHandle = objectBatches[0].meshHandle;
-    newDrawBatch.shaderHandle = objectBatches[0].shaderHandle;
-
-    drawBatches.push_back(newDrawBatch);
-    DrawBatch* backDrawBatch = &drawBatches.back();
-
-    for (int i = 0; i < objectBatches.size(); i++)
-    {
-      ObjectBatch* renderBatch = &objectBatches[i];
-
-      bool bSameMesh = renderBatch->meshHandle == backDrawBatch->meshHandle;
-      bool bSameShader = renderBatch->shaderHandle == backDrawBatch->shaderHandle;
-
-      if (bSameMesh && bSameShader)
+      drawBatches.clear();
+      
+      if (!objectBatches.empty())
       {
-        backDrawBatch->instanceCount++;
-      }
-      else
-      {
+        LOTUS_PROFILE_START_TIME(FrameTime::IndirectDrawBatchBuildTime);
+        
         DrawBatch newDrawBatch;
-        newDrawBatch.prevInstanceCount = i;
-        newDrawBatch.instanceCount = 1;
-        newDrawBatch.meshHandle = renderBatch->meshHandle;
-        newDrawBatch.shaderHandle = renderBatch->shaderHandle;
+        newDrawBatch.prevInstanceCount = 0;
+        newDrawBatch.instanceCount = 0;
+        newDrawBatch.meshHandle = objectBatches[0].meshHandle;
+        newDrawBatch.shaderHandle = objectBatches[0].shaderHandle;
 
         drawBatches.push_back(newDrawBatch);
-        backDrawBatch = &drawBatches.back();
+        DrawBatch* backDrawBatch = &drawBatches.back();
+
+        for (int i = 0; i < objectBatches.size(); i++)
+        {
+          ObjectBatch* renderBatch = &objectBatches[i];
+
+          bool bSameMesh = renderBatch->meshHandle == backDrawBatch->meshHandle;
+          bool bSameShader = renderBatch->shaderHandle == backDrawBatch->shaderHandle;
+
+          if (bSameMesh && bSameShader)
+          {
+            backDrawBatch->instanceCount++;
+          }
+          else
+          {
+            DrawBatch newDrawBatch;
+            newDrawBatch.prevInstanceCount = i;
+            newDrawBatch.instanceCount = 1;
+            newDrawBatch.meshHandle = renderBatch->meshHandle;
+            newDrawBatch.shaderHandle = renderBatch->shaderHandle;
+
+            drawBatches.push_back(newDrawBatch);
+            backDrawBatch = &drawBatches.back();
+          }
+        }
+
+        LOTUS_PROFILE_END_TIME(FrameTime::IndirectDrawBatchBuildTime);
       }
     }
-
-    LOTUS_PROFILE_END_TIME(FrameTime::IndirectDrawBatchBuildTime);
   }
 
   void IndirectObjectRenderer::buildShaderBatches()
   {
-    shaderBatches.clear();
-
-    if (drawBatches.size() == 0)
+    if (objectBatchesModified)
     {
-      return;
-    }
+      shaderBatches.clear();
 
-    LOTUS_PROFILE_START_TIME(FrameTime::IndirectShaderBatchBuildTime);
-
-    ShaderBatch newShaderBatch;
-    newShaderBatch.first = 0;
-    newShaderBatch.count = 0;
-    newShaderBatch.shaderHandle = drawBatches[0].shaderHandle;
-
-    shaderBatches.push_back(newShaderBatch);
-    ShaderBatch* backShaderBatch = &shaderBatches.back();
-
-    for (int i = 0; i < drawBatches.size(); i++)
-    {
-      DrawBatch* drawBatch = &drawBatches[i];
-
-      bool bSameShader = drawBatch->shaderHandle == backShaderBatch->shaderHandle;
-
-      if (bSameShader)
+      if (!drawBatches.empty())
       {
-        backShaderBatch->count++;
-      }
-      else
-      {
+        LOTUS_PROFILE_START_TIME(FrameTime::IndirectShaderBatchBuildTime);
+
         ShaderBatch newShaderBatch;
-        newShaderBatch.first = i;
-        newShaderBatch.count = 1;
-        newShaderBatch.shaderHandle = drawBatch->shaderHandle;
+        newShaderBatch.first = 0;
+        newShaderBatch.count = 0;
+        newShaderBatch.shaderHandle = drawBatches[0].shaderHandle;
 
         shaderBatches.push_back(newShaderBatch);
-        backShaderBatch = &shaderBatches.back();
+        ShaderBatch* backShaderBatch = &shaderBatches.back();
+
+        for (int i = 0; i < drawBatches.size(); i++)
+        {
+          DrawBatch* drawBatch = &drawBatches[i];
+
+          bool bSameShader = drawBatch->shaderHandle == backShaderBatch->shaderHandle;
+
+          if (bSameShader)
+          {
+            backShaderBatch->count++;
+          }
+          else
+          {
+            ShaderBatch newShaderBatch;
+            newShaderBatch.first = i;
+            newShaderBatch.count = 1;
+            newShaderBatch.shaderHandle = drawBatch->shaderHandle;
+
+            shaderBatches.push_back(newShaderBatch);
+            backShaderBatch = &shaderBatches.back();
+          }
+        }
+
+        LOTUS_PROFILE_END_TIME(FrameTime::IndirectShaderBatchBuildTime);
       }
     }
-
-    LOTUS_PROFILE_END_TIME(FrameTime::IndirectShaderBatchBuildTime);
   }
 
   void IndirectObjectRenderer::refreshBuffers()
@@ -434,7 +395,7 @@ namespace Lotus {
 
   void IndirectObjectRenderer::refreshIndirectBuffer()
   {
-    if (!drawBatches.empty())
+    if (objectBatchesModified && !drawBatches.empty())
     {
       LOTUS_PROFILE_START_TIME(Lotus::FrameTime::IndirectIndirectBufferRefreshTime);
 
@@ -444,8 +405,7 @@ namespace Lotus {
 
       for (int i = 0; i < drawBatches.size(); i++)
       {
-        auto drawBatch = drawBatches[i];
-
+        const DrawBatch& drawBatch = drawBatches[i];
         const RenderMesh& mesh = renderMeshes[drawBatch.meshHandle.get()];
 
         indirectBufferMap[i].count = mesh.count;
@@ -463,86 +423,80 @@ namespace Lotus {
 
   void IndirectObjectRenderer::refreshObjectBuffer()
   {
-    if (dirtyObjectsHandles.empty())
+    if (!dirtyObjectsHandles.empty())
     {
-      return;
+      LOTUS_PROFILE_START_TIME(Lotus::FrameTime::IndirectObjectBufferRefreshTime);
+
+      GPUObjectData* objectBufferMap = objectBuffer.map();
+      
+      for (const Handle<RenderObject>& objectHandle : dirtyObjectsHandles)
+      {
+        const RenderObject& object = renderObjects[objectHandle.get()];
+
+        objectBufferMap[object.ID].model = object.model;
+        objectBufferMap[object.ID].materialHandle = object.materialHandle.get();
+      }
+
+      objectBuffer.unmap();
+
+      dirtyObjectsHandles.clear();
+
+      LOTUS_PROFILE_END_TIME(Lotus::FrameTime::IndirectObjectBufferRefreshTime);
     }
-
-    LOTUS_PROFILE_START_TIME(Lotus::FrameTime::IndirectObjectBufferRefreshTime);
-
-    GPUObjectData* objectBufferMap = objectBuffer.map();
-    
-    for (const Handle<RenderObject>& objectHandle : dirtyObjectsHandles)
-    {
-      const RenderObject& object = renderObjects[objectHandle.get()];
-
-      objectBufferMap[object.ID].model = object.model;
-      objectBufferMap[object.ID].materialHandle = object.materialHandle.get();
-    }
-
-    objectBuffer.unmap();
-
-    dirtyObjectsHandles.clear();
-
-    LOTUS_PROFILE_END_TIME(Lotus::FrameTime::IndirectObjectBufferRefreshTime);
   }
 
   void IndirectObjectRenderer::refreshObjectHandleBuffer()
   {
-    if (drawBatches.empty())
+    if (objectBatchesModified && !drawBatches.empty())
     {
-      return;
-    }
+      LOTUS_PROFILE_START_TIME(Lotus::FrameTime::IndirectObjectHandleBufferRefreshTime);
 
-    LOTUS_PROFILE_START_TIME(Lotus::FrameTime::IndirectObjectHandleBufferRefreshTime);
+      uint32_t* objectHandleBufferMap = objectHandleBuffer.map();
 
-    uint32_t* objectHandleBufferMap = objectHandleBuffer.map();
-
-    int index = 0;
-    for (int dI = 0; dI < drawBatches.size(); dI++)
-    {
-      auto drawBatch = drawBatches[dI];
-
-      for (int iI = 0; iI < drawBatch.instanceCount; iI++)
+      int index = 0;
+      for (int dI = 0; dI < drawBatches.size(); dI++)
       {
-        objectHandleBufferMap[index] = renderObjects[objectBatches[drawBatch.prevInstanceCount + iI].objectHandle.get()].ID;
-        index++;
+        auto drawBatch = drawBatches[dI];
+
+        for (int iI = 0; iI < drawBatch.instanceCount; iI++)
+        {
+          objectHandleBufferMap[index] = renderObjects[objectBatches[drawBatch.prevInstanceCount + iI].objectHandle.get()].ID;
+          index++;
+        }
       }
+
+      objectHandleBuffer.unmap();
+
+      LOTUS_PROFILE_END_TIME(Lotus::FrameTime::IndirectObjectHandleBufferRefreshTime);
     }
-
-    objectHandleBuffer.unmap();
-
-    LOTUS_PROFILE_END_TIME(Lotus::FrameTime::IndirectObjectHandleBufferRefreshTime);
   }
   
   void IndirectObjectRenderer::refreshMaterialBuffer()
   {
-    if (dirtyMaterialsHandles.empty())
+    if (!dirtyMaterialsHandles.empty())
     {
-      return;
+      LOTUS_PROFILE_START_TIME(Lotus::FrameTime::IndirectMaterialBufferRefreshTime);
+
+      GPUMaterialData* materialBufferMap = materialBuffer.map();
+
+      for (const Handle<RenderMaterial>& materialHandle : dirtyMaterialsHandles)
+      {
+        const RenderMaterial& renderMaterial = renderMaterials[materialHandle.get()];
+
+        const std::shared_ptr<Material>& material = materials[materialHandle.get()];
+
+        materialBufferMap[renderMaterial.ID] = materials[materialHandle.get()]->getMaterialData();
+      }
+
+      materialBuffer.unmap();
+
+      dirtyMaterialsHandles.clear();
+
+      LOTUS_PROFILE_END_TIME(Lotus::FrameTime::IndirectMaterialBufferRefreshTime);
     }
-
-    LOTUS_PROFILE_START_TIME(Lotus::FrameTime::IndirectMaterialBufferRefreshTime);
-
-    GPUMaterialData* materialBufferMap = materialBuffer.map();
-
-    for (const Handle<RenderMaterial>& materialHandle : dirtyMaterialsHandles)
-    {
-      const RenderMaterial& renderMaterial = renderMaterials[materialHandle.get()];
-
-      const std::shared_ptr<Material>& material = materials[materialHandle.get()];
-
-      materialBufferMap[renderMaterial.ID] = materials[materialHandle.get()]->getMaterialData();
-    }
-
-    materialBuffer.unmap();
-
-    dirtyMaterialsHandles.clear();
-
-    LOTUS_PROFILE_END_TIME(Lotus::FrameTime::IndirectMaterialBufferRefreshTime);
   }
 
-  Handle<RenderMesh> IndirectObjectRenderer::getMeshHandle(std::shared_ptr<Mesh> mesh)
+  Handle<RenderMesh> IndirectObjectRenderer::getMeshHandle(const std::shared_ptr<Mesh>& mesh)
   {
     Handle<RenderMesh> handle;
 
@@ -574,7 +528,7 @@ namespace Lotus {
     return handle;
   }
 
-  Handle<RenderMaterial> IndirectObjectRenderer::getMaterialHandle(std::shared_ptr<Material> material)
+  Handle<RenderMaterial> IndirectObjectRenderer::getMaterialHandle(const std::shared_ptr<Material>& material)
   {
     Handle<RenderMaterial> handle;
 
