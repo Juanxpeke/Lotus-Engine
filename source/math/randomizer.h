@@ -44,6 +44,11 @@ namespace Lotus
       return dist(rng);
     }
 
+    bool getBool()
+    {
+      return getIntRange(0, 1) ? true : false;
+    }
+
   private:
     std::mt19937 rng;
   };
