@@ -4,20 +4,47 @@
 Lotus::MeshManager& meshManager = Lotus::MeshManager::getInstance();
 Lotus::TextureLoader& textureLoader = Lotus::TextureLoader::getInstance();
 
-class NumberOfObjectsApplication : public ExperimentApplication
+class ObjectsExperimentApplication : public ExperimentApplication
 {
 public:
-  NumberOfObjectsApplication() : 
+
+  ObjectsExperimentApplication() : 
     ExperimentApplication("Objects"),
     regionSize(100.0f),
     numberOfObjects(1024),
     numberOfChangingMeshObjects(0),
     numberOfChangingMaterialObjects(0),
     numberOfChangingMaterialTypeObjects(0)
-  {
-  }
+  {}
   
 private:
+
+  virtual void initializeExperiment() override
+  {
+    sphereMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
+    cubeMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
+
+    whiteUnlitMaterial = std::static_pointer_cast<Lotus::UnlitFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::UnlitFlat));
+    whiteUnlitMaterial->setUnlitColor(glm::vec3(0.3f, 0.3f, 0.3f));
+    blackUnlitMaterial = std::static_pointer_cast<Lotus::UnlitFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::UnlitFlat));
+    blackUnlitMaterial->setUnlitColor(glm::vec3(0.1f, 0.1f, 0.1f));
+    whiteDiffuseMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
+    whiteDiffuseMaterial->setDiffuseColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    blackDiffuseMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
+    blackDiffuseMaterial->setDiffuseColor(glm::vec3(0.1f, 0.1f, 0.1f));
+
+    renderingServer.setAmbientLight(glm::vec3(0.2, 0.2, 0.2));
+
+    createDirectionalLight();
+    createObjects();    
+  }
+
+  virtual void updateExperiment(float deltaTime) override
+  {
+    changeObjectsMeshes();
+    changeObjectsMaterials();
+    changeObjectsMaterialTypes();
+  }
 
   virtual void renderConfigurationGUI() override
   {
@@ -79,33 +106,6 @@ private:
     ImGui::PushItemWidth(configurationContentWindowWidth);
     ImGui::SliderInt("##slider4", &numberOfChangingMaterialTypeObjects, 0, numberOfObjects);
     ImGui::PopItemWidth();
-  }
-
-  virtual void initializeExperiment() override
-  {
-    sphereMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
-    cubeMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
-
-    whiteUnlitMaterial = std::static_pointer_cast<Lotus::UnlitFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::UnlitFlat));
-    whiteUnlitMaterial->setUnlitColor(glm::vec3(0.3f, 0.3f, 0.3f));
-    blackUnlitMaterial = std::static_pointer_cast<Lotus::UnlitFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::UnlitFlat));
-    blackUnlitMaterial->setUnlitColor(glm::vec3(0.1f, 0.1f, 0.1f));
-    whiteDiffuseMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
-    whiteDiffuseMaterial->setDiffuseColor(glm::vec3(1.0f, 1.0f, 1.0f));
-    blackDiffuseMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
-    blackDiffuseMaterial->setDiffuseColor(glm::vec3(0.1f, 0.1f, 0.1f));
-
-    renderingServer.setAmbientLight(glm::vec3(0.2, 0.2, 0.2));
-
-    createDirectionalLight();
-    createObjects();    
-  }
-
-  virtual void updateExperiment(float deltaTime) override
-  {
-    changeObjectsMeshes();
-    changeObjectsMaterials();
-    changeObjectsMaterialTypes();
   }
 
   void createDirectionalLight()
@@ -255,7 +255,7 @@ private:
 
 int main()
 {
-	NumberOfObjectsApplication application;
+	ObjectsExperimentApplication application;
 
   application.run();
 

@@ -22,9 +22,10 @@ namespace Lotus
     GLFWwindow* window;
 
   protected:
-    virtual void update(float deltaTime);
-    virtual void render();
-    virtual void renderGUI();
+
+    virtual void update(float deltaTime) {}
+    virtual void render() {}
+    virtual void renderGUI() {}
 
     void disableVSync();
 

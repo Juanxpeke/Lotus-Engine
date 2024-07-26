@@ -1,37 +1,29 @@
 #include "lotus_engine.h"
 
-class ExperimentApplication : public Lotus::RenderingApplication
+class VisualTestApplication : public Lotus::RenderingApplication
 {
 public:
 
-  ExperimentApplication(const std::string& experimentName) :
-    Lotus::RenderingApplication("Lotus Experiment - " + experimentName, 720, 720)
+  VisualTestApplication(const std::string& testName) :
+    Lotus::RenderingApplication("Lotus Visual Test - " + testName, 720, 720)
   {
-    experimentConfigured = false;
-
-    framesInHistory = LOTUS_GET_PROFILER_FRAME_HISTORY_MAX_SIZE();
-    exportHistoryAutomatically = true;
-    
-    std::string exportPath = Lotus::experimentPath("results/" + experimentName + ".csv").string();
-    std::memcpy(exportPathBuffer, exportPath.c_str(), (exportPath.size() + 1) * sizeof(char));
-
-    disableVSync();
+    testConfigured = false;
   }
 
   virtual void update(float deltaTime) override final
   {
-    if (!experimentConfigured)
+    if (!testConfigured)
     {
       return;
     }
 
     Lotus::RenderingApplication::update(deltaTime);
-    updateExperiment(deltaTime);
+    updateTest(deltaTime);
   }
   
   virtual void render() override final
   {
-    if (!experimentConfigured)
+    if (!testConfigured)
     {
       return;
     }
@@ -41,7 +33,7 @@ public:
 
   virtual void renderGUI() override final
   {
-    if (!experimentConfigured)
+    if (!testConfigured)
     {      
       ImGuiWindowFlags flags =  ImGuiWindowFlags_NoMove |
                                 ImGuiWindowFlags_NoResize |
@@ -68,27 +60,6 @@ public:
         ImGui::SetCursorPosX((configurationWindowWidth - titleSize.x) * 0.5f);
         ImGui::Text("Configuration");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
-
-        ImGui::SeparatorText("Profiling");
-        ImGui::Dummy(ImVec2(0.0f, 12.0f));
-
-        ImGui::Text("Frames in history:");
-        ImGui::Dummy(ImVec2(0.0f, 4.0f));
-        ImGui::PushItemWidth(configurationContentWindowWidth);
-        ImGui::SliderInt("##slider0", &framesInHistory, 1, 1000);
-        ImGui::PopItemWidth();
-        ImGui::Dummy(ImVec2(0.0f, 12.0f));
-
-        ImGui::Checkbox("Export history automatically", &exportHistoryAutomatically);
-        ImGui::Dummy(ImVec2(0.0f, 12.0f));
-
-        ImGui::Text("Export path:");
-        ImGui::Dummy(ImVec2(0.0f, 4.0f));
-        ImGui::PushItemWidth(configurationContentWindowWidth);
-        ImGui::InputText("##input0", exportPathBuffer, 1024);
-        ImGui::PopItemWidth();
-        ImGui::Dummy(ImVec2(0.0f, 12.0f));
-
 
         ImGui::SeparatorText("Rendering");
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
@@ -117,7 +88,7 @@ public:
         ImGui::PopID();
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
-        ImGui::SeparatorText("Experiment");
+        ImGui::SeparatorText("Test");
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
         renderConfigurationGUI();
@@ -133,19 +104,12 @@ public:
 
         if (ImGui::Button("Launch", ImVec2(configurationContentWindowWidth, 0)))
         {
-          experimentConfigured = true;
+          testConfigured = true;
           
           renderingServer.setDefaultObjectRenderingMethod(objectRenderingMethodNumber ? Lotus::RenderingMethod::Indirect : Lotus::RenderingMethod::Traditional);
           renderingServer.setDefaultTerrainRenderingMethod(terrainRenderingMethodNumber ? Lotus::RenderingMethod::Indirect : Lotus::RenderingMethod::Traditional); 
 
-          std::string exportPath(exportPathBuffer);
-
-          LOTUS_ENABLE_PROFILING();
-          LOTUS_SET_PROFILER_FRAME_HISTORY_MAX_SIZE(framesInHistory);
-          LOTUS_SET_PROFILER_EXPORT_AUTOMATIC(exportHistoryAutomatically);
-          LOTUS_SET_PROFILER_EXPORT_PATH(exportPathBuffer);
-
-          initializeExperiment();
+          initializeTest();
         }
       }
 
@@ -158,24 +122,18 @@ public:
     }
   }
 
-  virtual void initializeExperiment() {}
-  virtual void updateExperiment(float deltaTime) {}
+  virtual void initializeTest() {}
+  virtual void updateTest(float deltaTime) {}
   virtual void renderConfigurationGUI() {}
   virtual void renderPostConfigurationGUI() {}
 
 protected:
-
   float configurationContentWindowWidth;
   float configurationContentWindowHeight;
   float configurationWindowWidth;
   float configurationWindowHeight;
 
 private:
-
-  bool experimentConfigured;
-
-  int framesInHistory;
-  bool exportHistoryAutomatically;
-  char exportPathBuffer[1024];
+  bool testConfigured;
 
 };

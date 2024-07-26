@@ -47,7 +47,6 @@ namespace Lotus
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 460");
@@ -66,6 +65,12 @@ namespace Lotus
     style.Colors[ImGuiCol_FrameBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
     style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
     style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+
+    style.Colors[ImGuiCol_Tab] = ImVec4(0.0f, 0.4f, 0.0f, 1.0f);
+    style.Colors[ImGuiCol_TabHovered] = ImVec4(0.0f, 0.6f, 0.0f, 1.0f);
+    style.Colors[ImGuiCol_TabActive] = ImVec4(0.0f, 0.5f, 0.0f, 1.0f);
+    style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.0f, 0.3f, 0.0f, 1.0f);
+    style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.0f, 0.4f, 0.0f, 1.0f);
 
     glViewport(0, 0, width, height);
   }
@@ -104,11 +109,7 @@ namespace Lotus
 
       LOTUS_PROFILE_END_FRAME();
     }
-  }
-  
-  void Application::update(float deltaTime) {}
-  void Application::render() {}
-  void Application::renderGUI() {}
+  } 
 
   void Application::disableVSync()
   {
