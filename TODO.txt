@@ -1,13 +1,2 @@
-# Learning
-  - *
-
-# Renderer
-  - MeshInstance creation and deletion logic for graphics batch
-
-# Debugging
-  - *
-
 # Misc
   - Remove repeated assimp in CMakeLists
-  - Use CMake instruction for project organization (in specific separate glad from the solution main projects)
-  - Add ImGUI for changing values in runtime

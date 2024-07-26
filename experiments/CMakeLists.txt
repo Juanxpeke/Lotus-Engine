@@ -8,4 +8,4 @@ function(add_experiment TARGET_NAME)
 	target_include_directories(${TARGET_NAME} PRIVATE ${LOTUS_INCLUDE_DIRECTORY} ${THIRD_PARTY_INCLUDE_DIRECTORIES})
 endfunction(add_experiment)
 
-add_experiment(number_of_objects)
+add_experiment(objects)

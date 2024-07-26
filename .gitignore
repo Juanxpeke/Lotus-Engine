@@ -3,9 +3,10 @@
 **/build
 **/path_manager.h
 
-# Results
+# Experiments
 **/.ipynb_checkpoints
 **/*.csv
+**/experiments/**/*.png
 
 # Visual Studio Code
 .vscode

@@ -3,12 +3,13 @@
 class ExperimentApplication : public Lotus::RenderingApplication
 {
 public:
-  ExperimentApplication(const std::string& experimentName) : Lotus::RenderingApplication(experimentName, 720, 720)
+  ExperimentApplication(const std::string& experimentName) :
+    Lotus::RenderingApplication("Lotus Experiment - " + experimentName, 720, 720)
   {
     experimentConfigured = false;
 
     framesInHistory = LOTUS_GET_PROFILER_FRAME_HISTORY_MAX_SIZE();
-    exportHistoryAutomatically = LOTUS_GET_PROFILER_EXPORT_AUTOMATIC();
+    exportHistoryAutomatically = true;
     
     std::string exportPath = Lotus::experimentPath("results/" + experimentName + ".csv").string();
     std::memcpy(exportPathBuffer, exportPath.c_str(), (exportPath.size() + 1) * sizeof(char));
@@ -16,7 +17,7 @@ public:
     disableVSync();
   }
 
-  virtual void update(float deltaTime) override
+  virtual void update(float deltaTime) override final
   {
     if (!experimentConfigured)
     {
@@ -24,6 +25,7 @@ public:
     }
 
     Lotus::RenderingApplication::update(deltaTime);
+    updateExperiment(deltaTime);
   }
   
   virtual void render() override
@@ -56,16 +58,16 @@ public:
 
 
 
-      if (ImGui::Begin("Experiment Configuration", nullptr, flags))
+      if (ImGui::Begin("Configuration", nullptr, flags))
       {
         configurationContentWindowWidth = ImGui::GetContentRegionAvail().x;
         configurationContentWindowHeight = ImGui::GetContentRegionAvail().y;
         configurationWindowWidth = ImGui::GetWindowWidth();
         configurationWindowHeight = ImGui::GetWindowHeight();
 
-        ImVec2 titleSize = ImGui::CalcTextSize("Experiment Configuration");
+        ImVec2 titleSize = ImGui::CalcTextSize("Configuration");
         ImGui::SetCursorPosX((configurationWindowWidth - titleSize.x) * 0.5f);
-        ImGui::Text("Experiment Configuration");
+        ImGui::Text("Configuration");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
 
         ImGui::SeparatorText("Profiling");
@@ -125,8 +127,10 @@ public:
         float buttonHeight = ImGui::GetFrameHeight();
         float cursorPosY = configurationWindowHeight - windowPadding.y - buttonHeight;
 
-        ImGui::SetCursorPosY(cursorPosY);
-        ImGui::SetCursorPosX(windowPadding.x);
+        if (ImGui::GetScrollMaxY() <= 0.0f)
+        {
+          ImGui::SetCursorPosY(cursorPosY);
+        }
 
         if (ImGui::Button("Launch", ImVec2(configurationContentWindowWidth, 0)))
         {
@@ -155,9 +159,10 @@ public:
     }
   }
 
+  virtual void initializeExperiment() {}
+  virtual void updateExperiment(float deltaTime) {}
   virtual void renderConfigurationGUI() {}
   virtual void renderPostConfigurationGUI() {}
-  virtual void initializeExperiment() {}
 
 protected:
   float configurationContentWindowWidth;
