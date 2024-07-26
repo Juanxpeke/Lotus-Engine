@@ -94,6 +94,8 @@ namespace Lotus {
 
     refreshBuffers();
 
+    LOTUS_PROFILE_START_TIME(FrameTime::IndirectSceneRenderTime);
+
     glBindVertexArray(vertexArrayID);
     
     indirectBuffer.bind();
@@ -119,6 +121,8 @@ namespace Lotus {
     objectBuffer.unbind();
     objectHandleBuffer.unbind();
     indirectBuffer.unbind();
+
+    LOTUS_PROFILE_END_TIME(FrameTime::IndirectSceneRenderTime);
   }
 
   void IndirectObjectRenderer::update()
@@ -432,6 +436,8 @@ namespace Lotus {
   {
     if (!drawBatches.empty())
     {
+      LOTUS_PROFILE_START_TIME(Lotus::FrameTime::IndirectIndirectBufferRefreshTime);
+
       indirectBuffer.resize(drawBatches.size());
 
       DrawElementsIndirectCommand* indirectBufferMap = indirectBuffer.map();
@@ -450,6 +456,8 @@ namespace Lotus {
       }
 
       indirectBuffer.unmap();
+      
+      LOTUS_PROFILE_END_TIME(Lotus::FrameTime::IndirectIndirectBufferRefreshTime);
     }
   }
 
@@ -459,6 +467,8 @@ namespace Lotus {
     {
       return;
     }
+
+    LOTUS_PROFILE_START_TIME(Lotus::FrameTime::IndirectObjectBufferRefreshTime);
 
     GPUObjectData* objectBufferMap = objectBuffer.map();
     
@@ -473,6 +483,8 @@ namespace Lotus {
     objectBuffer.unmap();
 
     dirtyObjectsHandles.clear();
+
+    LOTUS_PROFILE_END_TIME(Lotus::FrameTime::IndirectObjectBufferRefreshTime);
   }
 
   void IndirectObjectRenderer::refreshObjectHandleBuffer()
@@ -481,6 +493,8 @@ namespace Lotus {
     {
       return;
     }
+
+    LOTUS_PROFILE_START_TIME(Lotus::FrameTime::IndirectObjectHandleBufferRefreshTime);
 
     uint32_t* objectHandleBufferMap = objectHandleBuffer.map();
 
@@ -497,6 +511,8 @@ namespace Lotus {
     }
 
     objectHandleBuffer.unmap();
+
+    LOTUS_PROFILE_END_TIME(Lotus::FrameTime::IndirectObjectHandleBufferRefreshTime);
   }
   
   void IndirectObjectRenderer::refreshMaterialBuffer()
@@ -505,6 +521,8 @@ namespace Lotus {
     {
       return;
     }
+
+    LOTUS_PROFILE_START_TIME(Lotus::FrameTime::IndirectMaterialBufferRefreshTime);
 
     GPUMaterialData* materialBufferMap = materialBuffer.map();
 
@@ -520,6 +538,8 @@ namespace Lotus {
     materialBuffer.unmap();
 
     dirtyMaterialsHandles.clear();
+
+    LOTUS_PROFILE_END_TIME(Lotus::FrameTime::IndirectMaterialBufferRefreshTime);
   }
 
   Handle<RenderMesh> IndirectObjectRenderer::getMeshHandle(std::shared_ptr<Mesh> mesh)
