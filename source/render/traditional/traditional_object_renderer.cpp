@@ -9,6 +9,8 @@ namespace Lotus
 
   TraditionalObjectRenderer::TraditionalObjectRenderer()
   {
+    shaders[static_cast<unsigned int>(MaterialType::UnlitFlat)] = ShaderProgram(shaderPath("traditional/unlit_flat.vert"), shaderPath("traditional/unlit_flat.frag"));
+    shaders[static_cast<unsigned int>(MaterialType::UnlitTextured)] = ShaderProgram(shaderPath("traditional/unlit_textured.vert"), shaderPath("traditional/unlit_textured.frag"));
     shaders[static_cast<unsigned int>(MaterialType::DiffuseFlat)] = ShaderProgram(shaderPath("traditional/diffuse_flat.vert"), shaderPath("traditional/diffuse_flat.frag"));
     shaders[static_cast<unsigned int>(MaterialType::DiffuseTextured)] = ShaderProgram(shaderPath("traditional/diffuse_textured.vert"), shaderPath("traditional/diffuse_textured.frag"));
   }
