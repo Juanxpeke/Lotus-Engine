@@ -9,16 +9,12 @@ namespace Lotus
     {
     case Mesh::PrimitiveType::Plane:
       return "Plane";
-      break;
     case Mesh::PrimitiveType::Cube:
       return "Cube";
-      break;
     case Mesh::PrimitiveType::Sphere:
       return "Sphere";
-      break;
     default:
       return "Sphere";
-      break;
     }
   }
 

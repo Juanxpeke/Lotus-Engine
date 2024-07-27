@@ -255,7 +255,7 @@ private:
 
 int main()
 {
-	ObjectsExperimentApplication application;
+  ObjectsExperimentApplication application;
 
   application.run();
 

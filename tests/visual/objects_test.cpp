@@ -1,6 +1,23 @@
 #include "lotus_engine.h"
 #include "visual_test_application.h"
 
+std::string materialTypeToString(Lotus::MaterialType type)
+{
+  switch (type)
+  {
+  case Lotus::MaterialType::UnlitFlat:
+    return "Unlit Flat";
+  case Lotus::MaterialType::UnlitTextured:
+    return "Unlit Textured";
+  case Lotus::MaterialType::DiffuseFlat:
+    return "Diffuse Flat";
+  case Lotus::MaterialType::DiffuseTextured:
+    return "Diffuse Textured";
+  default:
+    return "Unknown";
+  }
+}
+
 Lotus::MeshManager& meshManager = Lotus::MeshManager::getInstance();
 Lotus::TextureLoader& textureLoader = Lotus::TextureLoader::getInstance();
 
@@ -102,6 +119,7 @@ private:
                               ImGuiWindowFlags_NoCollapse |
                               ImGuiWindowFlags_NoTitleBar |
                               ImGuiWindowFlags_NoSavedSettings |
+                              ImGuiWindowFlags_NoBringToFrontOnFocus |
                               ImGuiWindowFlags_AlwaysAutoResize;
 
     ImVec2 windowPadding(0.0f, 0.0f);
@@ -241,56 +259,66 @@ private:
                               ImGuiWindowFlags_AlwaysAutoResize;
 
     ImVec2 windowPadding(12.0f, 12.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, windowPadding);
     
     if (selectedObject != nullptr)
     {
-      ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, windowPadding);
-
-      float windowWidth = ImGui::GetWindowWidth();
-
       /*
         The triple # allows to change the title without changing the window instance 
       */
       if (ImGui::Begin(("Object " + std::to_string(selectedObjectIndex) + "###SelectionWindow").c_str(), nullptr, flags))
       {
+        float contentWindowWidth = ImGui::GetContentRegionAvail().x;
+
         ImGui::SeparatorText("Transform");
-        ImGui::Dummy(ImVec2(0.0f, 4.0f));
+        ImGui::Dummy(ImVec2(0.0f, 3.0f));
         ImGui::Text("Translation:"); ImGui::SameLine(); ImGui::SliderFloat3("##Translation", selectedTranslation, -20.0f, 20.0f);
         ImGui::Text("Scale:"); ImGui::SameLine(); ImGui::SliderFloat3("##Scale", selectedScale, 0.0f, 10.0f);
         ImGui::Dummy(ImVec2(0.0f, 6.0f));
 
         ImGui::SeparatorText("Mesh");
-        ImGui::Dummy(ImVec2(0.0f, 4.0f));
+        ImGui::Dummy(ImVec2(0.0f, 3.0f));
+        ImGui::PushItemWidth(contentWindowWidth);
         ImGui::SliderInt("##Mesh", &selectedObjectMeshIndex, 0, meshes.size() - 1);
+        ImGui::PopItemWidth();
         ImGui::Dummy(ImVec2(0.0f, 6.0f));
 
         ImGui::SeparatorText("Material");
-        ImGui::Dummy(ImVec2(0.0f, 4.0f));
+        ImGui::Dummy(ImVec2(0.0f, 3.0f));
+        ImGui::PushItemWidth(contentWindowWidth);
         ImGui::SliderInt("##Material", &selectedObjectMaterialIndex, 0, materials.size() - 1);
+        ImGui::PopItemWidth();
       }
 
       ImGui::End();
-      ImGui::PopStyleVar();
     }
     else if (selectedMaterial != nullptr)
     {
-      ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, windowPadding);
-
-      float windowWidth = ImGui::GetWindowWidth();
-
       /*
         The triple # allows to change the title without changing the window instance 
       */
       if (ImGui::Begin(("Material " + std::to_string(selectedMaterialIndex) + "###SelectionWindow").c_str(), nullptr, flags))
       {
+        ImGuiColorEditFlags flags = ImGuiColorEditFlags_NoSidePreview |
+                                    ImGuiColorEditFlags_NoInputs;
+
+        ImGui::SeparatorText("Details");
+        ImGui::Dummy(ImVec2(0.0f, 3.0f));
+        ImGui::Text("Type:"); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+        ImGui::Text(materialTypeToString(selectedMaterial->getType()).c_str());
+        ImGui::PopStyleColor();
+        ImGui::Dummy(ImVec2(0.0f, 6.0f));
+
         ImGui::SeparatorText("Color");
-        ImGui::Dummy(ImVec2(0.0f, 4.0f));
-        ImGui::ColorPicker3("##Color", selectedColor);
+        ImGui::Dummy(ImVec2(0.0f, 3.0f));
+        ImGui::ColorPicker3("##Color", selectedColor, flags);
       }
 
       ImGui::End();
-      ImGui::PopStyleVar();
     }
+
+    ImGui::PopStyleVar();
   }
 
   void createDirectionalLight()
@@ -321,7 +349,7 @@ private:
 
 int main()
 {
-	ObjectsTestApplication application;
+  ObjectsTestApplication application;
 
   application.run();
 
