@@ -17,7 +17,10 @@ namespace Lotus
 
     void setUnlitColor(const glm::vec3& color)
     {
-      if (color == unlitColor) { return; }
+      if (color == unlitColor)
+      {
+        return;
+      }
 
       unlitColor = color;
       dirty = true;

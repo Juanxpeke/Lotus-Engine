@@ -20,7 +20,6 @@ namespace Lotus
     {
       if (color == diffuseColor)
       {
-        LOTUS_LOG_WARN("[Material Warning] Tried to set color that is already being used");
         return;
       }
 

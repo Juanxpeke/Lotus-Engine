@@ -53,6 +53,10 @@ namespace Lotus
 
     ImGuiStyle& style = ImGui::GetStyle();
 
+    style.Colors[ImGuiCol_TitleBg] = ImVec4(0.04f, 0.04f, 0.04f, 1.0f);
+    style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.0f, 0.5f, 0.0f, 1.0f);
+    style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.04f, 0.04f, 0.04f, 1.0f);
+
     style.Colors[ImGuiCol_Button] = ImVec4(0.0f, 0.5f, 0.0f, 1.0f);
     style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.0f, 0.6f, 0.0f, 1.0f);
     style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.0f, 0.4f, 0.0f, 1.0f);
@@ -71,6 +75,9 @@ namespace Lotus
     style.Colors[ImGuiCol_TabActive] = ImVec4(0.0f, 0.5f, 0.0f, 1.0f);
     style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.0f, 0.3f, 0.0f, 1.0f);
     style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.0f, 0.4f, 0.0f, 1.0f);
+
+    style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.0f, 0.5f, 0.0f, 1.0f);
+    style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.0f, 0.4f, 0.0f, 1.0f);
 
     glViewport(0, 0, width, height);
   }

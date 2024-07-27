@@ -98,8 +98,8 @@ namespace Lotus
   
   struct GPUInstance
   {
-    uint32_t objectID;
-    uint32_t drawBatchID;
+    uint32_t objectID;    // 4
+    uint32_t drawBatchID; // 8
   };
 
 }
