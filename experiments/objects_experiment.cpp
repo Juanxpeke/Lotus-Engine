@@ -68,7 +68,7 @@ private:
     }
 
     ImGui::PushItemWidth(configurationContentWindowWidth);
-    ImGui::SliderInt("##slider1", &numberOfObjects, 1 << 0, 1 << 15);
+    ImGui::SliderInt("##NumberOfObjectsSlider", &numberOfObjects, 1 << 0, 1 << 15);
     ImGui::PopItemWidth();
     ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
@@ -80,7 +80,7 @@ private:
     ImGui::Text("Number of objects with changing mesh:");
     ImGui::Dummy(ImVec2(0.0f, 4.0f));
     ImGui::PushItemWidth(configurationContentWindowWidth);
-    ImGui::SliderInt("##slider2", &numberOfChangingMeshObjects, 0, numberOfObjects);
+    ImGui::SliderInt("##NumberOfChangingMeshObjectsSlider", &numberOfChangingMeshObjects, 0, numberOfObjects);
     ImGui::PopItemWidth();
     ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
@@ -92,7 +92,7 @@ private:
     ImGui::Text("Number of objects with changing material:");
     ImGui::Dummy(ImVec2(0.0f, 4.0f));
     ImGui::PushItemWidth(configurationContentWindowWidth);
-    ImGui::SliderInt("##slider3", &numberOfChangingMaterialObjects, 0, numberOfObjects);
+    ImGui::SliderInt("##NumberOfChangingMaterialObjectsSlider", &numberOfChangingMaterialObjects, 0, numberOfObjects);
     ImGui::PopItemWidth();
     ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
@@ -104,7 +104,7 @@ private:
     ImGui::Text("Number of objects with changing material type:");
     ImGui::Dummy(ImVec2(0.0f, 4.0f));
     ImGui::PushItemWidth(configurationContentWindowWidth);
-    ImGui::SliderInt("##slider4", &numberOfChangingMaterialTypeObjects, 0, numberOfObjects);
+    ImGui::SliderInt("##NumberOfChangingMaterialTypeObjectsSlider", &numberOfChangingMaterialTypeObjects, 0, numberOfObjects);
     ImGui::PopItemWidth();
   }
 

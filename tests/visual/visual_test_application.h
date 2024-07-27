@@ -68,24 +68,16 @@ public:
 
         ImGui::Text("Object rendering method:");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
-        ImGui::PushID(0);
-        ImGui::RadioButton("Traditional", &objectRenderingMethodNumber, 0); ImGui::SameLine();
-        ImGui::PopID();
-        ImGui::PushID(1);
-        ImGui::RadioButton("Indirect", &objectRenderingMethodNumber, 1);
-        ImGui::PopID();
+        ImGui::RadioButton("Traditional##ObjectRenderingTraditional", &objectRenderingMethodNumber, 0); ImGui::SameLine();
+        ImGui::RadioButton("Indirect##ObjectRenderingIndirect", &objectRenderingMethodNumber, 1);
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
         
         static int terrainRenderingMethodNumber;
 
         ImGui::Text("Terrain rendering method:");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
-        ImGui::PushID(2);
-        ImGui::RadioButton("Traditional", &terrainRenderingMethodNumber, 0); ImGui::SameLine();
-        ImGui::PopID();
-        ImGui::PushID(3);
-        ImGui::RadioButton("Indirect", &terrainRenderingMethodNumber, 1);
-        ImGui::PopID();
+        ImGui::RadioButton("Traditional##TerrainRenderingTraditional", &terrainRenderingMethodNumber, 0); ImGui::SameLine();
+        ImGui::RadioButton("Indirect##TerrainRenderingIndirect", &terrainRenderingMethodNumber, 1);
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
         ImGui::SeparatorText("Test");

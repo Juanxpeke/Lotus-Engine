@@ -255,18 +255,18 @@ private:
       {
         ImGui::SeparatorText("Transform");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
-        ImGui::Text("Translation:"); ImGui::SameLine(); ImGui::SliderFloat3("##translation", selectedTranslation, -50.0f, 50.0f);
-        ImGui::Text("Scale:"); ImGui::SameLine(); ImGui::SliderFloat3("##scale", selectedScale, 0.0f, 10.0f);
+        ImGui::Text("Translation:"); ImGui::SameLine(); ImGui::SliderFloat3("##Translation", selectedTranslation, -20.0f, 20.0f);
+        ImGui::Text("Scale:"); ImGui::SameLine(); ImGui::SliderFloat3("##Scale", selectedScale, 0.0f, 10.0f);
         ImGui::Dummy(ImVec2(0.0f, 6.0f));
 
         ImGui::SeparatorText("Mesh");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
-        ImGui::SliderInt("##mesh", &selectedObjectMeshIndex, 0, meshes.size() - 1);
+        ImGui::SliderInt("##Mesh", &selectedObjectMeshIndex, 0, meshes.size() - 1);
         ImGui::Dummy(ImVec2(0.0f, 6.0f));
 
         ImGui::SeparatorText("Material");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
-        ImGui::SliderInt("##material", &selectedObjectMaterialIndex, 0, materials.size() - 1);
+        ImGui::SliderInt("##Material", &selectedObjectMaterialIndex, 0, materials.size() - 1);
       }
 
       ImGui::End();
@@ -285,7 +285,7 @@ private:
       {
         ImGui::SeparatorText("Color");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
-        ImGui::ColorPicker3("##color", selectedColor);
+        ImGui::ColorPicker3("##Color", selectedColor);
       }
 
       ImGui::End();

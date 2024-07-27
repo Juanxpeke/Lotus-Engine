@@ -75,7 +75,7 @@ public:
         ImGui::Text("Frames in history:");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
         ImGui::PushItemWidth(configurationContentWindowWidth);
-        ImGui::SliderInt("##slider0", &framesInHistory, 1, 1000);
+        ImGui::SliderInt("##FramesInHistorySlider", &framesInHistory, 1, 1000);
         ImGui::PopItemWidth();
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
@@ -85,7 +85,7 @@ public:
         ImGui::Text("Export path:");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
         ImGui::PushItemWidth(configurationContentWindowWidth);
-        ImGui::InputText("##input0", exportPathBuffer, 1024);
+        ImGui::InputText("##ExportPathInput", exportPathBuffer, 1024);
         ImGui::PopItemWidth();
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
@@ -97,24 +97,16 @@ public:
 
         ImGui::Text("Object rendering method:");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
-        ImGui::PushID(0);
-        ImGui::RadioButton("Traditional", &objectRenderingMethodNumber, 0); ImGui::SameLine();
-        ImGui::PopID();
-        ImGui::PushID(1);
-        ImGui::RadioButton("Indirect", &objectRenderingMethodNumber, 1);
-        ImGui::PopID();
+        ImGui::RadioButton("Traditional##ObjectRenderingTraditional", &objectRenderingMethodNumber, 0); ImGui::SameLine();
+        ImGui::RadioButton("Indirect##ObjectRenderingIndirect", &objectRenderingMethodNumber, 1);
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
         
         static int terrainRenderingMethodNumber;
 
         ImGui::Text("Terrain rendering method:");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
-        ImGui::PushID(2);
-        ImGui::RadioButton("Traditional", &terrainRenderingMethodNumber, 0); ImGui::SameLine();
-        ImGui::PopID();
-        ImGui::PushID(3);
-        ImGui::RadioButton("Indirect", &terrainRenderingMethodNumber, 1);
-        ImGui::PopID();
+        ImGui::RadioButton("Traditional##TerrainRenderingTraditional", &terrainRenderingMethodNumber, 0); ImGui::SameLine();
+        ImGui::RadioButton("Indirect##TerrainRenderingIndirect", &terrainRenderingMethodNumber, 1);
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
         ImGui::SeparatorText("Experiment");
