@@ -66,7 +66,10 @@ private:
   {
     if (selectedObject != nullptr)
     {
-      selectedObject->setTranslation(glm::vec3(selectedTranslation[0], selectedTranslation[1], selectedTranslation[2]));
+      glm::vec3 eulerRotationRad = glm::radians(glm::vec3(selectedRotation[0], selectedRotation[1], selectedRotation[2]));
+      
+      selectedObject->setTranslation(glm::vec3(selectedPosition[0], selectedPosition[1], selectedPosition[2]));
+      selectedObject->setRotation(glm::fquat(eulerRotationRad));
       selectedObject->setScale(glm::vec3(selectedScale[0], selectedScale[1], selectedScale[2]));
 
       if (meshes[selectedObjectMeshIndex] != selectedObject->getMesh())
@@ -184,13 +187,20 @@ private:
     if (ImGui::Selectable(("Object " + std::to_string(objectIndex)).c_str()))
     {
       const glm::vec3& objectTranslation = object->getLocalTranslation();
+      const glm::fquat& objectRotation = object->getLocalRotation();
       const glm::vec3& objectScale = object->getLocalScale();
 
       selectedObjectIndex = objectIndex;
 
-      selectedTranslation[0] = objectTranslation.x;
-      selectedTranslation[1] = objectTranslation.y;
-      selectedTranslation[2] = objectTranslation.z;
+      selectedPosition[0] = objectTranslation.x;
+      selectedPosition[1] = objectTranslation.y;
+      selectedPosition[2] = objectTranslation.z;
+
+      glm::vec3 eulerRotation = glm::eulerAngles(objectRotation);
+
+      selectedRotation[0] = glm::degrees(eulerRotation.x);
+      selectedRotation[1] = glm::degrees(eulerRotation.y);
+      selectedRotation[2] = glm::degrees(eulerRotation.z);
       
       selectedScale[0] = objectScale.x;
       selectedScale[1] = objectScale.y;
@@ -272,8 +282,9 @@ private:
 
         ImGui::SeparatorText("Transform");
         ImGui::Dummy(ImVec2(0.0f, 3.0f));
-        ImGui::Text("Translation:"); ImGui::SameLine(); ImGui::SliderFloat3("##Translation", selectedTranslation, -20.0f, 20.0f);
-        ImGui::Text("Scale:"); ImGui::SameLine(); ImGui::SliderFloat3("##Scale", selectedScale, 0.0f, 10.0f);
+        ImGui::Text("Position:"); ImGui::SameLine(); ImGui::SliderFloat3("##Position", selectedPosition, -20.0f, 20.0f);
+        ImGui::Text("Rotation:"); ImGui::SameLine(); ImGui::SliderFloat3("##Rotation", selectedRotation, -180.0f, 180.0f);
+        ImGui::Text("Scale:   "); ImGui::SameLine(); ImGui::SliderFloat3("##Scale", selectedScale, 0.0f, 10.0f);
         ImGui::Dummy(ImVec2(0.0f, 6.0f));
 
         ImGui::SeparatorText("Mesh");
@@ -333,7 +344,8 @@ private:
   std::vector<std::shared_ptr<Lotus::MeshObject>> objects;
   std::shared_ptr<Lotus::MeshObject> selectedObject;
   int selectedObjectIndex;
-  float selectedTranslation[3];
+  float selectedPosition[3];
+  float selectedRotation[3];
   float selectedScale[3];
   int selectedObjectMeshIndex;
   int selectedObjectMaterialIndex;

@@ -18,6 +18,7 @@
 
 namespace Lotus
 {
+
   class IndirectObjectRenderer
   {
   public:
@@ -99,4 +100,5 @@ namespace Lotus
     // Extensions support
     bool supportsTexturedMaterials;
   };
+
 }
