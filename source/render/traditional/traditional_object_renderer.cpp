@@ -15,54 +15,98 @@ namespace Lotus
     shaders[static_cast<unsigned int>(MaterialType::DiffuseTextured)] = ShaderProgram(shaderPath("traditional/diffuse_textured.vert"), shaderPath("traditional/diffuse_textured.frag"));
   }
 
+  std::shared_ptr<MeshObject> TraditionalObjectRenderer::createObject(const std::shared_ptr<Mesh>&  mesh, const std::shared_ptr<Material>& material)
+  {
+    LOTUS_PROFILE_INCREASE_COUNTER(FrameCounter::AddedTraditionalObjects);
+
+    std::shared_ptr<MeshObject> object = std::make_shared<MeshObject>(mesh, material);
+    objects.push_back(object);
+
+    uint32_t meshHandle = getMeshHandle(mesh);
+
+    TraditionalRenderObject renderObject;
+    renderObject.model = object->getModelMatrix();
+    renderObject.meshHandle = meshHandle;
+
+    renderObjects.push_back(renderObject);
+
+    return object;
+  }
+
   void TraditionalObjectRenderer::render()
   {
+    updateObjects();
+
     LOTUS_PROFILE_START_TIME(FrameTime::TraditionalSceneRenderTime);
 
-    for (int i = 0; i < meshObjects.size(); i++)
+    for (int i = 0; i < objects.size(); i++)
     {
-      const std::shared_ptr<MeshObject>& meshObject = meshObjects[i];
+      const std::shared_ptr<MeshObject>& meshObject = objects[i];
       const std::shared_ptr<Material>& material = meshObject->getMaterial();
-      const std::shared_ptr<GPUMesh>& mesh = meshObject->GPUMeshPtr;
+      
+      const TraditionalRenderObject& renderObject = renderObjects[i];
+      const TraditionalRenderMesh& renderMesh = renderMeshes[renderObject.meshHandle];
 
       glUseProgram(shaders[static_cast<unsigned int>(material->getType())].getProgramID());
 
-      material->setUniforms(meshObject->getModelMatrix());
+      material->setUniforms(renderObject.model);
       
-      glBindVertexArray(mesh->getVertexArrayID());
+      glBindVertexArray(renderMesh.gpuMesh->getVertexArrayID());
       
-      glDrawElements(GL_TRIANGLES, mesh->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
+      glDrawElements(GL_TRIANGLES, renderMesh.gpuMesh->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
     }
     
     LOTUS_PROFILE_END_TIME(FrameTime::TraditionalSceneRenderTime);
   }
 
-  std::shared_ptr<MeshObject> TraditionalObjectRenderer::createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material)
+  void TraditionalObjectRenderer::updateObjects()
   {
-    LOTUS_PROFILE_INCREASE_COUNTER(FrameCounter::AddedTraditionalObjects);
+    for (int i = 0; i < objects.size(); i++)
+    {
+      const std::shared_ptr<MeshObject>& object = objects[i];
+      Transform* transform = &(object->transform);
 
-    std::shared_ptr<MeshObject> meshObject = std::make_shared<MeshObject>(mesh, material);
-    std::shared_ptr<GPUMesh> GPUMeshSharedPtr;
+      TraditionalRenderObject& renderObject = renderObjects[i];
+
+      if (transform->dirty)
+      {
+        renderObject.model = object->getModelMatrix();
+      }
+      if (object->meshDirty)
+      {
+        renderMeshes[renderObject.meshHandle].references--;
+        renderObject.meshHandle = getMeshHandle(object->getMesh());
+        renderMeshes[renderObject.meshHandle].references++;
+      }
+    }
+  }
+
+  uint32_t TraditionalObjectRenderer::getMeshHandle(const std::shared_ptr<Mesh>& mesh)
+  {
+    uint32_t handle;
 
     auto it = meshMap.find(mesh);
-    
-    if (it != meshMap.end())
+
+    if (it == meshMap.end())
     {
-      GPUMeshSharedPtr = it->second;
+      const std::vector<MeshVertex>& vertices = mesh->getVertices();
+      const std::vector<unsigned int>& indices = mesh->getIndices();
+
+      TraditionalRenderMesh renderMesh;
+      renderMesh.references++;
+      renderMesh.gpuMesh = new GPUMesh(*mesh);
+
+      handle = static_cast<uint32_t>(renderMeshes.size());
+      renderMeshes.push_back(renderMesh);
+
+      meshMap[mesh] = handle;
     }
     else
     {
-      GPUMesh* GPUMeshPtr = new GPUMesh(*mesh);
-      GPUMeshSharedPtr = std::shared_ptr<GPUMesh>(GPUMeshPtr);
-
-      meshMap.insert({ mesh, GPUMeshSharedPtr });
+      handle = (*it).second;
     }
 
-    meshObject->GPUMeshPtr = GPUMeshSharedPtr;
-
-    meshObjects.push_back(meshObject);
-
-    return meshObject;
+    return handle;
   }
 
 }

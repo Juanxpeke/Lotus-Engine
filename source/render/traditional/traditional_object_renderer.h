@@ -9,10 +9,10 @@
 #include "../../scene/camera.h"
 #include "../../lighting/directional_light.h"
 #include "../../lighting/point_light.h"
-#include "../gpu_mesh.h"
 #include "../shader.h"
 #include "../material.h"
 #include "../mesh_object.h"
+#include "traditional_render_structures.h"
 
 namespace Lotus
 {
@@ -20,22 +20,25 @@ namespace Lotus
   class TraditionalObjectRenderer
   {
   public:
-    using GPUMeshMap = std::unordered_map<std::shared_ptr<Mesh>, std::shared_ptr<GPUMesh>>;
-
     TraditionalObjectRenderer();
 
-    void render();
-
-    std::shared_ptr<MeshObject> createObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+    std::shared_ptr<MeshObject> createObject(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Material>& material);
   
+    void render();
+    void updateObjects();
 
   private:
 
+    uint32_t getMeshHandle(const std::shared_ptr<Mesh>& mesh);
+
     std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount ) * 2> shaders;
 
-    std::vector<std::shared_ptr<MeshObject>> meshObjects;
+    std::vector<std::shared_ptr<MeshObject>> objects;
+    std::vector<TraditionalRenderObject> renderObjects;
 
-    GPUMeshMap meshMap;
+    std::vector<TraditionalRenderMesh> renderMeshes;
+
+    std::unordered_map<std::shared_ptr<Mesh>, uint32_t> meshMap;
   };
 
 }
