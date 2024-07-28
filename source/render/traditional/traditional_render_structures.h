@@ -8,8 +8,8 @@ namespace Lotus
 
   struct TraditionalRenderMesh
   {
-      uint32_t references = 0;
-      GPUMesh* gpuMesh = nullptr;
+    GPUMesh* gpuMesh = nullptr;
+    uint32_t references = 0;
   };
 
   struct TraditionalRenderObject

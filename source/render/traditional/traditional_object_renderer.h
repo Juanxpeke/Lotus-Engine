@@ -20,6 +20,7 @@ namespace Lotus
   class TraditionalObjectRenderer
   {
   public:
+
     TraditionalObjectRenderer();
 
     std::shared_ptr<MeshObject> createObject(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Material>& material);
@@ -29,16 +30,21 @@ namespace Lotus
 
   private:
 
-    Handler<TraditionalRenderMesh> getMeshHandle(const std::shared_ptr<Mesh>& mesh);
+    Handler<TraditionalRenderMesh> getMeshHandler(const std::shared_ptr<Mesh>& mesh);
 
+    /* Shaders */
     std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount ) * 2> shaders;
 
+    /* Maps */
+    std::unordered_map<std::shared_ptr<Mesh>, Handler<TraditionalRenderMesh>> meshMap;
+
+    /* Objects */
     std::vector<std::shared_ptr<MeshObject>> objects;
     std::vector<TraditionalRenderObject> renderObjects;
 
+    /* Meshes */
     std::vector<TraditionalRenderMesh> renderMeshes;
 
-    std::unordered_map<std::shared_ptr<Mesh>, Handler<TraditionalRenderMesh>> meshMap;
   };
 
 }

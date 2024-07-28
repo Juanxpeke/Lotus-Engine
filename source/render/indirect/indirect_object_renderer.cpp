@@ -79,9 +79,6 @@ namespace Lotus {
     
     Handler<IndirectRenderObject> handler(static_cast<uint32_t>(renderObjects.size()));
     renderObjects.push_back(renderObject);
-    
-    uint32_t placeholderHandle = 0;
-    objectHandleBuffer.add(&placeholderHandle);
 
     unbatchedObjectsHandlers.push_back(handler);
 
@@ -452,6 +449,8 @@ namespace Lotus {
     if (objectBatchesModified && !drawBatches.empty())
     {
       LOTUS_PROFILE_START_TIME(Lotus::FrameTime::IndirectObjectHandleBufferRefreshTime);
+
+      objectHandleBuffer.resize(objectBatches.size());
 
       uint32_t* objectHandleBufferMap = objectHandleBuffer.map();
 

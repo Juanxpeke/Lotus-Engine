@@ -19,7 +19,6 @@ namespace Lotus
     MeshObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) :
       meshPtr(mesh),
       materialPtr(material),
-      GPUMeshPtr(nullptr),
       meshDirty(false),
       materialDirty(false),
       shaderDirty(false)
@@ -67,11 +66,7 @@ namespace Lotus
   private:
     std::shared_ptr<Mesh> meshPtr;
     std::shared_ptr<Material> materialPtr;
-    
-    // Only intended to be handled by the traditional object renderer
-    std::shared_ptr<GPUMesh> GPUMeshPtr;
 
-    // Only intended to be handled by the indirect object renderer
     bool meshDirty;
     bool materialDirty;
     bool shaderDirty;
