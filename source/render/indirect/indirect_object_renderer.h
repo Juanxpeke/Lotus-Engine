@@ -52,40 +52,38 @@ namespace Lotus
 
   private:
 
+    Handler<IndirectRenderMesh> getMeshHandler(const std::shared_ptr<Mesh>& mesh);
+    Handler<IndirectRenderMaterial> getMaterialHandler(const std::shared_ptr<Material>& material);
 
-    // Util Functions
-    Handle<RenderMesh> getMeshHandle(const std::shared_ptr<Mesh>& mesh);
-    Handle<RenderMaterial> getMaterialHandle(const std::shared_ptr<Material>& material);
-
-    // Shaders
+    /* Shaders */
     std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount)> shaders;
 
-    // Maps
-	  std::unordered_map<std::shared_ptr<Mesh>, Handle<RenderMesh>> meshMap;
-	  std::unordered_map<std::shared_ptr<Material>, Handle<RenderMaterial>> materialMap;
+    /* Maps */
+	  std::unordered_map<std::shared_ptr<Mesh>, Handler<IndirectRenderMesh>> meshMap;
+	  std::unordered_map<std::shared_ptr<Material>, Handler<IndirectRenderMaterial>> materialMap;
 
-    // Objects
+    /* Objects */
     std::vector<std::shared_ptr<MeshObject>> objects;
-    std::vector<RenderObject> renderObjects;
-    std::vector<Handle<RenderObject>> dirtyObjectsHandles;
-    std::vector<RenderObject> toUnbatchObjects;
-    std::vector<Handle<RenderObject>> unbatchedObjectsHandles;
+    std::vector<IndirectRenderObject> renderObjects;
+    std::vector<Handler<IndirectRenderObject>> dirtyObjectsHandlers;
+    std::vector<IndirectRenderObject> toUnbatchObjects;
+    std::vector<Handler<IndirectRenderObject>> unbatchedObjectsHandlers;
     
-    // Materials
+    /* Materials */
     std::vector<std::shared_ptr<Material>> materials;
-    std::vector<RenderMaterial> renderMaterials;
-    std::vector<Handle<RenderMaterial>> dirtyMaterialsHandles;
+    std::vector<IndirectRenderMaterial> renderMaterials;
+    std::vector<Handler<IndirectRenderMaterial>> dirtyMaterialsHandlers;
 
-    // Meshes
-    std::vector<RenderMesh> renderMeshes;
+    /* Meshes */
+    std::vector<IndirectRenderMesh> renderMeshes;
 
-    // Batches
+    /* Batches */
     bool objectBatchesModified;
     std::vector<ObjectBatch> objectBatches;
     std::vector<DrawBatch> drawBatches;
     std::vector<ShaderBatch> shaderBatches;
 
-    // Buffers
+    /* Buffers */
     uint32_t vertexArrayID;
 
     VertexBuffer vertexBuffer;
@@ -97,8 +95,9 @@ namespace Lotus
     ShaderStorageBuffer<uint32_t> objectHandleBuffer;
     ShaderStorageBuffer<GPUMaterialData> materialBuffer;
 
-    // Extensions support
+    /* Extensions support */
     bool supportsTexturedMaterials;
+
   };
 
 }

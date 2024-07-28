@@ -5,71 +5,38 @@
 namespace Lotus
 {
 
-  /*
-    Abstract representation of an unsigned int ID related to an specific class
-  */
-  template <typename T>
-  class Handle
-  {
-  public:
-    Handle() : value(0) {}
-    Handle(uint32_t initValue) : value(initValue) {}
-
-    Handle<T>& operator=(const Handle<T>& other)
-    {
-      value = other.value;
-      return *this;
-    }
-
-    friend bool operator==(const Handle<T>& l, const Handle<T>& r)
-    {
-      return l.value == r.value;
-    }
-
-    friend bool operator<(const Handle<T>& l, const Handle<T>& r)
-    {
-      return l.value < r.value;
-    }
-
-    uint32_t get() const { return value; }
-
-    void set(uint32_t newValue) { value = newValue; }
-
-  private:
-    uint32_t value;
-  };
+  class ShaderProgram;
 
   /*
     Structure with a mesh GPU identifiers
   */
-  struct RenderMesh
+  struct IndirectRenderMesh
   {
     uint32_t count;
     uint32_t firstIndex;
     uint32_t baseVertex;
+    uint32_t references;
   };
 
   /*
-    Structure with a material GPU identifier
+    Structure with a material GPU identifiers
   */
-  struct RenderMaterial
+  struct IndirectRenderMaterial
   {
-    uint32_t ID;
+    uint32_t ID = 0;
+    uint32_t references;
   };
 
   /*
     Structure with an object GPU identifiers and auxiliary data
   */
-  struct RenderObject
+  struct IndirectRenderObject
   {
-    Handle<RenderMesh> meshHandle = 0;
-    Handle<RenderMaterial> materialHandle = 0;
-    uint32_t shaderHandle = 0;
-
-    glm::mat4 model;
-
     uint32_t ID = 0;
-
+    Handler<IndirectRenderMesh> mesh;
+    Handler<IndirectRenderMaterial> material;
+    Handler<ShaderProgram> shader;
+    glm::mat4 model;
     bool unbatched = true;
   };
 
@@ -78,7 +45,7 @@ namespace Lotus
   */
   struct ShaderBatch
   {
-    Handle<int> shaderHandle;
+    Handler<ShaderProgram> shader;
 		uint32_t first;
 		uint32_t count;
   };
@@ -88,8 +55,8 @@ namespace Lotus
   */
   struct DrawBatch
   {
-    Handle<int> shaderHandle;
-    Handle<RenderMesh> meshHandle;
+    Handler<IndirectRenderMesh> mesh;
+    Handler<ShaderProgram> shader;
     uint32_t prevInstanceCount;
     uint32_t instanceCount;
   };
@@ -99,23 +66,23 @@ namespace Lotus
   */
   struct ObjectBatch
   {
-    Handle<RenderObject> objectHandle;
-    Handle<int> shaderHandle;
-    Handle<RenderMesh> meshHandle;
+    Handler<IndirectRenderObject> object;
+    Handler<IndirectRenderMesh> mesh;
+    Handler<ShaderProgram> shader;
 
     bool operator<(const ObjectBatch& other) const
     {
-      if (shaderHandle != other.shaderHandle)
+      if (shader.handle != other.shader.handle)
       {
-        return shaderHandle < other.shaderHandle;
+        return shader.handle < other.shader.handle;
       }
 
-      if (meshHandle != other.meshHandle)
+      if (mesh.handle != other.mesh.handle)
       {
-        return meshHandle < other.meshHandle;
+        return mesh.handle < other.mesh.handle;
       }
       
-      return objectHandle < other.objectHandle;
+      return object.handle < other.object.handle;
     }
   };
 

@@ -29,7 +29,7 @@ namespace Lotus
 
   private:
 
-    uint32_t getMeshHandle(const std::shared_ptr<Mesh>& mesh);
+    Handler<TraditionalRenderMesh> getMeshHandle(const std::shared_ptr<Mesh>& mesh);
 
     std::array<ShaderProgram, static_cast<unsigned int>(MaterialType::MaterialTypeCount ) * 2> shaders;
 
@@ -38,7 +38,7 @@ namespace Lotus
 
     std::vector<TraditionalRenderMesh> renderMeshes;
 
-    std::unordered_map<std::shared_ptr<Mesh>, uint32_t> meshMap;
+    std::unordered_map<std::shared_ptr<Mesh>, Handler<TraditionalRenderMesh>> meshMap;
   };
 
 }

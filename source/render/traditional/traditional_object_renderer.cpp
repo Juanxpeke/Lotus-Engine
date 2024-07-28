@@ -22,7 +22,7 @@ namespace Lotus
     std::shared_ptr<MeshObject> object = std::make_shared<MeshObject>(mesh, material);
     objects.push_back(object);
 
-    uint32_t meshHandle = getMeshHandle(mesh);
+    Handler<TraditionalRenderMesh> meshHandle = getMeshHandle(mesh);
 
     TraditionalRenderObject renderObject;
     renderObject.model = object->getModelMatrix();
@@ -45,7 +45,7 @@ namespace Lotus
       const std::shared_ptr<Material>& material = meshObject->getMaterial();
       
       const TraditionalRenderObject& renderObject = renderObjects[i];
-      const TraditionalRenderMesh& renderMesh = renderMeshes[renderObject.meshHandle];
+      const TraditionalRenderMesh& renderMesh = renderMeshes[renderObject.meshHandle.handle];
 
       glUseProgram(shaders[static_cast<unsigned int>(material->getType())].getProgramID());
 
@@ -74,16 +74,16 @@ namespace Lotus
       }
       if (object->meshDirty)
       {
-        renderMeshes[renderObject.meshHandle].references--;
+        renderMeshes[renderObject.meshHandle.handle].references--;
         renderObject.meshHandle = getMeshHandle(object->getMesh());
-        renderMeshes[renderObject.meshHandle].references++;
+        renderMeshes[renderObject.meshHandle.handle].references++;
       }
     }
   }
 
-  uint32_t TraditionalObjectRenderer::getMeshHandle(const std::shared_ptr<Mesh>& mesh)
+  Handler<TraditionalRenderMesh> TraditionalObjectRenderer::getMeshHandle(const std::shared_ptr<Mesh>& mesh)
   {
-    uint32_t handle;
+    Handler<TraditionalRenderMesh> handle;
 
     auto it = meshMap.find(mesh);
 
@@ -96,7 +96,7 @@ namespace Lotus
       renderMesh.references++;
       renderMesh.gpuMesh = new GPUMesh(*mesh);
 
-      handle = static_cast<uint32_t>(renderMeshes.size());
+      handle.handle = static_cast<uint32_t>(renderMeshes.size());
       renderMeshes.push_back(renderMesh);
 
       meshMap[mesh] = handle;
