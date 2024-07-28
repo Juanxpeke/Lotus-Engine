@@ -14,7 +14,7 @@ namespace Lotus
 
   struct TraditionalRenderObject
   {
-    Handler<TraditionalRenderMesh> meshHandle;
+    Handler<TraditionalRenderMesh> mesh;
     glm::mat4 model;
   };
 

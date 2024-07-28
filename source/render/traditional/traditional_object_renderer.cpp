@@ -22,11 +22,11 @@ namespace Lotus
     std::shared_ptr<MeshObject> object = std::make_shared<MeshObject>(mesh, material);
     objects.push_back(object);
 
-    Handler<TraditionalRenderMesh> meshHandle = getMeshHandler(mesh);
+    Handler<TraditionalRenderMesh> meshHandler = getMeshHandler(mesh);
 
     TraditionalRenderObject renderObject;
     renderObject.model = object->getModelMatrix();
-    renderObject.meshHandle = meshHandle;
+    renderObject.mesh = meshHandler;
 
     renderObjects.push_back(renderObject);
 
@@ -45,7 +45,7 @@ namespace Lotus
       const std::shared_ptr<Material>& material = meshObject->getMaterial();
       
       const TraditionalRenderObject& renderObject = renderObjects[i];
-      const TraditionalRenderMesh& renderMesh = renderMeshes[renderObject.meshHandle.handle];
+      const TraditionalRenderMesh& renderMesh = renderMeshes[renderObject.mesh.handle];
 
       glUseProgram(shaders[static_cast<unsigned int>(material->getType())].getProgramID());
 
@@ -71,12 +71,15 @@ namespace Lotus
       if (transform->dirty)
       {
         renderObject.model = object->getModelMatrix();
+        transform->dirty = false;
       }
       if (object->meshDirty)
       {
-        renderMeshes[renderObject.meshHandle.handle].references--;
-        renderObject.meshHandle = getMeshHandler(object->getMesh());
-        renderMeshes[renderObject.meshHandle.handle].references++;
+        renderMeshes[renderObject.mesh.handle].references--;
+        renderObject.mesh = getMeshHandler(object->getMesh());
+        renderMeshes[renderObject.mesh.handle].references++;
+
+        object->meshDirty = false;
       }
     }
   }
