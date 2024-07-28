@@ -10,7 +10,6 @@ public:
     experimentConfigured = false;
 
     framesInHistory = LOTUS_GET_PROFILER_FRAME_HISTORY_MAX_SIZE();
-    exportHistoryAutomatically = true;
     
     std::string exportPath = Lotus::experimentPath("results/" + experimentName + ".csv").string();
     std::memcpy(exportPathBuffer, exportPath.c_str(), (exportPath.size() + 1) * sizeof(char));
@@ -69,6 +68,21 @@ public:
         ImGui::Text("Configuration");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
 
+        ImGui::SeparatorText("Details");
+        ImGui::Dummy(ImVec2(0.0f, 12.0f));
+
+        ImGui::Text("Vendor:"); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
+        ImGui::Text(vendor.c_str());
+        ImGui::PopStyleColor();
+        ImGui::Dummy(ImVec2(0.0f, 12.0f));
+
+        ImGui::Text("Device:"); ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
+        ImGui::Text(device.c_str());
+        ImGui::PopStyleColor();
+        ImGui::Dummy(ImVec2(0.0f, 12.0f));
+
         ImGui::SeparatorText("Profiling");
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
@@ -79,7 +93,12 @@ public:
         ImGui::PopItemWidth();
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
-        ImGui::Checkbox("Export history automatically", &exportHistoryAutomatically);
+        static int exportHistoryAutomaticallyNumber;
+
+        ImGui::Text("Export history automatically:");
+        ImGui::Dummy(ImVec2(0.0f, 4.0f));
+        ImGui::RadioButton("Yes##DoExportHistoryAutomatically", &exportHistoryAutomaticallyNumber, 0); ImGui::SameLine();
+        ImGui::RadioButton("No##DoNotExportHistoryAutomatically", &exportHistoryAutomaticallyNumber, 1);
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
         ImGui::Text("Export path:");
@@ -134,7 +153,7 @@ public:
 
           LOTUS_ENABLE_PROFILING();
           LOTUS_SET_PROFILER_FRAME_HISTORY_MAX_SIZE(framesInHistory);
-          LOTUS_SET_PROFILER_EXPORT_AUTOMATIC(exportHistoryAutomatically);
+          LOTUS_SET_PROFILER_EXPORT_AUTOMATIC(exportHistoryAutomaticallyNumber ? false : true);
           LOTUS_SET_PROFILER_EXPORT_PATH(exportPathBuffer);
 
           initializeExperiment();
@@ -167,7 +186,6 @@ private:
   bool experimentConfigured;
 
   int framesInHistory;
-  bool exportHistoryAutomatically;
   char exportPathBuffer[1024];
 
 };

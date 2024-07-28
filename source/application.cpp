@@ -39,6 +39,9 @@ namespace Lotus
       LOTUS_ASSERT(false, "[Application Error] Failed to initialize Glad");
     }
 
+    vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+    device = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+
     GLFWimage icons[1];
     std::string iconPath = assetPath("icons/lotus_engine_icon.png").string();
     icons[0].pixels = stbi_load(iconPath.c_str(), &icons[0].width, &icons[0].height, 0, 4);

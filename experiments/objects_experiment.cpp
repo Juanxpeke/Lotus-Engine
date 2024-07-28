@@ -12,6 +12,7 @@ public:
     ExperimentApplication("Objects"),
     regionSize(100.0f),
     numberOfObjects(1024),
+    numberOfChangingTransformObjects(0),
     numberOfChangingMeshObjects(0),
     numberOfChangingMaterialObjects(0),
     numberOfChangingMaterialTypeObjects(0)
@@ -41,6 +42,7 @@ private:
 
   virtual void updateExperiment(float deltaTime) override
   {
+    changeObjectsTransforms();
     changeObjectsMeshes();
     changeObjectsMaterials();
     changeObjectsMaterialTypes();
@@ -69,6 +71,18 @@ private:
 
     ImGui::PushItemWidth(configurationContentWindowWidth);
     ImGui::SliderInt("##NumberOfObjectsSlider", &numberOfObjects, 1 << 0, 1 << 15);
+    ImGui::PopItemWidth();
+    ImGui::Dummy(ImVec2(0.0f, 12.0f));
+
+    if (numberOfChangingTransformObjects > numberOfObjects)
+    {
+      numberOfChangingTransformObjects = numberOfObjects;
+    }
+
+    ImGui::Text("Number of objects with changing transform:");
+    ImGui::Dummy(ImVec2(0.0f, 4.0f));
+    ImGui::PushItemWidth(configurationContentWindowWidth);
+    ImGui::SliderInt("##NumberOfChangingTransformObjectsSlider", &numberOfChangingTransformObjects, 0, numberOfObjects);
     ImGui::PopItemWidth();
     ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
@@ -133,6 +147,25 @@ private:
       object->translate(glm::vec3(x, y, z));
 
       objects.push_back(object);
+    }
+  }
+
+  void changeObjectsTransforms()
+  {
+    std::set<int> indices = generateDifferentObjectIndices(numberOfChangingTransformObjects);
+
+    for (int index : indices)
+    {
+      std::shared_ptr<Lotus::MeshObject>& object = objects[index];
+
+      if (randomizer.getBool())
+      {
+        object->scale(101.0f / 100.0f);
+      }
+      else
+      {
+        object->scale(100.0f / 101.0f);
+      }
     }
   }
 
@@ -237,6 +270,7 @@ private:
   float regionSize;
 
   int numberOfObjects;
+  int numberOfChangingTransformObjects;
   int numberOfChangingMeshObjects;
   int numberOfChangingMaterialObjects;
   int numberOfChangingMaterialTypeObjects;

@@ -33,6 +33,8 @@ namespace Lotus
     int width;
     int height;
 
+    std::string vendor;
+    std::string device;
   };
 
 }

@@ -316,7 +316,7 @@ private:
         ImGui::SeparatorText("Details");
         ImGui::Dummy(ImVec2(0.0f, 3.0f));
         ImGui::Text("Type:"); ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
         ImGui::Text(materialTypeToString(selectedMaterial->getType()).c_str());
         ImGui::PopStyleColor();
         ImGui::Dummy(ImVec2(0.0f, 6.0f));
