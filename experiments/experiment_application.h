@@ -1,4 +1,52 @@
+#pragma once
+
+#include <map>
 #include "lotus_engine.h"
+
+class ExperimentContext
+{
+public:
+
+  void set(const std::string& key, const std::string& value)
+  {
+    context[key] = value;
+  }
+
+  void save() const
+  {
+    std::string filePath = Lotus::experimentPath("contexts.txt").string();
+    std::ofstream contextsFile;
+
+    if (std::filesystem::exists(filePath))
+    {
+      contextsFile.open(filePath, std::ios_base::app);
+    }
+    else
+    {
+      contextsFile.open(filePath);
+    }
+
+    if (!contextsFile.is_open())
+    {
+      LOTUS_LOG_ERROR("[Experiment] Unable to export experiment context");
+      return;
+    }
+
+    for (const auto& pair : context)
+    {
+      contextsFile << pair.first << ":" << pair.second << std::endl;
+    }
+
+    contextsFile << "@@@@@@@@" << std::endl;
+
+    contextsFile.close();
+  }
+
+private:
+
+  std::map<std::string, std::string> context;
+
+};
 
 class ExperimentApplication : public Lotus::RenderingApplication
 {
@@ -9,10 +57,17 @@ public:
   {
     experimentConfigured = false;
 
-    framesInHistory = LOTUS_GET_PROFILER_FRAME_HISTORY_MAX_SIZE();
+    framesInHistory = 1000;
+
+    Lotus::Randomizer randomizer;
+    std::string resultKey = randomizer.getString(12);
     
-    std::string exportPath = Lotus::experimentPath("results/" + experimentName + ".csv").string();
+    std::string exportPath = Lotus::experimentPath("results/" + resultKey + ".csv").string();
     std::memcpy(exportPathBuffer, exportPath.c_str(), (exportPath.size() + 1) * sizeof(char));
+
+    context.set("Experiment", experimentName);
+    context.set("Vendor", vendor);
+    context.set("Device", device);
 
     disableVSync();
   }
@@ -156,6 +211,19 @@ public:
           LOTUS_SET_PROFILER_EXPORT_AUTOMATIC(exportHistoryAutomaticallyNumber ? false : true);
           LOTUS_SET_PROFILER_EXPORT_PATH(exportPathBuffer);
 
+          context.set("ResultPath", exportPath);
+          context.set("ObjectRenderingMethod", objectRenderingMethodNumber ? "Indirect" : "Traditional");
+          context.set("TerrainRenderingMethod", terrainRenderingMethodNumber ? "Indirect" : "Traditional");
+
+          setExperimentContext();
+
+          auto lambda = [&]()
+          {
+            context.save();
+          };
+
+          LOTUS_SET_PROFILER_EXPORT_CALLBACK(lambda);
+
           initializeExperiment();
         }
       }
@@ -168,13 +236,16 @@ public:
       renderPostConfigurationGUI();
     }
   }
-
+  
+  virtual void setExperimentContext() {}
   virtual void initializeExperiment() {}
   virtual void updateExperiment(float deltaTime) {}
   virtual void renderConfigurationGUI() {}
   virtual void renderPostConfigurationGUI() {}
 
 protected:
+
+  ExperimentContext context;
 
   float configurationContentWindowWidth;
   float configurationContentWindowHeight;

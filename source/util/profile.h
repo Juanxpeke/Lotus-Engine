@@ -6,6 +6,7 @@
 #include <sstream>
 #include <fstream>
 #include <queue>
+#include <functional>
 #include "log.h"
 #include "path_manager.h"
 
@@ -137,19 +138,9 @@ namespace Lotus
       exportPath = path;
     }
 
-    unsigned int getFrameHistoryMaxSize()
+    void setExportCallback(const std::function<void()>& callback)
     {
-      return frameHistoryMaxSize;
-    }
-
-    bool getExportAutomatically()
-    {
-      return exportAutomatically;
-    }
-
-    std::string getExportPath()
-    {
-      return exportPath;
+      exportCallback = callback;
     }
 
     void endFrame()
@@ -240,6 +231,8 @@ namespace Lotus
         return;
       }
 
+      LOTUS_LOG_INFO("[Profiler Log] Exporting frame history");
+
       std::ofstream file(exportPath);
 
       std::queue<FrameData> frameHistoryCopy = frameHistory;
@@ -274,6 +267,8 @@ namespace Lotus
 
       file.close();
 
+      exportCallback();
+
       LOTUS_LOG_INFO("[Profiler Log] Exported history to {0}", exportPath);
     }
 
@@ -303,6 +298,7 @@ namespace Lotus
     bool exportedAutomatically;
     unsigned int exportAutomaticallyInitialFrame;
     std::string exportPath;
+    std::function<void()> exportCallback;
   };
 
 }
@@ -312,9 +308,7 @@ namespace Lotus
   #define LOTUS_SET_PROFILER_FRAME_HISTORY_MAX_SIZE(size)    (void(0))
   #define LOTUS_SET_PROFILER_EXPORT_AUTOMATIC(value)         (void(0))
   #define LOTUS_SET_PROFILER_EXPORT_PATH(path)               (void(0))
-  #define LOTUS_GET_PROFILER_FRAME_HISTORY_MAX_SIZE(size)    (void(0))
-  #define LOTUS_GET_PROFILER_EXPORT_AUTOMATIC(value)         (void(0))
-  #define LOTUS_GET_PROFILER_EXPORT_PATH()                   (void(0))
+  #define LOTUS_SET_PROFILER_EXPORT_CALLBACK(callback)       (void(0))
   #define LOTUS_EXPORT_PROFILER_HISTORY()                    (void(0))
   #define LOTUS_PROFILE_START_TIME(frameTime)                (void(0))
   #define LOTUS_PROFILE_END_TIME(frameTime)                  (void(0))
@@ -325,9 +319,7 @@ namespace Lotus
   #define LOTUS_SET_PROFILER_FRAME_HISTORY_MAX_SIZE(size)    ::Lotus::Profiler::getProfiler().setFrameHistoryMaxSize(size)
   #define LOTUS_SET_PROFILER_EXPORT_AUTOMATIC(value)         ::Lotus::Profiler::getProfiler().setAutomaticExport(value)
   #define LOTUS_SET_PROFILER_EXPORT_PATH(path)               ::Lotus::Profiler::getProfiler().setExportPath(path)
-  #define LOTUS_GET_PROFILER_FRAME_HISTORY_MAX_SIZE()        ::Lotus::Profiler::getProfiler().getFrameHistoryMaxSize()
-  #define LOTUS_GET_PROFILER_EXPORT_AUTOMATIC()              ::Lotus::Profiler::getProfiler().getExportAutomatically()
-  #define LOTUS_GET_PROFILER_EXPORT_PATH()                   ::Lotus::Profiler::getProfiler().getExportPath()
+  #define LOTUS_SET_PROFILER_EXPORT_CALLBACK(callback)       ::Lotus::Profiler::getProfiler().setExportCallback(callback)
   #define LOTUS_EXPORT_PROFILER_HISTORY()                    ::Lotus::Profiler::getProfiler().exportHistory()
   #define LOTUS_PROFILE_START_TIME(frameTime)                ::Lotus::Profiler::getProfiler().startFrameTime(frameTime)
   #define LOTUS_PROFILE_END_TIME(frameTime)                  ::Lotus::Profiler::getProfiler().endFrameTime(frameTime)

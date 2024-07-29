@@ -1,0 +1,48 @@
+Device:NVIDIA GeForce GTX 1660/PCIe/SSE2
+Experiment:Objects
+NumberOfChangingMaterialObjects:0
+NumberOfChangingMaterialTypeObjects:0
+NumberOfChangingMeshObjects:0
+NumberOfChangingTransformObjects:0
+NumberOfObjects:32768
+ObjectRenderingMethod:Indirect
+ResultPath:C:/Users/juani/Desktop/Bachelor Thesis/Lotus-Engine/experiments/results/3bgbXcZi2MXc.csv
+TerrainRenderingMethod:Traditional
+Vendor:NVIDIA Corporation
+@@@@@@@@
+Device:NVIDIA GeForce GTX 1660/PCIe/SSE2
+Experiment:Objects
+NumberOfChangingMaterialObjects:0
+NumberOfChangingMaterialTypeObjects:0
+NumberOfChangingMeshObjects:0
+NumberOfChangingTransformObjects:0
+NumberOfObjects:32768
+ObjectRenderingMethod:Traditional
+ResultPath:C:/Users/juani/Desktop/Bachelor Thesis/Lotus-Engine/experiments/results/0kBUKtVt04Wt.csv
+TerrainRenderingMethod:Traditional
+Vendor:NVIDIA Corporation
+@@@@@@@@
+Device:NVIDIA GeForce GTX 1660/PCIe/SSE2
+Experiment:Objects
+NumberOfChangingMaterialObjects:0
+NumberOfChangingMaterialTypeObjects:0
+NumberOfChangingMeshObjects:0
+NumberOfChangingTransformObjects:0
+NumberOfObjects:8192
+ObjectRenderingMethod:Traditional
+ResultPath:C:/Users/juani/Desktop/Bachelor Thesis/Lotus-Engine/experiments/results/HazmRNmREdsD.csv
+TerrainRenderingMethod:Traditional
+Vendor:NVIDIA Corporation
+@@@@@@@@
+Device:NVIDIA GeForce GTX 1660/PCIe/SSE2
+Experiment:Objects
+NumberOfChangingMaterialObjects:0
+NumberOfChangingMaterialTypeObjects:0
+NumberOfChangingMeshObjects:0
+NumberOfChangingTransformObjects:0
+NumberOfObjects:8192
+ObjectRenderingMethod:Indirect
+ResultPath:C:/Users/juani/Desktop/Bachelor Thesis/Lotus-Engine/experiments/results/I2BubEd2m6rw.csv
+TerrainRenderingMethod:Traditional
+Vendor:NVIDIA Corporation
+@@@@@@@@

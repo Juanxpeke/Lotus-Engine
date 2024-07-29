@@ -1,3 +1,5 @@
+#pragma once
+
 #include "lotus_engine.h"
 
 class VisualTestApplication : public Lotus::RenderingApplication

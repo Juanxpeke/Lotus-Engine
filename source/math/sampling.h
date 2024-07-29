@@ -15,7 +15,7 @@ namespace Lotus
 
     static std::vector<glm::vec2> samplePoints(float radius, float sampleRegionWidth, float sampleRegionHeight, uint8_t samplesBeforeRejection)
     {
-      Randomizer randomizer;
+      Randomizer randomizer(0);
 
       float cellSize = radius / std::sqrt(2);
       int cellsWidth = std::ceil(sampleRegionWidth / cellSize);
@@ -43,7 +43,7 @@ namespace Lotus
 
         for (uint8_t i = 0; i < samplesBeforeRejection; i++)
         {
-          float angle = randomizer.getFloat() * 2 * 3.1415;
+          float angle = randomizer.getFloatNormalized() * 2 * 3.1415;
 
           glm::vec2 direction(std::sin(angle), std::cos(angle));
           glm::vec2 candidate = spawnCentre + direction * randomizer.getFloatRange(radius, 2 * radius);

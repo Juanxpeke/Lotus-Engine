@@ -1,4 +1,3 @@
-#include "lotus_engine.h"
 #include "experiment_application.h"
 
 Lotus::MeshManager& meshManager = Lotus::MeshManager::getInstance();
@@ -10,6 +9,7 @@ public:
 
   ObjectsExperimentApplication() : 
     ExperimentApplication("Objects"),
+    randomizer(0),
     regionSize(100.0f),
     numberOfObjects(1024),
     numberOfChangingTransformObjects(0),
@@ -19,6 +19,15 @@ public:
   {}
   
 private:
+
+  virtual void setExperimentContext() override
+  {
+    context.set("NumberOfObjects", std::to_string(numberOfObjects));
+    context.set("NumberOfChangingTransformObjects", std::to_string(numberOfChangingTransformObjects));
+    context.set("NumberOfChangingMeshObjects", std::to_string(numberOfChangingMeshObjects));
+    context.set("NumberOfChangingMaterialObjects", std::to_string(numberOfChangingMaterialObjects));
+    context.set("NumberOfChangingMaterialTypeObjects", std::to_string(numberOfChangingMaterialTypeObjects));
+  }
 
   virtual void initializeExperiment() override
   {

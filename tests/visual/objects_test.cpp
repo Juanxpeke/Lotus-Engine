@@ -1,4 +1,3 @@
-#include "lotus_engine.h"
 #include "visual_test_application.h"
 
 std::string materialTypeToString(Lotus::MaterialType type)
