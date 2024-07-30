@@ -5,7 +5,8 @@
 
 # Experiments
 **/.ipynb_checkpoints
-**/*.csv
+**/experiments/**/*.txt
+**/experiments/**/*.csv
 **/experiments/**/*.png
 
 # Visual Studio Code

@@ -8,6 +8,7 @@
 #include <queue>
 #include <functional>
 #include "log.h"
+#include "opengl_entry.h"
 #include "path_manager.h"
 
 namespace Lotus
@@ -186,6 +187,8 @@ namespace Lotus
 
       using std::chrono::microseconds;
 
+      glFinish();
+
       auto tStart = std::chrono::high_resolution_clock::now();
 
       LOTUS_ASSERT(!currentFrameData.timesRunning[static_cast<int>(frameTime)], "[Profiler Error] Tried to start already started time");
@@ -202,6 +205,8 @@ namespace Lotus
       }
 
       using std::chrono::microseconds;
+
+      glFinish();
 
       auto tEnd = std::chrono::high_resolution_clock::now();
 
