@@ -172,7 +172,7 @@ namespace Lotus
       {
         glUniform1fv(LevelScaleBinding, 1, &scale);
 
-        glm::vec2 tileCentre = snappedPos + glm::vec2(int(scale) >> 1);
+        glm::vec2 tileCentre = snappedPos + glm::vec2(scale * 0.5);
         glm::vec2 d = glm::vec2(cameraPosition.x, cameraPosition.z) - nextSnappedPos;
 
         uint32_t rotationIndex = 0;

@@ -123,32 +123,30 @@ namespace Lotus
     {
       uint32_t quadsPerLevelSide = quadsPerTileSide * 4 + 1;
       uint32_t verticesPerLevelSide = quadsPerLevelSide + 1;
+      float offset = (verticesPerLevelSide + 1)  * 0.5f;
 
       vertices.reserve((verticesPerLevelSide * 2 + 1) * 2);
 
       MeshVertex vertex;
 
+      
+
       // Vertical part of L
       for (uint32_t i = 0; i < verticesPerLevelSide + 1; i++)
       {
-        vertex.position = { 0, 0, verticesPerLevelSide - i };
+        vertex.position = { -offset, 0, verticesPerLevelSide - i - offset };
         vertices.push_back(vertex);
-        vertex.position = { 1, 0, verticesPerLevelSide - i };
+        vertex.position = { 1 - offset, 0, verticesPerLevelSide - i - offset };
         vertices.push_back(vertex);
       }
 
       // Horizontal part of L
       for (uint32_t i = 0; i < verticesPerLevelSide; i++)
       {
-        vertex.position = { i + 1, 0, 0 };
+        vertex.position = { i + 1 - offset, 0, -offset };
         vertices.push_back(vertex);
-        vertex.position = { i + 1, 0, 1 };
+        vertex.position = { i + 1 - offset, 0, 1 - offset };
         vertices.push_back(vertex);
-      }
-
-      for (MeshVertex& v : vertices)
-      {
-        v.position -= glm::vec3(0.5f * (verticesPerLevelSide + 1), 0, 0.5f * (verticesPerLevelSide + 1));
       }
       
       indices.reserve((verticesPerLevelSide * 2 - 1) * 6);
