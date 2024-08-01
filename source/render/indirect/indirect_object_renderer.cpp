@@ -134,6 +134,8 @@ namespace Lotus {
 
   void IndirectObjectRenderer::updateObjects()
   {
+    LOTUS_PROFILE_START_TIME(FrameTime::IndirectObjectUpdateTime);
+
     for (int i = 0; i < objects.size(); i++)
     {
       const std::shared_ptr<MeshObject>& object = objects[i];
@@ -179,10 +181,14 @@ namespace Lotus {
         dirtyObjectsHandlers.push_back(objectHandle);
       }
     }
+
+    LOTUS_PROFILE_END_TIME(FrameTime::IndirectObjectUpdateTime);
   }
 
   void IndirectObjectRenderer::updateMaterials()
   {
+    LOTUS_PROFILE_START_TIME(FrameTime::IndirectMaterialUpdateTime);
+
     for (int i = 0; i < materials.size(); i++)
     {
       const std::shared_ptr<Material>& material = materials[i];
@@ -197,6 +203,8 @@ namespace Lotus {
         dirtyMaterialsHandlers.push_back(materialHandle);
       }
     }
+
+    LOTUS_PROFILE_END_TIME(FrameTime::IndirectMaterialUpdateTime);
   }
 
   void IndirectObjectRenderer::buildBatches()

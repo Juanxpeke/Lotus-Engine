@@ -61,6 +61,8 @@ namespace Lotus
 
   void TraditionalObjectRenderer::updateObjects()
   {
+    LOTUS_PROFILE_START_TIME(FrameTime::TraditionalObjectUpdateTime);
+
     for (int i = 0; i < objects.size(); i++)
     {
       const std::shared_ptr<MeshObject>& object = objects[i];
@@ -82,6 +84,8 @@ namespace Lotus
         object->meshDirty = false;
       }
     }
+
+    LOTUS_PROFILE_END_TIME(FrameTime::TraditionalObjectUpdateTime);
   }
 
   Handler<TraditionalRenderMesh> TraditionalObjectRenderer::getMeshHandler(const std::shared_ptr<Mesh>& mesh)

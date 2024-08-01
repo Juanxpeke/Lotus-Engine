@@ -16,7 +16,10 @@ namespace Lotus
 
   enum class FrameTime
   {
+    TraditionalObjectUpdateTime,
     TraditionalSceneRenderTime,
+    IndirectObjectUpdateTime,
+    IndirectMaterialUpdateTime,
     IndirectObjectBatchBuildTime,
     IndirectDrawBatchBuildTime,
     IndirectShaderBatchBuildTime,
