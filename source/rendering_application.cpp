@@ -12,6 +12,7 @@ namespace Lotus
   void RenderingApplication::update(float deltaTime)
   {
     updateCamera(deltaTime);
+    updateRenderState();
   }
 
   void RenderingApplication::render()
@@ -61,6 +62,14 @@ namespace Lotus
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
     {
       camera.rotate(glm::vec3(0.0f, 1.0f, 0.0f), deltaTime * -cameraAngularSpeed);
+    }
+  }
+
+  void RenderingApplication::updateRenderState()
+  {
+    if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+    {
+      renderingServer.switchRenderingMode();
     }
   }
 

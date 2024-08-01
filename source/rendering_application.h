@@ -26,6 +26,7 @@ namespace Lotus
   private:
 
     void updateCamera(float deltaTime);
+    void updateRenderState();
 
   };
 
