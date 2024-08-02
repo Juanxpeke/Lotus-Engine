@@ -7,6 +7,7 @@
 
 namespace Lotus
 {
+
   class GeoClipmap
   {
   public:
@@ -20,5 +21,6 @@ namespace Lotus
     };
 
     static std::vector<std::shared_ptr<GPUMesh>> generate(uint32_t tileResolution);
+
   };
 }

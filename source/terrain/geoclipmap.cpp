@@ -129,9 +129,6 @@ namespace Lotus
 
       MeshVertex vertex;
 
-      
-
-      // Vertical part of L
       for (uint32_t i = 0; i < verticesPerLevelSide + 1; i++)
       {
         vertex.position = { -offset, 0, verticesPerLevelSide - i - offset };
@@ -140,7 +137,6 @@ namespace Lotus
         vertices.push_back(vertex);
       }
 
-      // Horizontal part of L
       for (uint32_t i = 0; i < verticesPerLevelSide; i++)
       {
         vertex.position = { i + 1 - offset, 0, -offset };
@@ -185,7 +181,6 @@ namespace Lotus
       
       MeshVertex vertex;
 
-      // Horizontal vertices
       for (uint32_t i = 0; i < verticesPerTileSide * 2; i++)
       {
         vertex.position = { i - float(quadsPerTileSide), 0, 0 };
@@ -194,7 +189,6 @@ namespace Lotus
         vertices.push_back(vertex);
       }
 
-      // Vertical vertices
       for (uint32_t i = 0; i < verticesPerTileSide * 2; i++)
       {
         vertex.position = { 0, 0, i - float(quadsPerTileSide) };
