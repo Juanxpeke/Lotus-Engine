@@ -65,8 +65,6 @@ namespace Lotus
     heightmapTextures = std::make_shared<GPUArrayTexture>(textureConfig);
     updateHeightmapTextures(true);
 
-
-
     return terrain;
   }
 
@@ -87,19 +85,17 @@ namespace Lotus
 
     updateHeightmapTextures();
 
-    fillProceduralBuffer();
+    refreshProceduralBuffer();
 
     proceduralBuffer.bind();
 
-    // Draw cross
+    /* Draw Cross */
     {
-      float scale = 1.0;
-
       glm::vec2 snappedPos;
       snappedPos.x = std::floorf(cameraPosition.x);
       snappedPos.y = std::floorf(cameraPosition.z);
 
-      glUniform1fv(LevelScaleBinding, 1, &scale);
+      glUniform1f(LevelScaleBinding, 1.0);
       glUniformMatrix4fv(ModelBinding, 1, GL_FALSE, glm::value_ptr(rotationModels[0]));
       glUniform2fv(OffsetBinding, 1, glm::value_ptr(snappedPos));
       glUniform3fv(DebugColorBinding, 1, glm::value_ptr(debugColors[GeoClipmap::CROSS]));
@@ -113,8 +109,6 @@ namespace Lotus
     {
       float scale = static_cast<float>(1 << level);
 
-
-      
       glm::vec2 snappedPos;
       snappedPos.x = std::floorf(cameraPosition.x / scale) * scale;
       snappedPos.y = std::floorf(cameraPosition.z / scale) * scale;
@@ -147,7 +141,7 @@ namespace Lotus
         }
       }
 
-      // Draw filler
+      /* Draw Filler */
       {
         glBindVertexArray(meshes[GeoClipmap::FILLER]->getVertexArrayID());
 
@@ -157,58 +151,58 @@ namespace Lotus
         glDrawElements(GL_TRIANGLES, meshes[GeoClipmap::FILLER]->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
       }
 
-      if (level == levels - 1)
+      if (level < levels - 1)
       {
-        continue;
-      }
+        float nextScale = scale * 2.0f;
 
-      float nextScale = scale * 2.0f;
-
-      glm::vec2 nextSnappedPos;
-      nextSnappedPos.x = std::floorf(cameraPosition.x / nextScale) * nextScale;
-      nextSnappedPos.y = std::floorf(cameraPosition.z / nextScale) * nextScale;
-      
-      // Draw trim
-      {
-        glUniform1fv(LevelScaleBinding, 1, &scale);
-
-        glm::vec2 tileCentre = snappedPos + glm::vec2(scale * 0.5);
-        glm::vec2 d = glm::vec2(cameraPosition.x, cameraPosition.z) - nextSnappedPos;
-
-        uint32_t rotationIndex = 0;
-        rotationIndex |= (d.x >= scale ? 0 : 2);
-        rotationIndex |= (d.y >= scale ? 0 : 1);
-
-        glBindVertexArray(meshes[GeoClipmap::TRIM]->getVertexArrayID());
-
-        glUniformMatrix4fv(ModelBinding, 1, GL_FALSE, glm::value_ptr(rotationModels[rotationIndex]));
-        glUniform2fv(OffsetBinding, 1, glm::value_ptr(tileCentre));
-        glUniform3fv(DebugColorBinding, 1, glm::value_ptr(debugColors[GeoClipmap::TRIM]));
+        glm::vec2 nextSnappedPos;
+        nextSnappedPos.x = std::floorf(cameraPosition.x / nextScale) * nextScale;
+        nextSnappedPos.y = std::floorf(cameraPosition.z / nextScale) * nextScale;
         
-        glDrawElements(GL_TRIANGLES, meshes[GeoClipmap::TRIM]->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
-      }
-      // Draw seam
-      {
-        glm::vec2 nextBase = nextSnappedPos - glm::vec2(static_cast<float>(tileResolution << (level + 1)));
+        /* Draw Trim */
+        {
+          glUniform1fv(LevelScaleBinding, 1, &scale);
 
-        glBindVertexArray(meshes[GeoClipmap::SEAM]->getVertexArrayID());
+          glm::vec2 tileCentre = snappedPos + glm::vec2(scale * 0.5);
+          glm::vec2 d = glm::vec2(cameraPosition.x, cameraPosition.z) - nextSnappedPos;
 
-        glUniformMatrix4fv(ModelBinding, 1, GL_FALSE, glm::value_ptr(rotationModels[0]));
-        glUniform2fv(OffsetBinding, 1, glm::value_ptr(nextBase));
-        glUniform3fv(DebugColorBinding, 1, glm::value_ptr(debugColors[GeoClipmap::SEAM]));
+          uint32_t rotationIndex = 0;
+          rotationIndex |= (d.x >= scale ? 0 : 2);
+          rotationIndex |= (d.y >= scale ? 0 : 1);
 
-        glDrawElements(GL_TRIANGLES, meshes[GeoClipmap::SEAM]->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
+          glBindVertexArray(meshes[GeoClipmap::TRIM]->getVertexArrayID());
+
+          glUniformMatrix4fv(ModelBinding, 1, GL_FALSE, glm::value_ptr(rotationModels[rotationIndex]));
+          glUniform2fv(OffsetBinding, 1, glm::value_ptr(tileCentre));
+          glUniform3fv(DebugColorBinding, 1, glm::value_ptr(debugColors[GeoClipmap::TRIM]));
+          
+          glDrawElements(GL_TRIANGLES, meshes[GeoClipmap::TRIM]->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
+        }
+        /* Draw Seam */
+        {
+          glm::vec2 nextBase = nextSnappedPos - glm::vec2(static_cast<float>(tileResolution << (level + 1)));
+
+          glBindVertexArray(meshes[GeoClipmap::SEAM]->getVertexArrayID());
+
+          glUniformMatrix4fv(ModelBinding, 1, GL_FALSE, glm::value_ptr(rotationModels[0]));
+          glUniform2fv(OffsetBinding, 1, glm::value_ptr(nextBase));
+          glUniform3fv(DebugColorBinding, 1, glm::value_ptr(debugColors[GeoClipmap::SEAM]));
+
+          glDrawElements(GL_TRIANGLES, meshes[GeoClipmap::SEAM]->getIndicesCount(), GL_UNSIGNED_INT, nullptr);
+        }
       }
     }
+
+    proceduralBuffer.unbind();
     
     glBindVertexArray(0);
   }
 
-  void TerrainRenderer::fillProceduralBuffer()
+  void TerrainRenderer::refreshProceduralBuffer()
   {
     const std::shared_ptr<ProceduralDataGenerator> dataGenerator = terrain->getDataGenerator();
 
-    ProceduralData proceduralData;
+    GPUProceduralData proceduralData;
 
     proceduralData.dataPerChunkSide = dataGenerator->getDataPerChunkSide();
     proceduralData.chunksPerSide = dataGenerator->getChunksPerSide();

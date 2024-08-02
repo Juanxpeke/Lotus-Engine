@@ -4,6 +4,7 @@
 #include <vector>
 #include "../math/types.h"
 #include "../scene/camera.h"
+#include "../render/gpu_structures.h"
 #include "../render/gpu_buffer.h"
 #include "../render/gpu_mesh.h"
 #include "../render/gpu_texture.h"
@@ -15,11 +16,13 @@
 
 namespace Lotus
 {
+
   class TerrainRenderer
   {
   friend class RenderingServer;
 
   public:
+
     static constexpr unsigned int ModelBinding = 0;
 
     static constexpr unsigned int LevelScaleBinding = 7;
@@ -41,10 +44,10 @@ namespace Lotus
 
   private:
 
-    // Buffers
-    void fillProceduralBuffer();
+    /* Buffers */
+    void refreshProceduralBuffer();
     
-    // Textures
+    /* Textures */
     void updateHeightmapTextures(bool forced = false);
 
     uint32_t levels;
@@ -55,19 +58,13 @@ namespace Lotus
     std::vector<std::shared_ptr<GPUMesh>> meshes;
     std::shared_ptr<GPUArrayTexture> heightmapTextures;
 
-    struct ProceduralData
-    {
-      unsigned int dataPerChunkSide;
-      unsigned int chunksPerSide;
-      glm::ivec2 dataOrigin;
-      glm::uvec2 chunksOrigin;
-    };
-
-    UniformBuffer<ProceduralData> proceduralBuffer;
+    UniformBuffer<GPUProceduralData> proceduralBuffer;
     
     glm::mat4 rotationModels[4];
     glm::vec3 debugColors[5];
 
     std::shared_ptr<Terrain> terrain;
+
   };
+
 }

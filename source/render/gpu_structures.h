@@ -11,11 +11,11 @@ namespace Lotus
 
   struct GPUCameraData
   {
-    glm::mat4 view;
-    glm::mat4 projection;
-    glm::mat4 viewProjection;
-    glm::vec3 cameraPosition;
-    float padding04;
+    glm::mat4 view;           // 64
+    glm::mat4 projection;     // 128
+    glm::mat4 viewProjection; // 192
+    glm::vec3 cameraPosition; // 204
+    float padding04;          // 208
   };
 
   /*
@@ -79,27 +79,39 @@ namespace Lotus
 
   struct GPUObjectData
   {
-    glm::mat4 model;              // 64
-    uint64_t materialHandle = 0;  // 72
-    uint64_t padding0 = 0;        // 80
+    glm::mat4 model;             // 64
+    uint64_t materialHandle = 0; // 72
+    uint64_t padding0 = 0;       // 80
   };
 
   struct GPUMaterialData
   {
-    glm::vec3 vec3_0;   // 12
-    int int_0;          // 16
-    glm::vec3 vec3_1;   // 28
-    int int_1;          // 32
-    uint64_t uint64_0;  // 40
-    uint64_t uint64_1;  // 48
-    uint64_t uint64_2;  // 56
-    uint64_t uint64_3;  // 64
+    glm::vec3 vec3_0;  // 12
+    int int_0;         // 16
+    glm::vec3 vec3_1;  // 28
+    int int_1;         // 32
+    uint64_t uint64_0; // 40
+    uint64_t uint64_1; // 48
+    uint64_t uint64_2; // 56
+    uint64_t uint64_3; // 64
   };
   
   struct GPUInstance
   {
     uint32_t objectID;    // 4
     uint32_t drawBatchID; // 8
+  };
+
+  /*
+    Terrain rendering UBO structures
+  */
+
+  struct GPUProceduralData
+  {
+    unsigned int dataPerChunkSide; // 4
+    unsigned int chunksPerSide;    // 8
+    glm::ivec2 dataOrigin;         // 16 
+    glm::uvec2 chunksOrigin;       // 24
   };
 
 }
