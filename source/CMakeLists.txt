@@ -15,8 +15,7 @@ set(SCENE_HEADERS
 
 set(LIGHTING_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/lighting/directional_light.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/lighting/point_light.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/lighting/light_manager.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/lighting/point_light.h)
 
 set(TERRAIN_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/procedural_data_generator.h
@@ -46,7 +45,7 @@ set(APPLICATION_HEADERS
 # Source files
 
 set(LIGHTING_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/lighting/light_manager.cpp)
+    )
 
 set(TERRAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/procedural_data_generator.cpp

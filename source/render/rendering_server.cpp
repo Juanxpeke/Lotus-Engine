@@ -76,17 +76,23 @@ namespace Lotus
 
   void RenderingServer::setAmbientLight(const glm::vec3& light)
   {
-    lightManager.setAmbientLight(light);
+    ambientLight = light;
   }
-  
+
   std::shared_ptr<DirectionalLight> RenderingServer::createDirectionalLight()
   {
-    return lightManager.createDirectionalLight();
+    std::shared_ptr<DirectionalLight> directionalLight = std::make_shared<DirectionalLight>();
+    directionalLights.push_back(directionalLight);
+
+    return directionalLight;
   }
-  
+
   std::shared_ptr<PointLight> RenderingServer::createPointLight()
   {
-    return lightManager.createPointLight();
+    std::shared_ptr<PointLight> pointLight = std::make_shared<PointLight>();
+    pointLights.push_back(pointLight);
+
+    return pointLight;
   }
 
   void RenderingServer::setDefaultObjectRenderingMethod(RenderingMethod renderingMethod)
@@ -167,24 +173,24 @@ namespace Lotus
   {
     GPULightsData lightsData;
 
-    lightsData.ambientLight = lightManager.ambientLight;
+    lightsData.ambientLight = ambientLight;
 
-    uint32_t directionalLightsCount = std::min(static_cast<uint32_t>(2 * 2), static_cast<uint32_t>(lightManager.directionalLights.size()));
+    uint32_t directionalLightsCount = std::min(static_cast<uint32_t>(2 * 2), static_cast<uint32_t>(directionalLights.size()));
     lightsData.directionalLightsCount = static_cast<int>(directionalLightsCount);
 
     for (uint32_t i = 0; i < directionalLightsCount; i++)
     {
-      const std::shared_ptr<DirectionalLight>& dirLight = lightManager.directionalLights[i];
+      const std::shared_ptr<DirectionalLight>& dirLight = directionalLights[i];
       lightsData.directionalLights[i].colorIntensity = dirLight->getLightColor() * dirLight->getLightIntensity();
       lightsData.directionalLights[i].direction = glm::rotate(dirLight->getLightDirection(), dirLight->getFrontVector());
     }
 
-    uint32_t pointLightsCount = std::min(static_cast<uint32_t>(2 * 2), static_cast<uint32_t>(lightManager.pointLights.size()));
+    uint32_t pointLightsCount = std::min(static_cast<uint32_t>(2 * 2), static_cast<uint32_t>(pointLights.size()));
     lightsData.pointLightsCount = static_cast<int>(pointLightsCount);
 
     for (uint32_t i = 0; i < pointLightsCount; i++)
     {
-      const std::shared_ptr<PointLight>& pointLight = lightManager.pointLights[i];
+      const std::shared_ptr<PointLight>& pointLight = pointLights[i];
       lightsData.pointLights[i].colorIntensity = pointLight->getLightColor() * pointLight->getLightIntensity();
       lightsData.pointLights[i].position = pointLight->getLocalTranslation();
       lightsData.pointLights[i].radius = pointLight->getLightRadius();

@@ -4,7 +4,8 @@
 #include <memory>
 #include "../scene/transform.h"
 #include "../scene/camera.h"
-#include "../lighting/light_manager.h"
+#include "../lighting/directional_light.h"
+#include "../lighting/point_light.h"
 #include "../terrain/terrain_renderer.h"
 #include "gpu_structures.h"
 #include "gpu_buffer.h"
@@ -68,10 +69,13 @@ namespace Lotus
     RenderingMethod defaultObjectRenderingMethod;
     RenderingMethod defaultTerrainRenderingMethod;
 
+    glm::vec3 ambientLight;
+    std::vector<std::shared_ptr<DirectionalLight>> directionalLights;
+    std::vector<std::shared_ptr<PointLight>> pointLights;
+
     UniformBuffer<GPULightsData> lightsBuffer;
     UniformBuffer<GPUCameraData> cameraBuffer;
 
-    LightManager lightManager;
     TraditionalObjectRenderer traditionalObjectRenderer;
     IndirectObjectRenderer indirectObjectRenderer;
     TerrainRenderer terrainRenderer;
