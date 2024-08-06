@@ -55,9 +55,9 @@ private:
 
   void createVent()
   {
-    std::shared_ptr<Lotus::Mesh> ventMesh = meshManager.loadMesh(Lotus::assetPath("models/air_conditioner/AirConditioner.obj"), true);
+    std::shared_ptr<Lotus::Mesh> ventMesh = meshManager.loadMesh(Lotus::assetPath("models/air_conditioner/air_conditioner.obj"), true);
 
-    std::shared_ptr<Lotus::GPUTexture> ventDiffuseTexture = textureLoader.loadTexture(Lotus::assetPath("models/air_conditioner/Albedo.png"));
+    std::shared_ptr<Lotus::GPUTexture> ventDiffuseTexture = textureLoader.loadTexture(Lotus::assetPath("models/air_conditioner/albedo.png"));
 
     std::shared_ptr<Lotus::DiffuseTexturedMaterial> ventMaterial = std::static_pointer_cast<Lotus::DiffuseTexturedMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseTextured));
 

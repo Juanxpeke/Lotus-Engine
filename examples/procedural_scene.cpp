@@ -59,19 +59,21 @@ private:
 
   void createObjectPlacer()
   {
-    std::shared_ptr<Lotus::Mesh> cubeMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Cube);
-    std::shared_ptr<Lotus::Mesh> sphereMesh = meshManager.loadMesh(Lotus::Mesh::PrimitiveType::Sphere);
+    std::shared_ptr<Lotus::Mesh> rockMesh = meshManager.loadMesh(Lotus::assetPath("models/nature/obj/rock_b.obj"));
+    std::shared_ptr<Lotus::Mesh> treeMesh = meshManager.loadMesh(Lotus::assetPath("models/nature/obj/tree_b_green.obj"));
     
-    std::shared_ptr<Lotus::DiffuseFlatMaterial> redMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
-    std::shared_ptr<Lotus::DiffuseFlatMaterial> blueMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
+    std::shared_ptr<Lotus::DiffuseFlatMaterial> rockMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
+    std::shared_ptr<Lotus::DiffuseFlatMaterial> treeMaterial = std::static_pointer_cast<Lotus::DiffuseFlatMaterial>(renderingServer.createMaterial(Lotus::MaterialType::DiffuseFlat));
     
-    redMaterial->setDiffuseColor({ 1.0, 0.0, 0.0 });
-    blueMaterial->setDiffuseColor({ 0.0, 0.0, 1.0 });
+    rockMaterial->setDiffuseColor({ 0.5, 0.5, 0.5 });
+    treeMaterial->setDiffuseColor({ 0.40, 0.35, 0.0 });
 
-    objectPlacer = std::make_shared<Lotus::ObjectPlacer>(dataGenerator, &renderingServer, Lotus::RenderingMethod::Indirect, 36.0);
+    float objectsSpacing = 12.0f; 
 
-    objectPlacer->addObject(cubeMesh, redMaterial, 30.0);
-    objectPlacer->addObject(sphereMesh, blueMaterial, 30.0);
+    objectPlacer = std::make_shared<Lotus::ObjectPlacer>(dataGenerator, &renderingServer, Lotus::RenderingMethod::Indirect, objectsSpacing);
+
+    objectPlacer->addObject(rockMesh, rockMaterial, 30.0);
+    objectPlacer->addObject(treeMesh, treeMaterial, 30.0);
     
     objectPlacer->initialize();
   }
