@@ -83,6 +83,8 @@ namespace Lotus
 
     glBindTextureUnit(HeightmapTextureUnit, heightmapTextures->getID());
 
+    glUniform3fv(TerrainColorBinding, 1, glm::value_ptr(terrain->getColor()));
+
     updateHeightmapTextures();
 
     refreshProceduralBuffer();

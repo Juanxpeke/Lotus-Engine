@@ -24,7 +24,7 @@ namespace Lotus
 
     void initialize();
 
-    void addObject(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Material>& material, float weight);
+    void addObject(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Material>& material, bool randomScale = false);
 
     void update(bool forced = false);
 
@@ -34,6 +34,7 @@ namespace Lotus
     {
       std::shared_ptr<Mesh> mesh;
       std::shared_ptr<Material> material;
+      bool randomScale;
     };
 
     void generateObjects(const glm::ivec2& chunk);

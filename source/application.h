@@ -4,6 +4,7 @@
 
 #include <string>
 #include <imgui.h>
+#include "math/types.h"
 #include "util/log.h"
 #include "util/window_entry.h"
 
@@ -27,6 +28,7 @@ namespace Lotus
     virtual void render() {}
     virtual void renderGUI() {}
 
+    void setBackgroundColor(const glm::vec3& color);
     void disableVSync();
 
     std::string name;

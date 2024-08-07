@@ -29,7 +29,8 @@ namespace Lotus
     static constexpr unsigned int OffsetBinding = 8;
     static constexpr unsigned int HeightmapTextureArrayBinding = 9;
 
-    static constexpr unsigned int DebugColorBinding = 10;
+    static constexpr unsigned int TerrainColorBinding = 10;
+    static constexpr unsigned int DebugColorBinding = 11;
     
     static constexpr unsigned int HeightmapTextureUnit = 0;
 

@@ -30,7 +30,7 @@ namespace Lotus
     initialized = true;
   }
 
-  void ObjectPlacer::addObject(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Material>& material, float weight)
+  void ObjectPlacer::addObject(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Material>& material, bool randomScale)
   {
     if (initialized)
     {
@@ -40,6 +40,7 @@ namespace Lotus
     ObjectPlacerItem objectItem;
     objectItem.mesh = mesh;
     objectItem.material = material;
+    objectItem.randomScale = randomScale;
 
     objectItemsPool.push_back(objectItem);
   }
@@ -127,6 +128,12 @@ namespace Lotus
 
       std::shared_ptr<MeshObject> object = renderingServer->createObject(objectItem.mesh, objectItem.material, renderingMethod);
       object->setTranslation(translation);
+
+      if (objectItem.randomScale)
+      {
+        float scale = randomizer.getFloatRange(0.7, 1.1);
+        object->scale(scale);
+      }
     }
   }
 

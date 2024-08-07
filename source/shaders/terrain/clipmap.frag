@@ -12,7 +12,8 @@ layout(std140, binding = 1) uniform Lights
 	int pointLightsCount;
 };
 
-layout(location = 10) uniform vec3 debugColor;
+layout(location = 10) uniform vec3 terrainColor;
+layout(location = 11) uniform vec3 debugColor;
 
 /*
 	Inputs
@@ -49,7 +50,11 @@ void main()
 		Lo += distanceAttenuation * pointLights[i].colorIntensity * max(dot(normal, -lightDirection), 0.0);
 	}
 
-	vec3 result = (ambient + Lo) * vec3(1.0, 1.0, 1.0) + (debugColor * 0);
+#ifdef DEBUG
+	vec3 result = debugColor;
+#else
+	vec3 result = (ambient + Lo) * terrainColor;
+#endif
 
 	outColor = vec4(result, 1.0);
 }

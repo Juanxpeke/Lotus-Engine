@@ -121,6 +121,11 @@ namespace Lotus
     }
   } 
 
+  void Application::setBackgroundColor(const glm::vec3& color)
+  {
+    glClearColor(color.r, color.g, color.b, 1.0f);
+  }
+
   void Application::disableVSync()
   {
     glfwSwapInterval(0);
