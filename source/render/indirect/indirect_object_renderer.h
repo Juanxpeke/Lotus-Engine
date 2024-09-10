@@ -22,10 +22,10 @@ namespace Lotus
   class IndirectObjectRenderer
   {
   public:
-    static constexpr unsigned int VertexBufferInitialAllocationSize = 1 << 16; 
-    static constexpr unsigned int IndexBufferInitialAllocationSize = 1 << 16;
-    static constexpr unsigned int IndirectBufferInitialAllocationSize = 1 << 10;
-    static constexpr unsigned int ObjectBufferInitialAllocationSize = 1 << 10;
+    static constexpr unsigned int VertexBufferInitialAllocationSize = 1 << 10; 
+    static constexpr unsigned int IndexBufferInitialAllocationSize = 1 << 10;
+    static constexpr unsigned int IndirectBufferInitialAllocationSize = 1 << 8;
+    static constexpr unsigned int ObjectBufferInitialAllocationSize = 1 << 8;
     static constexpr unsigned int MaterialBufferInitialAllocationSize = 1 << 8;
 
     IndirectObjectRenderer();

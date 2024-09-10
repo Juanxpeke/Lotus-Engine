@@ -26,7 +26,7 @@ namespace Lotus
       allocated(false)
     {
       glGenBuffers(1, &ID);
-      
+
       CPUBuffer = nullptr;
     }
 
@@ -148,6 +148,11 @@ namespace Lotus
 
       LOTUS_LOG_INFO("[Buffer Log] Reallocated buffer with ID {0} (Old ID = {1}, Size = {2}, Old Size = {3})", newID, ID, newAllocationSize, allocatedSize);
 
+      if (label.size() > 0)
+      {
+        glObjectLabel(GL_BUFFER, newID, label.size(), label.c_str());
+      }
+
       ID = newID;
       allocatedSize = newAllocationSize;
 
@@ -195,13 +200,20 @@ namespace Lotus
       }
     }
 
+    void setLabel(const std::string& bufferLabel)
+    {
+      label = bufferLabel;
+      glObjectLabel(GL_BUFFER, ID, label.size(), label.c_str());
+    }
+
     uint32_t ID;
     uint32_t bufferType;
     size_t filledSize;
     size_t allocatedSize;
     bool allocated;
-
-    // TODO: Declare this variable at compile time (not possible with if constexpr)
+    /* Debugging */
+    std::string label;
+    /* TODO: Declare this variable at compile time (not possible with if constexpr) */
     T* CPUBuffer;
   };
 
@@ -541,9 +553,17 @@ namespace Lotus
       glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
+    void setLabel(const std::string& bufferLabel)
+    {
+      label = bufferLabel;
+      glObjectLabel(GL_BUFFER, ID, label.size(), label.c_str());
+    }
+
     uint32_t ID;
     bool allocated;
-
+    /* Binding */
     uint32_t bindingPoint;
+    /* Debugging */
+    std::string label;
   };
 }

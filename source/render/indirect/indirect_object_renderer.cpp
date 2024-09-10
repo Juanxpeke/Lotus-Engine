@@ -26,20 +26,26 @@ namespace Lotus {
 
     vertexBuffer.allocate(VertexBufferInitialAllocationSize);
     vertexBuffer.setVertexArray(vertexArrayID);
+    vertexBuffer.setLabel("IOR Vertex");
 
     indexBuffer.allocate(IndexBufferInitialAllocationSize);
     indexBuffer.setVertexArray(vertexArrayID);
+    indexBuffer.setLabel("IOR Index");
 
     indirectBuffer.allocate(IndirectBufferInitialAllocationSize);
+    indirectBuffer.setLabel("IOR Indirect");
 
     objectBuffer.allocate(ObjectBufferInitialAllocationSize);
     objectBuffer.setBindingPoint(ObjectBufferBindingPoint);
+    objectBuffer.setLabel("IOR Object");
 
     objectHandleBuffer.allocate(ObjectBufferInitialAllocationSize);
     objectHandleBuffer.setBindingPoint(ObjectHandleBufferBindingPoint);
+    objectHandleBuffer.setLabel("IOR Object Handle");
 
     materialBuffer.allocate(MaterialBufferInitialAllocationSize);
     materialBuffer.setBindingPoint(MaterialBufferBindingPoint);
+    materialBuffer.setLabel("IOR Material");
   }
 
   IndirectObjectRenderer::~IndirectObjectRenderer()
