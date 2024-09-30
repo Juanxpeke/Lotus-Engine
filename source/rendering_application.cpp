@@ -4,7 +4,8 @@ namespace Lotus
 {
   
   RenderingApplication::RenderingApplication(const std::string& applicationName, int windowWidth, int windowHeight) :
-    Application::Application(applicationName, windowWidth, windowHeight)
+    Application::Application(applicationName, windowWidth, windowHeight),
+    camera(70.0f, float(windowWidth) / float(windowHeight))
   {
     renderingServer.startUp();
   }
