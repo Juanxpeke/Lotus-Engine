@@ -9,3 +9,4 @@ function(add_experiment TARGET_NAME)
 endfunction(add_experiment)
 
 add_experiment(objects_experiment)
+add_experiment(procedural_experiment)
