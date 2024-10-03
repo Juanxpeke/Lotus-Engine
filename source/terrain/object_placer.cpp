@@ -19,7 +19,8 @@ namespace Lotus
     randomizer(seed),
     dataGenerator(placerDataGenerator),
     renderingServer(placerRenderingServer),
-    renderingMethod(placerRenderingMethod)
+    renderingMethod(placerRenderingMethod),
+    chunksLoaded(0)
   {
     initialized = false;
   }
@@ -135,6 +136,8 @@ namespace Lotus
         object->scale(scale);
       }
     }
+
+    chunksLoaded += 1;
   }
 
 }

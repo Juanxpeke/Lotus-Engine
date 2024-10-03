@@ -80,6 +80,12 @@ public:
     }
 
     Lotus::RenderingApplication::update(deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+    {
+      LOTUS_EXPORT_PROFILER_HISTORY();
+    }
+
     updateExperiment(deltaTime);
   }
   
@@ -150,7 +156,7 @@ public:
 
         static int exportHistoryAutomaticallyNumber;
 
-        ImGui::Text("Export history automatically:");
+        ImGui::Text("Export history automatically (you can manually export using the 'E' key):");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
         ImGui::RadioButton("Yes##DoExportHistoryAutomatically", &exportHistoryAutomaticallyNumber, 0); ImGui::SameLine();
         ImGui::RadioButton("No##DoNotExportHistoryAutomatically", &exportHistoryAutomaticallyNumber, 1);
@@ -162,7 +168,6 @@ public:
         ImGui::InputText("##ExportPathInput", exportPathBuffer, 1024);
         ImGui::PopItemWidth();
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
-
 
         ImGui::SeparatorText("Rendering");
         ImGui::Dummy(ImVec2(0.0f, 12.0f));

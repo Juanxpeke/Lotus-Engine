@@ -7,7 +7,7 @@ class TerrainExperimentApplication : public ExperimentApplication
 {
 public:
 
-  TerrainExperimentApplication() : ExperimentApplication("Terrain"), objectsSpacing(10.0f)
+  TerrainExperimentApplication() : ExperimentApplication("Procedural"), objectsSpacing(10.0f)
   {}
   
 private:
@@ -31,6 +31,14 @@ private:
     createObjectPlacer();
   }
 
+  virtual void updateExperiment(float deltaTime) override
+  {
+    glm::vec3 cameraPosition = camera.getLocalTranslation();
+    dataGenerator->registerObserverPosition(glm::vec2(cameraPosition.x, cameraPosition.z));
+
+    objectPlacer->update();
+  }
+
   virtual void renderConfigurationGUI() override
   {
     ImGui::Text("Objects spacing:");
@@ -41,6 +49,47 @@ private:
     ImGui::PopItemWidth();
     ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
+  }
+
+  virtual void renderPostConfigurationGUI() override
+  {
+    renderInformationWindow();
+  }
+
+  void renderInformationWindow()
+  {
+    ImGuiWindowFlags flags =  ImGuiWindowFlags_NoMove |
+                              ImGuiWindowFlags_NoResize |
+                              ImGuiWindowFlags_NoSavedSettings |
+                              ImGuiWindowFlags_NoBringToFrontOnFocus |
+                              ImGuiWindowFlags_AlwaysAutoResize;
+
+    ImVec2 windowPadding(12.0f, 12.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, windowPadding);
+
+    const ImGuiViewport *viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->Pos);
+
+    float windowWidth = ImGui::GetWindowWidth();
+
+    if (ImGui::Begin("Information", nullptr, flags))
+    {
+      ImGui::SeparatorText("PDG");
+
+      std::string chunkDimensionsText = "Chunk resolution: " + std::to_string(dataGenerator->getDataPerChunkSide()) + "x" + std::to_string(dataGenerator->getDataPerChunkSide());
+      ImGui::Text(chunkDimensionsText.c_str());
+
+      std::string gridDimensionsText = "Grid resolution: " + std::to_string(dataGenerator->getChunksPerSide()) + "x" + std::to_string(dataGenerator->getChunksPerSide());
+      ImGui::Text(gridDimensionsText.c_str());
+
+      ImGui::SeparatorText("OP");
+
+      std::string chunksLoadedText = "Chunks loaded: " + std::to_string(objectPlacer->getChunksLoaded());
+      ImGui::Text(chunksLoadedText.c_str());
+    }
+
+    ImGui::End();
+    ImGui::PopStyleVar();
   }
 
   void createDirectionalLight()

@@ -26,7 +26,6 @@ public:
 private:
   virtual void update(float deltaTime) override
   {
-
     glm::vec3 cameraPosition = camera.getLocalTranslation();
     dataGenerator->registerObserverPosition(glm::vec2(cameraPosition.x, cameraPosition.z));
 

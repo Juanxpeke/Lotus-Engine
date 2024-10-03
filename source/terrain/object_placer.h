@@ -28,6 +28,8 @@ namespace Lotus
 
     void update(bool forced = false);
 
+    uint32_t getChunksLoaded() { return chunksLoaded; }
+
   private:
     
     struct ObjectPlacerItem
@@ -51,6 +53,8 @@ namespace Lotus
     RenderingMethod renderingMethod;
 
     bool initialized;
+
+    uint32_t chunksLoaded;
   };
 
 }

@@ -256,7 +256,13 @@ namespace Lotus
 
       if (frameHistory.empty())
       {
-        LOTUS_LOG_WARN("[Profiler Error] Tried to export empty history");
+        LOTUS_LOG_WARN("[Profiler Warning] Tried to export empty history");
+        return;
+      }
+
+      if (frameHistoryIterator.size() < frameHistoryMaxSize)
+      {
+        LOTUS_LOG_WARN("[Profiler Warning] Tried to export non-full history");
         return;
       }
 
@@ -328,7 +334,7 @@ namespace Lotus
   #define LOTUS_SET_PROFILER_EXPORT_AUTOMATIC(value)         ::Lotus::Profiler::getProfiler().setAutomaticExport(value)
   #define LOTUS_SET_PROFILER_EXPORT_PATH(path)               ::Lotus::Profiler::getProfiler().setExportPath(path)
   #define LOTUS_SET_PROFILER_EXPORT_CALLBACK(callback)       ::Lotus::Profiler::getProfiler().setExportCallback(callback)
-  #define LOTUS_EXPORT_PROFILER_HISTORY()                    ::Lotus::Profiler::getProfiler().exportHistory()
+  #define LOTUS_EXPORT_PROFILER_HISTORY()                    ::Lotus::Profiler::getProfiler().exportFrameHistory()
   #define LOTUS_PROFILE_START_TIME(frameTime)                ::Lotus::Profiler::getProfiler().startFrameTime(frameTime)
   #define LOTUS_PROFILE_END_TIME(frameTime)                  ::Lotus::Profiler::getProfiler().endFrameTime(frameTime)
   #define LOTUS_PROFILE_INCREASE_COUNTER(frameCounter)       ::Lotus::Profiler::getProfiler().increaseCounter(frameCounter)
