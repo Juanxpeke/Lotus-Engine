@@ -7,20 +7,26 @@ class TerrainExperimentApplication : public ExperimentApplication
 {
 public:
 
-  TerrainExperimentApplication() : ExperimentApplication("Procedural"), objectsSpacing(10.0f)
+  TerrainExperimentApplication() :
+    ExperimentApplication("Procedural"),
+    dataPerChunkSide(512),
+    chunksPerSide(6),
+    objectsSpacing(5)
   {}
   
 private:
 
   virtual void setExperimentContext() override
   {
+    context.set("DataPerChunkSide", std::to_string(dataPerChunkSide));
+    context.set("ChunksPerSide", std::to_string(chunksPerSide));
     context.set("ObjectsSpacing", std::to_string(objectsSpacing));
   }
 
   virtual void initializeExperiment() override
   {
     Lotus::PerlinNoiseConfig noiseConfiguration;
-    dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(512, 6, noiseConfiguration);
+    dataGenerator = std::make_shared<Lotus::ProceduralDataGenerator>(dataPerChunkSide, chunksPerSide, noiseConfiguration);
 
     setBackgroundColor(glm::vec3(0.5, 0.4, 0.4));
 
@@ -41,14 +47,65 @@ private:
 
   virtual void renderConfigurationGUI() override
   {
+    ImGui::Text("Data per chunk side:");
+    ImGui::Dummy(ImVec2(0.0f, 4.0f));
+
+    int predefinedChunkSizes[6] = { 32, 64, 128, 256, 512, 1024 }; 
+
+    for (int i = 0; i < 6; i++)
+    {
+      std::string buttonString = std::to_string(predefinedChunkSizes[i]) + "##DataPerChunkSide";
+      ImGui::RadioButton(buttonString.c_str(), &dataPerChunkSide, predefinedChunkSizes[i]);
+
+      if (i < 5)
+      {
+        ImGui::SameLine();
+      }
+      else
+      {
+        ImGui::Dummy(ImVec2(0.0f, 12.0f));
+      }
+    }
+
+    ImGui::Text("Chunks per side:");
+    ImGui::Dummy(ImVec2(0.0f, 4.0f));
+
+    int predefinedGridSizes[4] = { 4, 6, 8, 10 }; 
+
+    for (int i = 0; i < 4; i++)
+    {
+      std::string buttonString = std::to_string(predefinedGridSizes[i]) + "##ChunksPerSide";
+      ImGui::RadioButton(buttonString.c_str(), &chunksPerSide, predefinedGridSizes[i]);
+
+      if (i < 3)
+      {
+        ImGui::SameLine();
+      }
+      else
+      {
+        ImGui::Dummy(ImVec2(0.0f, 12.0f));
+      }
+    }
+
     ImGui::Text("Objects spacing:");
     ImGui::Dummy(ImVec2(0.0f, 4.0f));
 
-    ImGui::PushItemWidth(configurationContentWindowWidth);
-    ImGui::SliderFloat("##ObjectsSpacingSlider", &objectsSpacing, 1 << 0, 1 << 6);
-    ImGui::PopItemWidth();
-    ImGui::Dummy(ImVec2(0.0f, 12.0f));
+    int predefinedSpacings[7] = { 3, 4, 5, 6, 7, 8, 9 };
 
+    for (int i = 0; i < 7; i++)
+    {
+      std::string buttonString = std::to_string(predefinedSpacings[i]) + "##Spacing";
+      ImGui::RadioButton(buttonString.c_str(), &objectsSpacing, predefinedSpacings[i]);
+
+      if (i < 6)
+      {
+        ImGui::SameLine();
+      }
+      else
+      {
+        ImGui::Dummy(ImVec2(0.0f, 12.0f));
+      }
+    }
   }
 
   virtual void renderPostConfigurationGUI() override
@@ -84,8 +141,14 @@ private:
 
       ImGui::SeparatorText("OP");
 
+      std::string objectsSpacingText = "Objects spacing: " + std::to_string(objectsSpacing);
+      ImGui::Text(objectsSpacingText.c_str());
+
       std::string chunksLoadedText = "Chunks loaded: " + std::to_string(objectPlacer->getChunksLoaded());
       ImGui::Text(chunksLoadedText.c_str());
+
+      std::string objectsGeneratedText = "Objects generated: " + std::to_string(objectPlacer->getObjectsGenerated());
+      ImGui::Text(objectsGeneratedText.c_str());
     }
 
     ImGui::End();
@@ -122,7 +185,7 @@ private:
     lightTreeMaterial->setDiffuseColor({ 0.04, 0.3, 0.1 });
     darkTreeMaterial->setDiffuseColor({ 0.1, 0.3, 0.0 });
 
-    objectPlacer = std::make_shared<Lotus::ObjectPlacer>(dataGenerator, &renderingServer, Lotus::RenderingMethod::Indirect, objectsSpacing);
+    objectPlacer = std::make_shared<Lotus::ObjectPlacer>(dataGenerator, &renderingServer, objectsSpacing);
 
     objectPlacer->addObject(rockAMesh, rockMaterial, true);
     objectPlacer->addObject(rockBMesh, rockMaterial, true);
@@ -132,8 +195,9 @@ private:
     objectPlacer->initialize();
   }
 
-
-  float objectsSpacing; 
+  int dataPerChunkSide;
+  int chunksPerSide;
+  int objectsSpacing; 
 
   std::shared_ptr<Lotus::ProceduralDataGenerator> dataGenerator;
   std::shared_ptr<Lotus::ObjectPlacer> objectPlacer;

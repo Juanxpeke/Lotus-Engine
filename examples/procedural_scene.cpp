@@ -76,7 +76,7 @@ private:
 
     float objectsSpacing = 5.0f; 
 
-    objectPlacer = std::make_shared<Lotus::ObjectPlacer>(dataGenerator, &renderingServer, Lotus::RenderingMethod::Indirect, objectsSpacing);
+    objectPlacer = std::make_shared<Lotus::ObjectPlacer>(dataGenerator, &renderingServer, objectsSpacing);
 
     objectPlacer->addObject(rockAMesh, rockMaterial, true);
     objectPlacer->addObject(rockBMesh, rockMaterial, true);

@@ -11,7 +11,7 @@ namespace Lotus
   struct PerlinNoiseConfig
   {
     uint32_t seed = 0;
-    double frequency = 8.0;
+    double frequency = 64.0;
     int octaves = 8;
     glm::ivec2 offset = { 0, 0 };
   };
@@ -30,16 +30,13 @@ namespace Lotus
       int octaves = std::clamp(noiseConfig.octaves, 1, 16);
 
       const siv::PerlinNoise perlin(noiseConfig.seed);
-      
-      const double fx = (frequency / width);
-      const double fy = (frequency / height);
 
       for (int y = 0; y < height; ++y)
       {
         for (int x = 0; x < width; ++x)
         {
-          float xSample = (x * fx) + noiseConfig.offset.x * fx;
-          float ySample = (y * fy) + noiseConfig.offset.y * fy;
+          float xSample = (x + noiseConfig.offset.x) / frequency;
+          float ySample = (y + noiseConfig.offset.y) / frequency;
 
           destination[y * width + x] = perlin.noise2D_01(xSample, ySample);
         }

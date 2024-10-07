@@ -17,7 +17,6 @@ namespace Lotus
     ObjectPlacer(
         const std::shared_ptr<ProceduralDataGenerator>& placerDataGenerator,
         RenderingServer* placerRenderingServer,
-        RenderingMethod placerRenderingMethod,
         float placerRadius,
         uint8_t placerSamplesBeforeRejection = 30,
         uint32_t seed = 0);
@@ -29,6 +28,7 @@ namespace Lotus
     void update(bool forced = false);
 
     uint32_t getChunksLoaded() { return chunksLoaded; }
+    uint32_t getObjectsGenerated() { return objectsGenerated; }
 
   private:
     
@@ -50,11 +50,11 @@ namespace Lotus
     std::vector<ObjectPlacerItem> objectItemsPool;
 
     RenderingServer* renderingServer;
-    RenderingMethod renderingMethod;
 
     bool initialized;
 
     uint32_t chunksLoaded;
+    uint32_t objectsGenerated;
   };
 
 }

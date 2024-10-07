@@ -10,7 +10,6 @@ namespace Lotus
   ObjectPlacer::ObjectPlacer(
       const std::shared_ptr<ProceduralDataGenerator>& placerDataGenerator,
       RenderingServer* placerRenderingServer,
-      RenderingMethod placerRenderingMethod,
       float placerRadius,
       uint8_t placerSamplesBeforeRejection,
       uint32_t seed) :
@@ -19,8 +18,8 @@ namespace Lotus
     randomizer(seed),
     dataGenerator(placerDataGenerator),
     renderingServer(placerRenderingServer),
-    renderingMethod(placerRenderingMethod),
-    chunksLoaded(0)
+    chunksLoaded(0),
+    objectsGenerated(0)
   {
     initialized = false;
   }
@@ -127,7 +126,7 @@ namespace Lotus
 
       const ObjectPlacerItem& objectItem = objectItemsPool[objectIndex];
 
-      std::shared_ptr<MeshObject> object = renderingServer->createObject(objectItem.mesh, objectItem.material, renderingMethod);
+      std::shared_ptr<MeshObject> object = renderingServer->createObject(objectItem.mesh, objectItem.material);
       object->setTranslation(translation);
 
       if (objectItem.randomScale)
@@ -135,6 +134,8 @@ namespace Lotus
         float scale = randomizer.getFloatRange(0.7, 1.1);
         object->scale(scale);
       }
+
+      objectsGenerated += 1;
     }
 
     chunksLoaded += 1;
