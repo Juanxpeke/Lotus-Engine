@@ -90,14 +90,14 @@ private:
     ImGui::Text("Objects spacing:");
     ImGui::Dummy(ImVec2(0.0f, 4.0f));
 
-    int predefinedSpacings[7] = { 3, 4, 5, 6, 7, 8, 9 };
+    int predefinedSpacings[14] = { 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
 
-    for (int i = 0; i < 7; i++)
+    for (int i = 0; i < 14; i++)
     {
       std::string buttonString = std::to_string(predefinedSpacings[i]) + "##Spacing";
       ImGui::RadioButton(buttonString.c_str(), &objectsSpacing, predefinedSpacings[i]);
 
-      if (i < 6)
+      if (i < 13)
       {
         ImGui::SameLine();
       }
@@ -110,7 +110,7 @@ private:
 
   virtual void renderPostConfigurationGUI() override
   {
-    renderInformationWindow();
+    //renderInformationWindow();
   }
 
   void renderInformationWindow()

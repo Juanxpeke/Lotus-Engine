@@ -62,7 +62,7 @@ private:
     ImGui::Text("Number of objects:");
     ImGui::Dummy(ImVec2(0.0f, 4.0f));
     
-    int predefinedNumberOfObjects[7] = { 512, 1024, 2048, 4096, 8192, 16384, 32768 }; 
+    int predefinedNumberOfObjects[7] = { 512, 1024, 2048, 4096, 8192, 16384, 33012 }; 
 
     for (int i = 0; i < 7; i++)
     {
@@ -79,7 +79,7 @@ private:
     }
 
     ImGui::PushItemWidth(configurationContentWindowWidth);
-    ImGui::SliderInt("##NumberOfObjectsSlider", &numberOfObjects, 1 << 0, 1 << 15);
+    ImGui::SliderInt("##NumberOfObjectsSlider", &numberOfObjects, 1 << 0, 1 << 16);
     ImGui::PopItemWidth();
     ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
@@ -146,7 +146,7 @@ private:
     {
       std::shared_ptr<Lotus::DiffuseFlatMaterial> initialMaterial = randomizer.getBool() ? whiteDiffuseMaterial : blackDiffuseMaterial;
 
-      std::shared_ptr<Lotus::MeshObject> object = renderingServer.createObject(sphereMesh, initialMaterial);
+      std::shared_ptr<Lotus::MeshObject> object = renderingServer.createObject(cubeMesh, initialMaterial);
 
       float x, y, z;
       x = randomizer.getFloatRange(-regionSize, regionSize);

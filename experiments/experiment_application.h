@@ -147,6 +147,14 @@ public:
         ImGui::SeparatorText("Profiling");
         ImGui::Dummy(ImVec2(0.0f, 12.0f));
 
+        static int profilingEnabledNumber;
+
+        ImGui::Text("Enabled:");
+        ImGui::Dummy(ImVec2(0.0f, 4.0f));
+        ImGui::RadioButton("Yes##ProfilingEnabled", &profilingEnabledNumber, 0); ImGui::SameLine();
+        ImGui::RadioButton("No##ProfilingDisabled", &profilingEnabledNumber, 1);
+        ImGui::Dummy(ImVec2(0.0f, 12.0f));
+
         ImGui::Text("Frames in history:");
         ImGui::Dummy(ImVec2(0.0f, 4.0f));
         ImGui::PushItemWidth(configurationContentWindowWidth);
@@ -211,23 +219,26 @@ public:
 
           std::string exportPath(exportPathBuffer);
 
-          LOTUS_ENABLE_PROFILING();
-          LOTUS_SET_PROFILER_FRAME_HISTORY_MAX_SIZE(framesInHistory);
-          LOTUS_SET_PROFILER_EXPORT_AUTOMATIC(exportHistoryAutomaticallyNumber ? false : true);
-          LOTUS_SET_PROFILER_EXPORT_PATH(exportPathBuffer);
-
-          context.set("ResultPath", exportPath);
-          context.set("ObjectRenderingMethod", objectRenderingMethodNumber ? "Indirect" : "Traditional");
-          context.set("TerrainRenderingMethod", terrainRenderingMethodNumber ? "Indirect" : "Traditional");
-
-          setExperimentContext();
-
-          auto lambda = [&]()
+          if (!profilingEnabledNumber)
           {
-            context.save();
-          };
+            LOTUS_ENABLE_PROFILING();
+            LOTUS_SET_PROFILER_FRAME_HISTORY_MAX_SIZE(framesInHistory);
+            LOTUS_SET_PROFILER_EXPORT_AUTOMATIC(exportHistoryAutomaticallyNumber ? false : true);
+            LOTUS_SET_PROFILER_EXPORT_PATH(exportPathBuffer);
+            
+            context.set("ResultPath", exportPath);
+            context.set("ObjectRenderingMethod", objectRenderingMethodNumber ? "Indirect" : "Traditional");
+            context.set("TerrainRenderingMethod", terrainRenderingMethodNumber ? "Indirect" : "Traditional");
 
-          LOTUS_SET_PROFILER_EXPORT_CALLBACK(lambda);
+            setExperimentContext();
+
+            auto lambda = [&]()
+            {
+              context.save();
+            };
+
+            LOTUS_SET_PROFILER_EXPORT_CALLBACK(lambda);
+          }
 
           initializeExperiment();
         }
