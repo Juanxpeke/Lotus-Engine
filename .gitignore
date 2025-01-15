@@ -1,5 +1,4 @@
 # Build
-/build
 **/build
 **/path_manager.h
 
@@ -8,6 +7,9 @@
 **/experiments/**/*.txt
 **/experiments/**/*.csv
 **/experiments/**/*.png
+
+# Visual Studio
+.vs
 
 # Visual Studio Code
 .vscode
