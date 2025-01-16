@@ -1,8 +1,8 @@
 #include "traditional_object_renderer.h"
 
-#include "../../util/opengl_entry.h"
-#include "../../util/profile.h"
-#include "../../util/path_manager.h"
+#include "../util/opengl_entry.h"
+#include "../util/profile.h"
+#include "../util/path_manager.h"
 
 namespace Lotus
 {

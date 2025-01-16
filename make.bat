@@ -1,5 +1,5 @@
 @echo off
-:: Set the build directory
+
 set BUILD_DIR=build
 
 if "%1"=="default" (

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../math/types.h"
+#include "../math/types.h"
 
 namespace Lotus
 {

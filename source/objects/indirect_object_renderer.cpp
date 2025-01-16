@@ -1,12 +1,12 @@
 #include "indirect_object_renderer.h"
 
 #include <algorithm>
-#include "../../util/log.h"
-#include "../../util/opengl_entry.h"
-#include "../../util/opengl_extensions.h"
-#include "../../util/profile.h"
-#include "../../util/path_manager.h"
-#include "../identifiers.h"
+#include "../util/log.h"
+#include "../util/opengl_entry.h"
+#include "../util/opengl_extensions.h"
+#include "../util/profile.h"
+#include "../util/path_manager.h"
+#include "../render/identifiers.h"
 
 namespace Lotus {
 

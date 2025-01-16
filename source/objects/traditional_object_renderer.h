@@ -4,14 +4,14 @@
 #include <array>
 #include <vector>
 #include <unordered_map>
-#include "../../math/types.h"
-#include "../../scene/transform.h"
-#include "../../scene/camera.h"
-#include "../../lighting/directional_light.h"
-#include "../../lighting/point_light.h"
-#include "../shader.h"
-#include "../material.h"
-#include "../mesh_object.h"
+#include "../math/types.h"
+#include "../scene/transform.h"
+#include "../scene/camera.h"
+#include "../lighting/directional_light.h"
+#include "../lighting/point_light.h"
+#include "../render/shader.h"
+#include "../render/material.h"
+#include "../render/mesh_object.h"
 #include "traditional_render_structures.h"
 
 namespace Lotus

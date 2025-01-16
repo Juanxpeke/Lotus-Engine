@@ -17,6 +17,10 @@ set(LIGHTING_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/lighting/directional_light.h
     ${CMAKE_CURRENT_SOURCE_DIR}/lighting/point_light.h)
 
+set(OBJECTS_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/objects/traditional_object_renderer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/objects/indirect_object_renderer.h)
+
 set(TERRAIN_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/procedural_data_generator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/geoclipmap.h
@@ -34,9 +38,7 @@ set(RENDER_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/render/diffuse_flat_material.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/mesh_object.h
     ${CMAKE_CURRENT_SOURCE_DIR}/render/texture_loader.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/rendering_server.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/traditional_object_renderer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_object_renderer.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/rendering_server.h)
 
 set(APPLICATION_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/application.h
@@ -46,6 +48,10 @@ set(APPLICATION_HEADERS
 
 set(LIGHTING_SOURCES
     )
+
+set(OBJECTS_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/objects/traditional_object_renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/objects/indirect_object_renderer.cpp)
 
 set(TERRAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/terrain/procedural_data_generator.cpp
@@ -61,9 +67,7 @@ set(RENDER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/render/shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/material.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/texture_loader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/rendering_server.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/traditional/traditional_object_renderer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/render/indirect/indirect_object_renderer.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/rendering_server.cpp)
 
 set(APPLICATION_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/application.cpp
@@ -72,18 +76,20 @@ set(APPLICATION_SOURCES
 # Engine
 
 set(ENGINE_NAME
-    LotusEngine)
+    lotus_engine)
 
 set(ENGINE_HEADERS
     ${UTIL_HEADERS}
     ${SCENE_HEADERS}
     ${LIGHTING_HEADERS}
+    ${OBJECTS_HEADERS}
     ${TERRAIN_HEADERS}
     ${RENDER_HEADERS}
     ${APPLICATION_HEADERS})
 
 set(ENGINE_SOURCES
     ${LIGHTING_SOURCES}
+    ${OBJECTS_SOURCES}
     ${TERRAIN_SOURCES}
     ${RENDER_SOURCES}
     ${APPLICATION_SOURCES})

@@ -13,8 +13,8 @@
 #include "unlit_flat_material.h"
 #include "diffuse_flat_material.h"
 #include "diffuse_textured_material.h"
-#include "traditional/traditional_object_renderer.h"
-#include "indirect/indirect_object_renderer.h"
+#include "../objects/traditional_object_renderer.h"
+#include "../objects/indirect_object_renderer.h"
 
 namespace Lotus
 {

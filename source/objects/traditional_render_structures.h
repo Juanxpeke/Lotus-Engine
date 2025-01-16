@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../math/types.h"
-#include "../gpu_mesh.h"
+#include "../math/types.h"
+#include "../render/gpu_mesh.h"
 
 namespace Lotus
 {

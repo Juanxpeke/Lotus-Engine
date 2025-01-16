@@ -1,7 +1,4 @@
-# Build folder
-BUILD_DIR = build
-
-# Targets
+BUILD_DIR=build
 
 default:
 	cmake --preset=default

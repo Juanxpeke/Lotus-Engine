@@ -4,15 +4,15 @@
 #include <array>
 #include <vector>
 #include <unordered_map>
-#include "../../math/types.h"
-#include "../../scene/transform.h"
-#include "../../scene/camera.h"
-#include "../gpu_structures.h"
-#include "../gpu_buffer.h"
-#include "../mesh.h"
-#include "../shader.h"
-#include "../material.h"
-#include "../mesh_object.h"
+#include "../math/types.h"
+#include "../scene/transform.h"
+#include "../scene/camera.h"
+#include "../render/gpu_structures.h"
+#include "../render/gpu_buffer.h"
+#include "../render/mesh.h"
+#include "../render/shader.h"
+#include "../render/material.h"
+#include "../render/mesh_object.h"
 #include "indirect_render_structures.h"
 
 

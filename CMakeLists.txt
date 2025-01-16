@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(LotusEngine C CXX)
+project(Lotus-Engine C CXX)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
